@@ -1,12 +1,11 @@
 import Link from 'next/link';
 import React from 'react'
 import { IoMdArrowRoundBack } from "react-icons/io";
-import { MdDelete } from "react-icons/md";
-import { FaUserEdit } from "react-icons/fa";
-import { MdEditDocument } from "react-icons/md";
 
 import { prisma } from '../lib/db';
 import ButtonAddTugas from '@/components/micro-component/button-add-tugas';
+import ButtonHapusTugas from '@/components/micro-component/button-hapus-tugas';
+import ButtonEditTugas from '@/components/micro-component/button-edit-tugas';
 
 
 const page = async ({searchParams}) => {
@@ -34,7 +33,7 @@ const page = async ({searchParams}) => {
                 <span>{jabatan.namaJabatan}</span>
             </div>
             <div className='flex justify-end items-center'>
-                <ButtonAddTugas />
+                <ButtonAddTugas idJabatan={jabatan.id} />
             </div>
         </div>
         <div className='w-full overflow-y-auto p-8'>
@@ -60,11 +59,12 @@ const page = async ({searchParams}) => {
                                 <td className="border-r border-gray-300 text-xs text-white">{item.hasil}</td>
                                 <td>
                                     <div className="flex flex-row h-full justify-center items-center gap-3">
-                                        <Link href={`/`} className="tooltip" data-tip="Edit">
-                                            <MdEditDocument className="text-violet-400 hover:text-violet-600 cursor-pointer" />
-                                        </Link>
+                                        
+                                        <div className="tooltip" data-tip="Edit">
+                                            <ButtonEditTugas idJabatan={jabatan.id} tugas={item} />
+                                        </div>
                                         <div className="tooltip" data-tip="Hapus">
-                                            <MdDelete className="text-red-400 hover:text-red-600 cursor-pointer" />
+                                            <ButtonHapusTugas idJabatan={jabatan.id} tugas={item} />
                                         </div>
                                     </div>
                                 </td>

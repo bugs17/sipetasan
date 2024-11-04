@@ -35,7 +35,7 @@ const page = async () => {
                         <td className="border-r border-gray-300">{item.namaJabatan}</td>
                         <td className="border-r border-gray-300 text-center">{item.tugas.length}</td>
                         <td className="border-r border-gray-300 flex justify-center">
-                            <Link href={`/add-tugas?id=${item.id}`} className="btn text-black bg-violet-600 hover:bg-violet-800 hover:text-white btn-xs">Tambah</Link>
+                            <Link href={`/add-tugas?id=${item.id}`} className="btn text-black bg-violet-600 hover:bg-violet-800 hover:text-white btn-xs">Setting</Link>
                         </td>
                     </tr>
                     ))

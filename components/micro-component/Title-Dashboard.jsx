@@ -6,7 +6,8 @@ const TitleDashboard = () => {
     const pathename = usePathname()
     const editPegawai = pathename.includes('/edit-pegawai')
   return (
-    <span>
+    <div className='flex flex-row w-full justify-between items-center'>
+    <span className='font-semibold'>
         {
             pathename === '/' ? 'Dashboard' :
             pathename === '/setting-pegawai' ? 'List Pegawai' :
@@ -20,6 +21,10 @@ const TitleDashboard = () => {
 
         }
     </span>
+
+    <span className='text-slate-400 text-xs font-mono'>BIRO ORGANISASI</span>
+
+    </div>
   )
 }
 

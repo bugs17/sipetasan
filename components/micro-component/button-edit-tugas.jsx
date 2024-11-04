@@ -1,37 +1,42 @@
 "use client"
-import { addTugastList } from '@/app/actions/addTugasList'
+import { editTugas } from '@/app/actions/editTugas';
 import React, { useState } from 'react'
+import { MdEditDocument } from "react-icons/md";
 
-const ButtonAddTugas = ({idJabatan}) => {
 
-    const [uraianTugasInput, setUraianTugasInput] = useState('')
-    const [hasilKerjaInput, setHasilKerjaInput] = useState('')
+const ButtonEditTugas = ({tugas, idJabatan}) => {
+
+    const [uraianTugasInput, setUraianTugasInput] = useState(tugas.namaTugas)
+    const [hasilKerjaInput, setHasilKerjaInput] = useState(tugas.hasil)
     const [isSubmit, setIsSubmit] = useState(false)
-    
-    const handleSubmitTugas = async () => {
+
+    const handleEdit = async () => {
         if (uraianTugasInput === '' || hasilKerjaInput === '') {
-            alert('Isi Semua form terlebih dahulu sebemlum klik tombol simpan')
+            alert("Form tidak boleh kosong isi dengan data yang ingin di perbaharui")
             return
         }
         setIsSubmit(true)
-        const response = await addTugastList(idJabatan, uraianTugasInput, hasilKerjaInput)
+
+        const response = await editTugas(tugas.id, idJabatan, uraianTugasInput, hasilKerjaInput)
+
         if (response) {
-            setUraianTugasInput('')
-            setHasilKerjaInput('')
-            alert('Data telah berhasil ditambahkan 😍')
-            document.getElementById(`modal_add_tugas`).close()
+            alert("Data berhasil di edit 😍")
+            setIsSubmit(false)
+            document.getElementById(`modal_add_tugas_${tugas.id}`).close()
+        }else{
+            alert("Gagal mengedit uraian tugas, coba lagi! jika terus terjadi laporkan masalah ini ke edmin induk")
+            setIsSubmit(false)
         }
-        setIsSubmit(false)
     }
 
   return (
     <>
-        <button onClick={()=>document.getElementById(`modal_add_tugas`).showModal()} className="btn text-black bg-violet-600 hover:bg-violet-800 hover:text-white">+ Tambah</button>
+        <MdEditDocument onClick={()=>document.getElementById(`modal_add_tugas_${tugas.id}`).showModal()} className="text-violet-400 hover:text-violet-600 cursor-pointer" />
 
-        <dialog id={`modal_add_tugas`} className="modal">
+        <dialog id={`modal_add_tugas_${tugas.id}`} className="modal">
             <div className="modal-box">
                 
-                <h3 className="font-bold text-lg text-center ">Tambah URAIAN TUGAS.</h3>
+                <h3 className="font-bold text-lg text-center ">Edit URAIAN TUGAS.</h3>
                 <div className='flex flex-col gap-3 pt-3'>
                     <label className="form-control">
                         <div className="label">
@@ -61,7 +66,7 @@ const ButtonAddTugas = ({idJabatan}) => {
                         :
                         (
                             <>
-                                <button onClick={handleSubmitTugas} className="btn text-black bg-violet-600 hover:bg-violet-800 hover:text-white">Simpan</button>
+                                <button onClick={handleEdit} className="btn text-black bg-violet-600 hover:bg-violet-800 hover:text-white">Simpan</button>
                                 <form method="dialog">
                                     <button className="btn">Batal</button>
                                 </form>
@@ -76,4 +81,4 @@ const ButtonAddTugas = ({idJabatan}) => {
   )
 }
 
-export default ButtonAddTugas
+export default ButtonEditTugas
