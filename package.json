@@ -2,6 +2,7 @@
   "name": "sipetasn",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -10,16 +11,19 @@
   },
   "dependencies": {
     "@prisma/client": "^5.21.1",
+    "@xyflow/react": "^12.3.2",
     "axios": "^1.7.7",
     "next": "14.2.15",
     "react": "^18",
     "react-dom": "^18",
-    "react-icons": "^5.3.0"
+    "react-icons": "^5.3.0",
+    "react-organizational-chart": "^2.2.1",
+    "react-zoom-pan-pinch": "^3.6.1"
   },
   "devDependencies": {
     "daisyui": "^4.12.13",
     "postcss": "^8",
     "prisma": "^5.21.1",
-    "tailwindcss": "^3.4.1"
+    "tailwindcss": "^3.4.14"
   }
 }

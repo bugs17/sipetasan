@@ -1,10 +1,16 @@
 import React from 'react'
 import { FaPlus } from "react-icons/fa";
 import Link from 'next/link';
-import TrPegawai from '@/componnents/micro-component/Tr-Pegawai';
+import TrPegawai from '@/components/micro-component/Tr-Pegawai';
+import { prisma } from '../lib/db';
 
-const SettingPegawai = () => {
-    let pegawai = [];
+const SettingPegawai = async () => {
+    let pegawai = await prisma.pegawai.findMany({
+      include:{
+        jabatan:true,
+        pendidikan:true
+      }
+    }) ;
   return (
     <div className='p-5 h-full overflow-y-auto '>
         <div className='w-full flex justify-end'>
@@ -23,7 +29,6 @@ const SettingPegawai = () => {
                   <th className="border-r border-gray-300 text-center align-middle">Nama</th>
                   <th className="border-r border-gray-300 text-center align-middle">Nip</th>
                   <th className="border-r border-gray-300 text-center align-middle">TTL</th>
-                  <th className="border-r border-gray-300 text-center align-middle">Alamat</th>
                   <th className="border-r border-gray-300 text-center align-middle">Pendidikan</th>
                   <th className="border-r border-gray-300 text-center align-middle">Jabatan</th>
                   <th className='text-center align-middle'>Actions</th>
@@ -32,11 +37,13 @@ const SettingPegawai = () => {
               <tbody>
                 {/* row 1 */}
                 {pegawai.length > 0 ?
-                    (<TrPegawai />)
+                  
+                  pegawai.map((item, index) => 
+                    (<TrPegawai id={item.id} key={index} no={index} nama={item.nama} jabatan={item.jabatan.namaJabatan} nip={item.nip} ttl={item.tanggalLahir} tempatLahir={item.tempatLahir} pendidikan={item.pendidikan.namaPendidikan}  />)
+                  )
                     :
                     (<TrPegawai />)
                     
-                
                 }
                 
                 

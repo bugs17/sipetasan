@@ -1,22 +1,21 @@
 import React from 'react'
-import { MdDelete } from "react-icons/md";
+import { prisma } from '../lib/db';
+import FormInputJabatan from '@/components/micro-component/Form-Input-Jabatan';
+import ButtonHapusJabatan from '@/components/micro-component/Button-hapus-jabatan';
 
 
-const Jabtan = () => {
+const Jabtan = async () => {
+
+    const data = await prisma.jabatan.findMany()
+
+
   return (
     <div className='w-full h-full flex'>
         <div className='flex-grow w-[70%] h-full flex justify-center pt-32'>
 
         <div className='flex flex-col gap-5 w-64 items-center'>
-            <label className="form-control w-full max-w-xs">
-                <div className="label">
-                    <span className="label-text">Jabatan</span>
-                </div>
-                <input type="text" placeholder="Masukan Jenis Jabatan" className="input input-bordered w-full max-w-xs" />
-            </label>
-            <div className='flex justify-center w-full'>
-                <button className="btn btn-accent w-full">Simpan</button>
-            </div>
+
+        <FormInputJabatan />
                 <p className='absolute bottom-5 font-mono text-xs max-w-xs text-justify'>Tambahkan data jabatan pada form diatas. dan list jabatan yang sudah ditambahkan dapat dilihat pada kolom list jabatan di sebelah kanan.</p>
         </div>
         </div>
@@ -25,11 +24,19 @@ const Jabtan = () => {
                 <span className='font-semibold'>List Jabatan</span>
             </div>
             <ul className='flex flex-col gap-4 p-5 px-8 mb-20'>
-                <li className='flex flex-row items-center justify-between gap-5'>KEPALA DINAS <MdDelete className='text-red-400 hover:text-red-600 cursor-pointer' /></li>
-                <li className='flex flex-row items-center justify-between gap-5'>KEPALA DINAS GANTENG <MdDelete className='text-red-400 hover:text-red-600 cursor-pointer' /></li>
+
+            {data.length > 0 ?
+                data.map((item) => (
+                    <li key={item.id} className='flex flex-row items-center justify-between gap-5'>{item.namaJabatan} <ButtonHapusJabatan id={item.id} namaJabtan={item.namaJabatan} /></li>
+                ))
+                :
+                <li className='flex flex-row items-center justify-between gap-5'>BELUM ADA JABATAN</li>
+            }
                 
             </ul>
         </div>
+
+        
     </div>
   )
 }

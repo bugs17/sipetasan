@@ -9,5 +9,10 @@ body {
 }
 
 
+.react-flow__attribution{
+  display: none !important;
+}
+
+
 
 

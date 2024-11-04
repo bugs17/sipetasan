@@ -19,4 +19,73 @@ model Jabatan {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   namaJabatan  String
+  pegawai Pegawai[]
+  tugas Tugas[]
+  kJ Int @default(0)
+  b Int @default(0)
+  aBK Float @default(0.00)
+  kurangLebih Int @default(0)
+}
+
+model Tugas{
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  namaTugas String?
+  hasil String?
+  jumlahBebanKerjaSetahun Int @default(0)
+  waktuPenyelesaianDalamJam Int @default(0)
+  waktuEfektifPenyelesaian Int @default(0)
+  KebutuhanPegawai Float @default(0.00)
+  jabatanId Int
+  jabatan Jabatan @relation(fields: [jabatanId], references: [id])
+}
+
+model Pendidikan {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  namaPendidikan  String
+  pegawai Pegawai[]
+}
+
+model Pegawai {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  nama  String
+  nip  String
+  tanggalLahir  DateTime
+  tempatLahir  String
+  pendidikanId Int?
+  pendidikan Pendidikan? @relation(fields: [pendidikanId], references: [id], onDelete: SetNull)
+  jabatanId Int?
+  jabatan Jabatan? @relation(fields: [jabatanId], references: [id], onDelete: SetNull)
+  opd Opd[]
+
+  // Self-referencing relationship for hierarchy
+  atasanId       Int?       // ID of the superior
+  atasan         Pegawai?   @relation("Hierarki", fields: [atasanId], references: [id])
+  bawahan        Pegawai[]  @relation("Hierarki")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  username String
+  password String
+  role String
+  opd Opd?
+}
+
+model Opd {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  namaOpd String
+  userId Int @unique
+  user User @relation(fields: [userId], references: [id])
+  pegawaiId Int?
+  pegawai Pegawai? @relation(fields: [pegawaiId], references: [id])
 }
