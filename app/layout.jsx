@@ -47,13 +47,13 @@ export default function RootLayout({ children }) {
 
 
                   <div className="flex flex-col">
-                    <span className="font-semibold text-white text-sm font-mono">Albert lex</span>
+                    <span className="font-semibold text-white text-sm font-mono">John Doe</span>
                     <span className="font-thin text-xs">admin</span>
                   </div>
                   <PiCaretUpDownBold className="ml-auto" />
 
                   <ul tabIndex={0} className="dropdown-content menu bg-black rounded-box z-[1] w-52 p-2 shadow border-[1px] border-slate-700">
-                    <li><a className="hover:text-violet-500">Albert lex</a></li>
+                    <li><a className="hover:text-violet-500">John Doe</a></li>
                     <li>
                       <a className="flex justify-between flex-row hover:text-violet-500">
                         <span>Logout</span>
