@@ -18,6 +18,7 @@ export const editTugas = async (idTugas, idJabatan, namaTugas, hasilKerja) => {
         })
 
         revalidatePath(`/add-tugas?id=${idJabatan}`)
+        revalidatePath('/setting-uraian-tugas')
         return true
     } catch (error) {
         console.log(`terjadi error saat edit tugas dengan id: ${id} `, error)

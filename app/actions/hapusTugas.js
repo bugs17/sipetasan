@@ -14,6 +14,7 @@ export const hapusTugas = async (idTugas, idJabatan) => {
         })
 
         revalidatePath(`/add-tugas?id=${idJabatan}`)
+        revalidatePath('/setting-uraian-tugas')
         return true
     } catch (error) {
         console.log(`terjadi error saat menghapus tugas dengan id: ${id} `, error)
