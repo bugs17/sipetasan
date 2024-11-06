@@ -16,13 +16,21 @@ const page = async ({searchParams}) => {
         }
     })
 
+    const jabatan = await prisma.jabatan.findFirst({
+      where:{
+        id:parseInt(id)
+      }
+    })
+
+    
+
   return (
     <div className='p-5 '>
       <div className='flex justify-between items-center'>
         <div>
             <ButtonBackUraianTugas />
         </div>
-            <h3 className='font-semibold'>Uraian Tugas Kepala Biro Organisasi</h3>
+            <h3 className='font-semibold'>LIST URAIAN TUGAS {jabatan.namaJabatan}</h3>
         <div>
 
         </div>

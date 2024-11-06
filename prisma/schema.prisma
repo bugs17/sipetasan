@@ -58,6 +58,7 @@ model Pegawai {
   tanggalLahir  DateTime
   tempatLahir  String
   tahunPensiun Int @default(0)
+  tahunKebutuhan Int @default(0)
   pendidikanId Int?
   pendidikan Pendidikan? @relation(fields: [pendidikanId], references: [id], onDelete: SetNull)
   jabatanId Int?
@@ -71,14 +72,7 @@ model Pegawai {
   bawahan        Pegawai[]  @relation("Hierarki")
 }
 
-model KebutuhanPegawai {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  tahunKebutuhan Int @unique @default(0)
-  jumlahKebutuhan Int @default(0)
-  idJabatan Int
-}
+
 
 model User {
   id        Int      @id @default(autoincrement())

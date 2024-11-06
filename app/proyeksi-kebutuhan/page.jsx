@@ -53,13 +53,12 @@ const page = async () => {
         }
     };
 
-   const kebutuhan = await prisma.kebutuhanPegawai.findMany()
 
-   const cekKebutuhanPegawai = (tahun, idJabatan) => {
+   const cekKebutuhanPegawai = (pegawai, tahun) => {
     let jumlah = 0;
-    kebutuhan.map(keb => {
-        if (keb.tahunKebutuhan === tahun && keb.idJabatan === parseInt(idJabatan)) {
-            jumlah = keb.jumlahKebutuhan
+    pegawai.map(item => {
+        if (item.tahunKebutuhan === tahun) {
+            jumlah++
         }
     })
 
@@ -118,7 +117,7 @@ const page = async () => {
                                     <td className="border-r border-gray-300 text-center">{index + 1}</td>
                                     <td className="border-r border-gray-300">{item.namaJabatan}</td>
                                     <td className="border-r border-gray-300 text-center">{item.pegawai.length}</td>
-                                    <td className="border-r text-center">{Math.round(item.totalKebutuhanPegawai.toFixed(2))}</td>
+                                    <td className="border-r text-center">{item._count.pegawai - Math.round(item.totalKebutuhanPegawai.toFixed(2))}</td>
                                     {getTahun.map((tahun, index) => (
                                         <td key={index} className={`border-r text-center  ${cekJumlahPensiun(item.pegawai, tahun) !== '-' ? 'text-black bg-red-500 font-semibold' : 'text-slate-800'}`}>
                                             <div className='tooltip' data-tip={`Pegawai yang pensiun di tahun ${tahun}`}>
@@ -127,9 +126,9 @@ const page = async () => {
                                         </td>
                                     ))}
                                     {getTahun.map((tahun, index) => (
-                                        <td key={index + 1} className={`border-r text-center  ${cekKebutuhanPegawai(tahun, item.id) !== '-' ? 'text-black bg-yellow-500 font-semibold' : 'text-slate-800'} `}>
+                                        <td key={index + 1} className={`border-r text-center  ${cekKebutuhanPegawai(item.pegawai, tahun) !== '-' ? 'text-black bg-yellow-500 font-semibold' : 'text-slate-800'} `}>
                                             <div className='tooltip' data-tip={`Pegawai yang dibutuhkan di tahun ${tahun}`}>
-                                                {cekKebutuhanPegawai(tahun, item.id)}
+                                                {cekKebutuhanPegawai(item.pegawai, tahun)}
                                             </div>
                                         </td>
                                     ))}
