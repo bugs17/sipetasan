@@ -15,6 +15,7 @@ export const addTugastList = async (idJabatan, namaUraianTugas, hasilKerja) => {
             }
         })
         revalidatePath(`/add-tugas?id=${id}`)
+        revalidatePath('/setting-uraian-tugas')
         return true
     } catch (error) {
         console.log(`terjadi error saat menambahkan list uraian tugas pada jabatan dengan id ${id} :`, error)
