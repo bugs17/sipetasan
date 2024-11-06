@@ -6,11 +6,27 @@ import { prisma } from "../lib/db"
 
 export const hapusPegawai = async (id) => {
     try {
-        await prisma.pegawai.delete({
+        const result = await prisma.pegawai.delete({
             where:{
                 id:parseInt(id)
             }
         })
+
+        const existingRecord = await prisma.kebutuhanPegawai.findFirst({
+            where: { tahunKebutuhan: parseInt(result.tahunPensiun) + 1 }
+        });
+    
+        if (existingRecord) {
+            // Jika data sudah ada, update `jumlahKebutuhan`
+            await prisma.kebutuhanPegawai.update({
+                where: { id: existingRecord.id },
+                data: { 
+                    jumlahKebutuhan: existingRecord.jumlahKebutuhan - 1,
+                    idJabatan:result.jabatanId
+                }
+            });
+        }
+
         revalidatePath('/setting-pegawai')
         return true
     } catch (error) {

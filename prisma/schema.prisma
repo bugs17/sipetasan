@@ -57,16 +57,27 @@ model Pegawai {
   nip  String
   tanggalLahir  DateTime
   tempatLahir  String
+  tahunPensiun Int @default(0)
   pendidikanId Int?
   pendidikan Pendidikan? @relation(fields: [pendidikanId], references: [id], onDelete: SetNull)
   jabatanId Int?
   jabatan Jabatan? @relation(fields: [jabatanId], references: [id], onDelete: SetNull)
   opd Opd[]
 
+
   // Self-referencing relationship for hierarchy
   atasanId       Int?       // ID of the superior
   atasan         Pegawai?   @relation("Hierarki", fields: [atasanId], references: [id])
   bawahan        Pegawai[]  @relation("Hierarki")
+}
+
+model KebutuhanPegawai {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  tahunKebutuhan Int @unique @default(0)
+  jumlahKebutuhan Int @default(0)
+  idJabatan Int
 }
 
 model User {

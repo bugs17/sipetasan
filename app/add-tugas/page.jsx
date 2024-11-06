@@ -85,7 +85,7 @@ const page = async ({searchParams}) => {
                 }
               </tbody>
             </table>
-          </div>
+        </div>
         </div>
     </div>
   )

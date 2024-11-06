@@ -13,7 +13,7 @@ const SideBar = () => {
     <ul className="menu w-full">
                 
                 <li>
-                  <Link href={'/peta-jabatan-opd'} className={`hover:text-violet-500 ${pathname === '/peta-jabatan-opd' && 'active'}`}>
+                  <Link href={'/'} className={`hover:text-violet-500 ${pathname === '/' && 'active'}`}>
                     <BsDiagram3Fill />
                     <span>Peta Jabatan</span>
                   </Link>
