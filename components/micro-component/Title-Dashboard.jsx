@@ -1,6 +1,7 @@
 'use client'
 import { usePathname } from 'next/navigation'
 import React from 'react'
+import Clock from './Clock'
 
 const TitleDashboard = () => {
     const pathename = usePathname()
@@ -22,6 +23,7 @@ const TitleDashboard = () => {
 
         }
     </span>
+    <Clock />
 
     <span className='text-slate-400 text-xs font-mono'>BIRO ORGANISASI</span>
 

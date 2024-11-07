@@ -21,9 +21,9 @@ export const saveEditedPegawai = async (id, nama, nip, tgl, tempatLhr, pendidika
                 pendidikan:{
                     connect:{id:parseInt(pendidikanId)}
                 },
-                atasan:{
+                ...(atasanId ? {atasan:{
                     connect:{id:parseInt(atasanId)}
-                },
+                }} : {}),
                 nip:nip,
                 tanggalLahir:formatedTgl,
                 tempatLahir:tempatLhr,

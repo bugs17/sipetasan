@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/app/lib/db";
+import { revalidatePath } from "next/cache";
 
 export const GET = async (req) => {
     const { searchParams } = new URL(req.url);
