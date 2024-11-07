@@ -44,31 +44,9 @@ export const saveEditedPegawai = async (id, nama, nip, tgl, tempatLhr, pendidika
 
 
 
-        // const existingRecord = await prisma.kebutuhanPegawai.findFirst({
-        //     where: { tahunKebutuhan: parseInt(pegawaiUpdate.tahunPensiun) + 1 }
-        // });
-    
-        // if (existingRecord) {
-        //     // Jika data sudah ada, update `jumlahKebutuhan`
-        //     await prisma.kebutuhanPegawai.update({
-        //         where: { id: existingRecord.id },
-        //         data: { 
-        //             jumlahKebutuhan: existingRecord.jumlahKebutuhan + 1,
-        //             idJabatan:pegawaiUpdate.jabatanId
-        //         }
-        //     });
-        // } else {
-        //     // Jika belum ada, buat data baru untuk tahun berikutnya
-        //     await prisma.kebutuhanPegawai.create({
-        //         data: {
-        //             tahunKebutuhan: parseInt(pegawaiUpdate.tahunPensiun) + 1,
-        //             jumlahKebutuhan: 1,
-        //             idJabatan:pegawaiUpdate.jabatanId
-        //         }
-        //     });
-        // }
-
         revalidatePath('/setting-pegawai')
+        revalidatePath('/proyeksi-kebutuhan')
+        revalidatePath('/')
         return true
     } catch (error) {
         console.log("gagal save edited pegawai dengan ID", id)
