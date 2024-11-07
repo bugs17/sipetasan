@@ -6,6 +6,7 @@ import { BsDiagram3Fill } from "react-icons/bs";
 import { IoSettingsSharp } from "react-icons/io5";
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { FaDownload } from "react-icons/fa6";
 
 const SideBar = () => {
   const pathname = usePathname()
@@ -45,6 +46,21 @@ const SideBar = () => {
                     </ul>
                   </details>
                 </li>
+                <li>
+                  <details>
+                    <summary className="hover:text-violet-500">
+                      <FaDownload />
+                      <span >Download</span>
+                    </summary>
+                    <ul>
+                      <li><Link href={''} className={`hover:text-violet-500 `}>Peta Jabatan</Link></li>
+                      <li><Link href={''} className={`hover:text-violet-500 `}>Proyeksi Kebutuhan</Link></li>
+                      
+                      
+                    </ul>
+                  </details>
+                </li>
+                
                 
     </ul>
   )
