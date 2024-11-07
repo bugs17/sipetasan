@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/app/lib/db";
 
 export const GET = async (req) => {
+    const { searchParams } = new URL(req.url);
+    const forceRefresh = searchParams.get('forceRefresh');
     let pegawai = [];
 
     try {
