@@ -21,6 +21,8 @@ export const addUraianTugas = async (id, jumlahBebanKerja, waktuPenyelesaian, wa
             }
         })
         revalidatePath(`/tugas?id=${id}`)
+        revalidatePath(`/proyeksi-kebutuhan`)
+        revalidatePath(`/`)
         return true
     } catch (error) {
         console.log("error update uraian tugas", error)
