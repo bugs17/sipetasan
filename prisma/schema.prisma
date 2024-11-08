@@ -25,6 +25,7 @@ model Jabatan {
   b Int @default(0)
   aBK Float @default(0.00)
   kurangLebih Int @default(0)
+  
 }
 
 model Tugas{

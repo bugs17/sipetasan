@@ -275,7 +275,6 @@ function hitungAbk(data){
             
             
         >
-        {console.log(pegawai)}
             <TransformComponent wrapperStyle={{ cursor:'grab', overflow:'visible', width:'100%', height:'100%', }}>
                     {pegawai.length > 0 &&
                         pegawai.map((kepala) => (
