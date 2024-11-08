@@ -16,6 +16,8 @@ export const hapusPegawai = async (id) => {
 
         revalidatePath('/setting-pegawai')
         revalidatePath('/proyeksi-kebutuhan')
+        revalidatePath('/add-pegawai')
+        revalidatePath('/edit-pegawai')
         revalidatePath('/')
         return true
     } catch (error) {

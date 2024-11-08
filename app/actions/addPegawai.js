@@ -40,6 +40,8 @@ export const addPegawai = async (nama, nip, tgl, tempatLhr, pendidikanId, jabata
 
         revalidatePath('/setting-pegawai')
         revalidatePath('/proyeksi-kebutuhan')
+        revalidatePath('/add-pegawai')
+        revalidatePath('/edit-pegawai')
         revalidatePath('/')
     } catch (error) {
         console.log("gagal add pegawai")

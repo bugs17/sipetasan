@@ -46,6 +46,8 @@ export const saveEditedPegawai = async (id, nama, nip, tgl, tempatLhr, pendidika
 
         revalidatePath('/setting-pegawai')
         revalidatePath('/proyeksi-kebutuhan')
+        revalidatePath('/add-pegawai')
+        revalidatePath('/edit-pegawai')
         revalidatePath('/')
         return true
     } catch (error) {

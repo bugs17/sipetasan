@@ -17,4 +17,6 @@ export const addJabatan = async (formData) => {
     })
 
     revalidatePath("/setting-jabatan")
+    revalidatePath('/add-pegawai')
+    revalidatePath('/edit-pegawai')
 }
