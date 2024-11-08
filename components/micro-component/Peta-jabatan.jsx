@@ -288,16 +288,17 @@ function hitungAbk(data){
                                                     <TreeNode key={kasubag.id} label={<Kasubag jabatan={formatJabatan(kasubag.jabatan.namaJabatan)} nama={kasubag.nama} nip={kasubag.nip} kj={kasubag.jabatan.kJ} b={kasubag.jabatan._count.pegawai} abk={hitungAbk(kasubag.jabatan.tugas)} kurleb={kasubag.jabatan._count.pegawai - hitungAbk(kasubag.jabatan.tugas)} />}>
                                                         {kasubag.bawahan.length > 0 && (() => {
 
+
                                                             const bawahanS1 = kasubag.bawahan.filter(item => item.pendidikan.namaPendidikan === "S1")
                                                             const bawahanD3 = kasubag.bawahan.filter(item => item.pendidikan.namaPendidikan === "D3")
                                                             const bawahanSMA = kasubag.bawahan.filter(item => item.pendidikan.namaPendidikan === "SMA")
 
                                                             if(bawahanS1.length > 0){
-                                                                return (<TreeNode  label={<Staf dataDiri={bawahanS1} kj={bawahanS1[0].jabatan.kJ} b={bawahanS1.length} jabatan={formatJabatan(bawahanS1[0].jabatan.namaJabatan)} abk={hitungAbk(bawahanS1[0].jabatan.tugas)} kurleb={bawahanS1[0].jabatan._count.pegawai - hitungAbk(bawahanS1[0].jabatan.tugas)} />} >
+                                                                return (<TreeNode  label={<Staf dataDiri={bawahanS1} kj={bawahanS1[0].jabatan.kJ} b={bawahanS1.length} jabatan={formatJabatan(bawahanS1[0].jabatan.namaJabatan)} abk={hitungAbk(bawahanS1[0].jabatan.tugas)} kurleb={bawahanS1.length - hitungAbk(bawahanS1[0].jabatan.tugas)} />} >
                                                                         {bawahanD3.length > 0 && (
-                                                                            <TreeNode  label={<Staf dataDiri={bawahanD3} kj={bawahanD3[0].jabatan.kJ} b={bawahanD3.length} jabatan={formatJabatan(bawahanD3[0].jabatan.namaJabatan)} abk={hitungAbk(bawahanD3[0].jabatan.tugas)} kurleb={bawahanD3[0].jabatan._count.pegawai - hitungAbk(bawahanD3[0].jabatan.tugas)} />} >
+                                                                            <TreeNode  label={<Staf dataDiri={bawahanD3} kj={bawahanD3[0].jabatan.kJ} b={bawahanD3.length} jabatan={formatJabatan(bawahanD3[0].jabatan.namaJabatan)} abk={hitungAbk(bawahanD3[0].jabatan.tugas)} kurleb={bawahanD3.length - hitungAbk(bawahanD3[0].jabatan.tugas)} />} >
                                                                                 {bawahanSMA.length > 0 && (
-                                                                                    <TreeNode  label={<Staf dataDiri={bawahanSMA} kj={bawahanSMA[0].jabatan.kJ} b={bawahanSMA.length} jabatan={formatJabatan(bawahanSMA[0].jabatan.namaJabatan)} abk={hitungAbk(bawahanSMA[0].jabatan.tugas)} kurleb={bawahanSMA[0].jabatan._count.pegawai - hitungAbk(bawahanSMA[0].jabatan.tugas)} />} ></TreeNode>
+                                                                                    <TreeNode  label={<Staf dataDiri={bawahanSMA} kj={bawahanSMA[0].jabatan.kJ} b={bawahanSMA.length} jabatan={formatJabatan(bawahanSMA[0].jabatan.namaJabatan)} abk={hitungAbk(bawahanSMA[0].jabatan.tugas)} kurleb={bawahanSMA.length - hitungAbk(bawahanSMA[0].jabatan.tugas)} />} ></TreeNode>
                                                                                 )}
                                                                             </TreeNode>
                                                                         )}
@@ -305,6 +306,10 @@ function hitungAbk(data){
                                                             }
                                                         })()
                                                         }
+
+                                                        
+
+
                                                     </TreeNode>
                                                 ))
                                             }
