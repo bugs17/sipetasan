@@ -164,7 +164,7 @@ const page = async () => {
                                         <td className="border-r border-gray-300 text-center text-violet-500">#</td>
                                         <td className="border-r border-gray-300 font-semibold">{kepala.jabatan.namaJabatan}</td>
                                         <td className="border-r border-gray-300 text-center">{kepala.jabatan._count.pegawai}</td>
-                                        <td className="border-r text-center">{kepala.jabatan._count.pegawai - hitungAbk(kepala.jabatan.tugas)}</td>
+                                        <td className="border-r text-center">{hitungAbk(kepala.jabatan.tugas)}</td>
                                         {getTahun.map((tahun, index) => (
                                             <td key={index} className={`border-r text-center  ${cekJumlahPensiun(pegawai, tahun) !== '-' ? 'text-black bg-red-500 font-semibold' : 'text-slate-800'}`}>
                                                 <div className='tooltip' data-tip={`Pegawai yang pensiun di tahun ${tahun}`}>
@@ -190,7 +190,7 @@ const page = async () => {
                                                     <td className="border-r border-gray-300 text-center text-orange-500">#</td>
                                                     <td className="border-r border-gray-300 font-semibold">{kabag.jabatan.namaJabatan}</td>
                                                     <td className="border-r border-gray-300 text-center">{kabag.jabatan._count.pegawai}</td>
-                                                    <td className="border-r text-center">{kabag.jabatan._count.pegawai - hitungAbk(kabag.jabatan.tugas)}</td>
+                                                    <td className="border-r text-center">{hitungAbk(kabag.jabatan.tugas)}</td>
                                                     {getTahun.map((tahun, index) => (
                                                         <td key={index} className={`border-r text-center  ${cekJumlahPensiun(kepala.bawahan, tahun) !== '-' ? 'text-black bg-red-500 font-semibold' : 'text-slate-800'}`}>
                                                             <div className='tooltip' data-tip={`Pegawai yang pensiun di tahun ${tahun}`}>
@@ -213,7 +213,7 @@ const page = async () => {
                                                                     <td className="border-r border-gray-300 text-center text-lime-600">#</td>
                                                                     <td className="border-r border-gray-300 font-semibold">{kasubag.jabatan.namaJabatan}</td>
                                                                     <td className="border-r border-gray-300 text-center">{kasubag.jabatan._count.pegawai}</td>
-                                                                    <td className="border-r text-center">{kasubag.jabatan._count.pegawai - hitungAbk(kasubag.jabatan.tugas)}</td>
+                                                                    <td className="border-r text-center">{hitungAbk(kasubag.jabatan.tugas)}</td>
                                                                     {getTahun.map((tahun, index) => (
                                                                         <td key={index} className={`border-r text-center  ${cekJumlahPensiun(kabag.bawahan, tahun) !== '-' ? 'text-black bg-red-500 font-semibold' : 'text-slate-800'}`}>
                                                                             <div className='tooltip' data-tip={`Pegawai yang pensiun di tahun ${tahun}`}>
@@ -241,7 +241,7 @@ const page = async () => {
                                                                                     <td className="border-r border-gray-300 text-center text-teal-600">#</td>
                                                                                     <td className="border-r border-gray-300 text-xs">{bawahanS1[0].jabatan.namaJabatan}</td>
                                                                                     <td className="border-r border-gray-300 text-center">{bawahanS1.length}</td>
-                                                                                    <td className="border-r text-center">{bawahanS1.length - hitungAbk(bawahanS1[0].jabatan.tugas)}</td>
+                                                                                    <td className="border-r text-center">{hitungAbk(bawahanS1[0].jabatan.tugas)}</td>
                                                                                     {getTahun.map((tahun, index) => (
                                                                                         <td key={index} className={`border-r text-center  ${cekJumlahPensiun(bawahanS1, tahun) !== '-' ? 'text-black bg-red-500 font-semibold' : 'text-slate-800'}`}>
                                                                                             <div className='tooltip' data-tip={`Pegawai yang pensiun di tahun ${tahun}`}>
@@ -263,7 +263,7 @@ const page = async () => {
                                                                                     <td className="border-r border-gray-300 text-center text-xs text-teal-600">#</td>
                                                                                     <td className="border-r border-gray-300 text-xs">{bawahanD3[0].jabatan.namaJabatan}</td>
                                                                                     <td className="border-r border-gray-300 text-center">{bawahanD3.length}</td>
-                                                                                    <td className="border-r text-center">{bawahanD3.length - hitungAbk(bawahanD3[0].jabatan.tugas)}</td>
+                                                                                    <td className="border-r text-center">{hitungAbk(bawahanD3[0].jabatan.tugas)}</td>
                                                                                     {getTahun.map((tahun, index) => (
                                                                                         <td key={index} className={`border-r text-center  ${cekJumlahPensiun(bawahanD3, tahun) !== '-' ? 'text-black bg-red-500 font-semibold' : 'text-slate-800'}`}>
                                                                                             <div className='tooltip' data-tip={`Pegawai yang pensiun di tahun ${tahun}`}>
@@ -286,7 +286,7 @@ const page = async () => {
                                                                                     <td className="border-r border-gray-300 text-center text-xs text-teal-600">#</td>
                                                                                     <td className="border-r border-gray-300 text-xs">{bawahanSMA[0].jabatan.namaJabatan}</td>
                                                                                     <td className="border-r border-gray-300 text-center">{bawahanSMA.length}</td>
-                                                                                    <td className="border-r text-center">{bawahanSMA.length - hitungAbk(bawahanSMA[0].jabatan.tugas)}</td>
+                                                                                    <td className="border-r text-center">{hitungAbk(bawahanSMA[0].jabatan.tugas)}</td>
                                                                                     {getTahun.map((tahun, index) => (
                                                                                         <td key={index} className={`border-r text-center  ${cekJumlahPensiun(bawahanSMA, tahun) !== '-' ? 'text-black bg-red-500 font-semibold' : 'text-slate-800'}`}>
                                                                                             <div className='tooltip' data-tip={`Pegawai yang pensiun di tahun ${tahun}`}>
