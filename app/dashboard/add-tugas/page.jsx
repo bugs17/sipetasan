@@ -2,7 +2,7 @@ import Link from 'next/link';
 import React from 'react'
 import { IoMdArrowRoundBack } from "react-icons/io";
 
-import { prisma } from '../lib/db';
+import { prisma } from '../../lib/db';
 import ButtonAddTugas from '@/components/micro-component/button-add-tugas';
 import ButtonHapusTugas from '@/components/micro-component/button-hapus-tugas';
 import ButtonEditTugas from '@/components/micro-component/button-edit-tugas';

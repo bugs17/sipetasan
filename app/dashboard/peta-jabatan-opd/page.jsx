@@ -1,7 +1,7 @@
 import PetaJabatan from '@/components/micro-component/Peta-jabatan';
 import RightSidebarPetajabatan from '@/components/micro-component/Right-sidebar-petajabatan';
 import React from 'react'
-import { prisma } from '../lib/db';
+import { prisma } from '../../lib/db';
 
 
 function potongKalimat(kalimat, max) {

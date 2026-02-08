@@ -1,29 +1,14 @@
 import Link from 'next/link';
 import React from 'react'
 import { IoMdArrowRoundBack } from "react-icons/io";
-import { prisma } from '../lib/db';
-import FormEditPegawai from '@/components/micro-component/Form-Edit-Pegawai';
+import { prisma } from '../../lib/db';
+import FormInputPegawai from '@/components/micro-component/Form-Input-Pegawai';
 
-const Pegawai = async ({searchParams}) => {
+const Pegawai = async () => {
 
-    const id = searchParams.id
     const pendidikan = await prisma.pendidikan.findMany()
     const jabatan = await prisma.jabatan.findMany()
-    const pegawai = await prisma.pegawai.findFirst({
-        where:{
-            id:parseInt(id)
-        },
-        include:{
-            jabatan:true
-        }
-    })
-    const allPegawai = await prisma.pegawai.findMany({
-        where:{
-            id:{
-                not:parseInt(pegawai.id)
-            }
-        }
-    })
+    const pegawai = await prisma.pegawai.findMany()
 
   return (
     <div className='p-5 h-full overflow-y-auto'>
@@ -34,7 +19,10 @@ const Pegawai = async ({searchParams}) => {
         </Link>
     </div>
         <div className='w-full items-center flex flex-col justify-center gap-6 pb-40'>
-            <FormEditPegawai jabatan={jabatan} pendidikan={pendidikan} pegawai={pegawai} allPegawai={allPegawai} />
+
+        <FormInputPegawai pendidikan={pendidikan} jabatan={jabatan} pegawai={pegawai} />
+            
+            
         </div>
     </div>
   )

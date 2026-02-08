@@ -1,5 +1,5 @@
 import React from 'react'
-import { prisma } from '../lib/db';
+import { prisma } from '../../lib/db';
 
 function getYearsFromNowToNextFive() {
     const currentYear = new Date().getFullYear();

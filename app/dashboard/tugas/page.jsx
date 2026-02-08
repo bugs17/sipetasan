@@ -1,7 +1,7 @@
 import React from 'react'
 import { FaTimes } from "react-icons/fa";
 import { FaCheck } from "react-icons/fa";
-import { prisma } from '../lib/db';
+import { prisma } from '../../lib/db';
 import ButtonBackUraianTugas from '@/components/micro-component/button-back-uraian-tugas';
 import ModalUraianTugas from '@/components/micro-component/Modal-uraian-tugas';
 

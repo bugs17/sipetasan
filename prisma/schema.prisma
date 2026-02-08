@@ -79,9 +79,12 @@ model User {
   id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  username String
-  password String
-  role String
+  // username String
+  // password String
+  clerkUserId String @unique // dari Clerk
+
+  role String // ADMIN_INDUK | ADMIN_OPD
+
   opd Opd?
 }
 
@@ -89,9 +92,12 @@ model Opd {
   id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
   namaOpd String
+  
   userId Int @unique
   user User @relation(fields: [userId], references: [id])
+
   pegawaiId Int?
   pegawai Pegawai? @relation(fields: [pegawaiId], references: [id])
 }

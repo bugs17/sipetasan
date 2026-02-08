@@ -2,7 +2,7 @@ import React from 'react'
 import { FaPlus } from "react-icons/fa";
 import Link from 'next/link';
 import TrPegawai from '@/components/micro-component/Tr-Pegawai';
-import { prisma } from '../lib/db';
+import { prisma } from '../../lib/db';
 
 const SettingPegawai = async () => {
     let pegawai = await prisma.pegawai.findMany({

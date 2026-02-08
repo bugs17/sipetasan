@@ -1,5 +1,5 @@
 import React from 'react'
-import { prisma } from '../lib/db';
+import { prisma } from '../../lib/db';
 import FormInputJabatan from '@/components/micro-component/Form-Input-Jabatan';
 import ButtonHapusJabatan from '@/components/micro-component/Button-hapus-jabatan';
 
