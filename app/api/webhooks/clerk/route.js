@@ -1,6 +1,7 @@
 import { Webhook } from "svix";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
+import { prisma } from "@/app/lib/db";
 
 export async function POST(req) {
     // ambil webhook secret clerk yang ada di .env file
@@ -60,8 +61,13 @@ export async function POST(req) {
         const role = data.public_metadata?.role;
 
         if (role === undefined) {
-            console.log("role belum diset || ini adalah ADMIN_INDUK");
-            // do something (misalnya set default role)
+            await prisma.user.create({
+                data:{
+                    clerkUserId: clerkUserId,
+                    role: "ADMIN_INDUK",
+                }
+            })
+            console.log("ADMIN_INDUK di tambahkan ke app DB from webhook clerk")
         }
 
         // 2️⃣ key role ADA & ADMIN_OPD

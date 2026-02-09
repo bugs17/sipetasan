@@ -7,6 +7,7 @@ import SideBar from "@/components/SideBar";
 import SidebarLogo from "@/components/SidebarLogo";
 import TitleDashboard from "@/components/micro-component/Title-Dashboard";
 import AuthWrapper from "../context/AuthWraper";
+import UserProfileDropdown from "@/components/UserProfileDropdown";
 
 
 export default function DashboardLayout({ children }) {
@@ -21,7 +22,9 @@ export default function DashboardLayout({ children }) {
               <div className="w-full flex-grow overflow-y-auto py-5">
                   <SideBar />
               </div>
-              <div className="dropdown dropdown-right dropdown-end w-full h-14 flex justify-center items-center p-2">
+
+              {/* profile user from clerk */}
+              {/* <div className="dropdown dropdown-right dropdown-end w-full h-14 flex justify-center items-center p-2">
                 <div tabIndex={0} className=" cursor-pointer w-full hover:bg-zinc-950 h-full flex flex-row gap-3 items-center py-6 px-3 mb-6 bg-black rounded-md">
                     
                     <div  className="avatar object-cover flex flex-row items-center">
@@ -33,7 +36,7 @@ export default function DashboardLayout({ children }) {
 
                     <div className="flex flex-col">
                       <span className="font-semibold text-white text-sm font-mono">John Doe</span>
-                      <span className="font-thin text-xs">admin</span>
+                      <span className="font-thin text-xs">admin induk</span>
                     </div>
                     <PiCaretUpDownBold className="ml-auto" />
 
@@ -47,7 +50,10 @@ export default function DashboardLayout({ children }) {
                       </li>
                     </ul>
                   </div>
-              </div>
+              </div> */}
+              <UserProfileDropdown />
+
+
             </div>
 
             <div className="w-[85%] border-[1px] border-slate-700 rounded-l-2xl bg-[#121c22] h-screen flex flex-col">

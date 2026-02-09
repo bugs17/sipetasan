@@ -1,6 +1,7 @@
 "use client";
 
 import { useUser, SignIn } from "@clerk/nextjs";
+import { dark } from "@clerk/themes";
 
 const AuthWrapper = ({ children }) => {
   const { isSignedIn } = useUser();
@@ -16,7 +17,8 @@ const AuthWrapper = ({ children }) => {
         appearance={{
             elements:{
                 footer:"hidden",
-            }
+            },
+            baseTheme: dark,
         }} 
         fallbackRedirectUrl="/dashboard"
         afterSignOutUrl="/"

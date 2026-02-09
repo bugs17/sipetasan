@@ -81,9 +81,9 @@ model User {
   updatedAt DateTime @updatedAt
   // username String
   // password String
-  clerkUserId String @unique // dari Clerk
+  clerkUserId String? @unique // dari Clerk
 
-  role String // ADMIN_INDUK | ADMIN_OPD
+  role String? // ADMIN_INDUK | ADMIN_OPD
 
   opd Opd?
 }
