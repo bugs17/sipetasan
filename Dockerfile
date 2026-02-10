@@ -42,8 +42,13 @@ COPY . .
 
 # --- BAGIAN KRUSIAL ---
 # Generate client harus dilakukan SEBELUM build 
-# agar engine Prisma tersedia saat prerendering halaman dashboard
+#1. agar engine Prisma tersedia saat prerendering halaman dashboard
 RUN npx prisma generate
+
+# 2. Jalankan Migrate Deploy
+# Ini akan membaca folder prisma/migrations dan mengupdate database server
+# tanpa menghapus data yang sudah ada di sana.
+RUN npx prisma migrate deploy
 
 # Build aplikasi
 RUN rm -rf .next

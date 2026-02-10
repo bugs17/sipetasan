@@ -4,7 +4,6 @@ import PetaJabatan from '@/components/micro-component/Peta-jabatan';
 import { prisma } from '../lib/db';
 import { auth } from "@clerk/nextjs/server";
 import InstansiCard from '@/components/PetaJabatanInduk';
-import ProyeksiInduk from '@/components/ProyeksiPegawaiInduk';
 
 function potongKalimat(kalimat, max) {
     if (kalimat.length <= max) {
