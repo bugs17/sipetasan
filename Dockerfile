@@ -28,30 +28,22 @@
 
 FROM node:22-alpine
 
-# Tambahkan library pendukung untuk Prisma di Alpine
 RUN apk add --no-cache openssl
 
 WORKDIR /app
 
-# Copy package files dulu (optimasi cache layer)
 COPY package*.json ./
 RUN npm install
 
-# Copy sisa file
 COPY . .
 
-# --- BAGIAN KRUSIAL ---
-# Generate client harus dilakukan SEBELUM build 
-#1. agar engine Prisma tersedia saat prerendering halaman dashboard
-RUN npx prisma migrate resolve --applied 0_init || true
+# Generate Prisma Client sebelum Build
+RUN npx prisma generate
 
-# 2. Jalankan Migrate Deploy
-# Ini akan membaca folder prisma/migrations dan mengupdate database server
-# tanpa menghapus data yang sudah ada di sana.
-RUN npx prisma migrate deploy
+# Matikan dulu migrate deploy jika masih error P3005
+# RUN npx prisma migrate deploy
 
-# Build aplikasi
-RUN rm -rf .next
+# Jalankan build dengan melewatkan pengecekan linting jika perlu untuk mempercepat
 RUN npm run build
 
 ENV NODE_ENV production
