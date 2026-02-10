@@ -69,6 +69,13 @@ const menuConfig = [
           pathname === `${BASE_PATH}/setting-uraian-tugas` ||
           pathname.includes(`${BASE_PATH}/add-tugas`),
       },
+      {
+        label: 'User',
+        href: `${BASE_PATH}/setting-user`,
+        match: (pathname) =>
+          pathname === `${BASE_PATH}/setting-user` ||
+          pathname.includes(`${BASE_PATH}/setting-user`),
+      },
     ],
   },
   // {

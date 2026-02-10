@@ -95,8 +95,8 @@ model Opd {
 
   namaOpd String
   
-  userId Int @unique
-  user User @relation(fields: [userId], references: [id])
+  userId Int? @unique
+  user User? @relation(fields: [userId], references: [id])
 
   pegawaiId Int?
   pegawai Pegawai? @relation(fields: [pegawaiId], references: [id])

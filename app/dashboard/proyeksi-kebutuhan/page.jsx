@@ -1,7 +1,9 @@
-import React from 'react'
 import { prisma } from '../../lib/db';
+import ProyeksiInduk from '@/components/ProyeksiPegawaiInduk';
+import { auth } from "@clerk/nextjs/server";
 
 function getYearsFromNowToNextFive() {
+
     const currentYear = new Date().getFullYear();
     const years = [];
     
@@ -13,7 +15,31 @@ function getYearsFromNowToNextFive() {
 }
 
 const page = async () => {
+    const { userId } = auth();
 
+    const user = await prisma.user.findFirst({
+            where:{
+                clerkUserId:userId
+            }
+        })
+    
+    const role = user.role
+
+    if (role === 'ADMIN_INDUK') {
+        return <ProyeksiInduk />
+    }else if(role === 'ADMIN_OPD'){
+        return <RenderProyeksiOpd />
+    }else if (role === 'PIMPINAN') {
+        return <div>pimpinan</div>
+    }
+
+    return null
+}
+
+export default page
+
+
+const RenderProyeksiOpd = async () => {
     const getTahun = getYearsFromNowToNextFive()
 
     const jabatan = await prisma.jabatan.findMany({
@@ -325,5 +351,3 @@ const page = async () => {
     </div>
   )
 }
-
-export default page

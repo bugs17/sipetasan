@@ -3,6 +3,7 @@ import { useAuth } from "@clerk/clerk-react";
 import { getUser } from "@/app/actions/getUser";
 import { useEffect, useState } from "react";
 import SideBarAdminInduk from "./Sidebar-admin-induk";
+import SidebarSkeleton from "./Sidebar-skeleton";
 
 const RenderSidebar = () => {
     const { userId, isLoaded } = useAuth();
@@ -28,7 +29,7 @@ const RenderSidebar = () => {
         fetchUser();
     }, [userId, isLoaded]); // Menjalankan ulang jika userId atau isLoaded berubah
 
-    if (!isLoaded || loading) return <div>Loading...</div>;
+    if (!isLoaded || loading) return <SidebarSkeleton />;
 
     if (!user) {
         return <div>Role tidak dikenal..</div>;
