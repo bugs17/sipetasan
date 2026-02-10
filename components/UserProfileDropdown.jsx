@@ -38,59 +38,69 @@ export default function UserProfileDropdown() {
     return (
         <>
         {/* ===== Dropdown ===== */}
-        <div className="dropdown dropdown-right dropdown-end w-full h-14 flex items-center p-2">
+        <div className="dropdown dropdown-top dropdown-start w-full px-2 py-4">
             <div
-            tabIndex={0}
-            className="cursor-pointer w-full hover:bg-zinc-950 h-full flex gap-3 items-center px-3 bg-black rounded-md"
+                tabIndex={0}
+                className="group cursor-pointer w-full h-14 flex gap-3 items-center px-4 
+                bg-white/[0.03] hover:bg-white/[0.08] border border-white/5 
+                rounded-2xl transition-all duration-300 backdrop-blur-md"
             >
-            <div className="w-8 h-8 rounded-md border border-violet-400 flex items-center justify-center bg-zinc-900">
-                {imageUrl && !imgError ? (
-                <Image
-                    src={imageUrl}
-                    alt="avatar"
-                    width={32}
-                    height={32}
-                    className="rounded-md"
-                    onError={() => setImgError(true)}
-                />
-                ) : (
-                <span className="text-sm font-bold text-white uppercase">
-                    {initial}
-                </span>
-                )}
-            </div>
+                {/* Avatar Section */}
+                <div className="relative w-9 h-9 rounded-xl border border-white/10 flex items-center justify-center bg-[#1a1a1e] overflow-hidden shadow-inner group-hover:border-[#6d28d9]/50 transition-colors">
+                    {imageUrl && !imgError ? (
+                        <Image
+                            src={imageUrl}
+                            alt="avatar"
+                            width={36}
+                            height={36}
+                            className="object-cover"
+                            onError={() => setImgError(true)}
+                        />
+                    ) : (
+                        <span className="text-xs font-black text-[#6d28d9] uppercase">
+                            {initial}
+                        </span>
+                    )}
+                </div>
 
-            <div className="flex flex-col">
-                <span className="text-sm font-mono text-white">
-                {username}
-                </span>
-                <span className="text-xs uppercase opacity-70">
-                {role}
-                </span>
-            </div>
+                {/* Info Section */}
+                <div className="flex flex-col overflow-hidden">
+                    <span className="text-[11px] font-black text-white tracking-wider uppercase truncate">
+                        {username}
+                    </span>
+                    <span className="text-[9px] font-bold text-[#6d28d9] uppercase tracking-[0.15em] opacity-80 group-hover:opacity-100 transition-opacity">
+                        {role}
+                    </span>
+                </div>
 
-            <PiCaretUpDownBold className="ml-auto" />
+                <PiCaretUpDownBold className="ml-auto text-gray-500 group-hover:text-white transition-colors" size={14} />
 
-            <ul className="dropdown-content menu bg-black rounded-box w-52 p-2 border border-slate-700 z-50">
-                <li>
-                <button
-                    onClick={() => setOpen(true)}
-                    className="flex justify-between"
-                >
-                    <span>Profile</span>
-                    <FiUser />
-                </button>
-                </li>
-                <li>
-                <button
-                    onClick={() => signOut()}
-                    className="flex justify-between text-red-400"
-                >
-                    <span>Logout</span>
-                    <IoIosLogOut />
-                </button>
-                </li>
-            </ul>
+                {/* Dropdown Menu - Glassy Style */}
+                <ul tabIndex={0} className="dropdown-content menu p-2 mt-[-10px] ml-2 
+                    bg-[#1a1a1e]/90 backdrop-blur-2xl rounded-2xl w-52 
+                    border border-white/10 shadow-2xl z-[400] animate-in fade-in slide-in-from-left-2 ">
+                    <div className="px-3 py-2 mb-1 border-b border-white/5">
+                        <p className="text-[10px] font-bold text-gray-500 uppercase">Menu Akun</p>
+                    </div>
+                    <li>
+                        <button
+                            onClick={() => setOpen(true)}
+                            className="flex justify-between items-center py-3 text-xs text-gray-300 hover:bg-white/5 hover:text-white active:bg-[#6d28d9]/20"
+                        >
+                            <span className="font-medium tracking-wide">Profil Saya</span>
+                            <FiUser className="text-[#6d28d9]" size={16} />
+                        </button>
+                    </li>
+                    <li>
+                        <button
+                            onClick={() => signOut()}
+                            className="flex justify-between items-center py-3 text-xs text-red-400 hover:bg-red-500/10 hover:text-red-300 active:bg-red-500/20"
+                        >
+                            <span className="font-medium tracking-wide">Logout</span>
+                            <IoIosLogOut size={16} />
+                        </button>
+                    </li>
+                </ul>
             </div>
         </div>
 

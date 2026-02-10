@@ -6,7 +6,7 @@ import { Recursive } from 'next/font/google'; // Tetap gunakan dari google
 import Image from "next/image";
 
 import { IoIosLogOut } from "react-icons/io";
-import SideBar from "@/components/SideBar";
+import SideBar from "@/components/Sidebar-admin-induk";
 import SidebarLogo from "@/components/SidebarLogo";
 import TitleDashboard from "@/components/micro-component/Title-Dashboard";
 import { ClerkProvider } from "@clerk/nextjs";

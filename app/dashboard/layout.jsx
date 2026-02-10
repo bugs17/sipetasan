@@ -1,9 +1,10 @@
 import dynamic from "next/dynamic";
 
-import SideBar from "@/components/SideBar";
 import SidebarLogo from "@/components/SidebarLogo";
 import TitleDashboard from "@/components/micro-component/Title-Dashboard";
 import UserProfileDropdown from "@/components/UserProfileDropdown";
+import RenderSidebar from "@/components/RenderSidebar";
+
 
 const AuthWrapper = dynamic(
   () => import("../context/AuthWraper"),
@@ -11,10 +12,14 @@ const AuthWrapper = dynamic(
 );
 
 export default function DashboardLayout({ children }) {
+
+  
+
+
   return (
     <AuthWrapper>
       <span className="text-xs font-mono opacity-50 absolute z-50 right-2 bottom-2">
-        Version 1.0.0
+        Version {process.env.NEXT_PUBLIC_APP_VERSION}
       </span>
 
       <div className="w-screen h-screen flex flex-row">
@@ -24,9 +29,8 @@ export default function DashboardLayout({ children }) {
           </div>
 
           <div className="w-full flex-grow overflow-y-auto py-5">
-            <SideBar />
+            <RenderSidebar />
           </div>
-
           <UserProfileDropdown />
         </div>
 
@@ -43,3 +47,4 @@ export default function DashboardLayout({ children }) {
     </AuthWrapper>
   );
 }
+

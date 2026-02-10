@@ -71,27 +71,27 @@ const menuConfig = [
       },
     ],
   },
-  {
-    label: 'Download',
-    icon: <FaDownload />,
-    type: 'group',
-    children: [
-      {
-        label: 'Peta Jabatan',
-        href: '',
-      },
-      {
-        label: 'Proyeksi Kebutuhan',
-        href: '',
-      },
-    ],
-  },
+  // {
+  //   label: 'Download',
+  //   icon: <FaDownload />,
+  //   type: 'group',
+  //   children: [
+  //     {
+  //       label: 'Peta Jabatan',
+  //       href: '',
+  //     },
+  //     {
+  //       label: 'Proyeksi Kebutuhan',
+  //       href: '',
+  //     },
+  //   ],
+  // },
 ]
 
 /**
  * Sidebar Component
  */
-const SideBar = () => {
+const SideBarAdminInduk = () => {
   const pathname = usePathname()
 
   return (
@@ -151,4 +151,4 @@ const SideBar = () => {
   )
 }
 
-export default SideBar
+export default SideBarAdminInduk
