@@ -17,11 +17,17 @@ function getYearsFromNowToNextFive() {
 const page = async () => {
     const { userId } = auth();
 
-    const user = await prisma.user.findFirst({
+    let user;
+    try {
+        user = await prisma.user.findFirst({
             where:{
                 clerkUserId:userId
             }
         })
+    } catch (error) {
+        console.log("Error :", error)
+        return {}
+    }
     
     const role = user.role
 
