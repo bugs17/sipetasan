@@ -43,6 +43,8 @@ RUN npx prisma generate
 # Matikan dulu migrate deploy jika masih error P3005
 # RUN npx prisma migrate deploy
 
+ENV NEXT_PHASE=phase-production-build
+
 # Jalankan build dengan melewatkan pengecekan linting jika perlu untuk mempercepat
 RUN npm run build
 
