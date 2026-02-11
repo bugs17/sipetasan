@@ -5,12 +5,7 @@ import { prisma } from '../lib/db';
 import { auth } from "@clerk/nextjs/server";
 import InstansiCard from '@/components/PetaJabatanInduk';
 
-function potongKalimat(kalimat, max) {
-    if (kalimat.length <= max) {
-      return kalimat;
-    }
-    return kalimat.slice(0, max) + "...";
-  }
+
 
 const Home = async () => {
     const { userId } = auth();
@@ -35,11 +30,19 @@ const Home = async () => {
         jab.totalKebutuhanPegawai = jab.tugas.reduce((sum, tugas) => sum + tugas.KebutuhanPegawai, 0);
     });
 
-    const user = await prisma.user.findFirst({
-        where:{
-            clerkUserId:userId
-        }
-    })
+
+
+    let user;
+    try {
+        user = await prisma.user.findFirst({
+            where:{
+                clerkUserId:userId
+            }
+        })
+    } catch (error) {
+        console.error("Build-time DB check bypassed", error);
+        return {};
+    }
 
     const role = user.role
 
