@@ -35,6 +35,7 @@ export default function DashboardLayout({ children }) {
         </div>
 
         <div className="w-[85%] border-[1px] border-slate-700 rounded-l-2xl bg-[#121c22] h-screen flex flex-col">
+          {/* header layout */}
           <div className="border-b-[1px] border-slate-700 w-full h-16 flex flex-row justify-between items-center px-6">
             <TitleDashboard />
           </div>

@@ -119,13 +119,7 @@ const InstansiCard = ({ type = "peta-jabatan" }) => {
       path: "/dashboard/peta-jabatan",
       accent: "#6d28d9", 
       subtext: "Peta Jabatan"
-    },
-    // "proyeksi": {
-    //   label: "Proyeksi Kebutuhan",
-    //   path: "/dashboard/proyeksi",
-    //   accent: "#0ea5e9", 
-    //   subtext: "Analisis SDM"
-    // }
+    }
   };
 
   const currentConfig = config[type];

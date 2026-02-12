@@ -46,9 +46,7 @@ const ProyeksiPegawaiRoleInduk = () => {
             <h2 className="text-4xl font-black text-white tracking-tighter italic">
               PROYEKSI <span className="text-[#6d28d9]">KEBUTUHAN</span>
             </h2>
-          <p className="text-gray-500 text-sm mt-2 font-light max-w-md">
-           Analisis kebutuhan pegawai 5 tahun ke depan berdasarkan beban kerja dan masa pensiun.
-         </p>
+          
           </div>
         </div>
 
