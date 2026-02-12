@@ -1,6 +1,6 @@
-import React from 'react'
 
 const Page = () => {
+
   return (
     <div className='p-5 h-full overflow-y-auto '>
         <div className=" h-full">
@@ -40,3 +40,5 @@ const Page = () => {
 }
 
 export default Page
+
+

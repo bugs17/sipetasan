@@ -4,6 +4,8 @@ import Link from 'next/link';
 import TrPegawai from '@/components/micro-component/Tr-Pegawai';
 import { prisma } from '../../lib/db';
 
+const BASE_PATH = "/dashboard"
+
 const SettingPegawai = async () => {
     let pegawai = await prisma.pegawai.findMany({
       include:{
@@ -14,7 +16,7 @@ const SettingPegawai = async () => {
   return (
     <div className='p-5 h-full overflow-y-auto '>
         <div className='w-full flex justify-end'>
-            <Link href={'/add-pegawai'} className="btn btn-sm btn-accent mb-5 ml-auto"><FaPlus /> pegawai</Link>
+            <Link href={`${BASE_PATH}/add-pegawai`} className="btn btn-sm btn-accent mb-5 ml-auto"><FaPlus /> pegawai</Link>
         </div>
         <div className=" h-full">
 

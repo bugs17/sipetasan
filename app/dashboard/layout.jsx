@@ -18,9 +18,9 @@ export default function DashboardLayout({ children }) {
 
   return (
     <AuthWrapper>
-      <span className="text-xs font-mono opacity-50 absolute z-50 right-2 bottom-2">
-        Version {process.env.NEXT_PUBLIC_APP_VERSION}
-      </span>
+      <div className="fixed bottom-4 right-4 opacity-20 ">
+        <span className="text-[8px] font-mono tracking-widest uppercase">System Rev {process.env.NEXT_PUBLIC_APP_VERSION}</span>
+      </div>
 
       <div className="w-screen h-screen flex flex-row">
         <div className="w-[15%] bg-black h-screen flex flex-col">

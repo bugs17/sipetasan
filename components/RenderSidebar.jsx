@@ -40,7 +40,7 @@ const RenderSidebar = () => {
     if (role === "ADMIN_INDUK") {
         return <SideBarAdminInduk />;
     } else if (role === "ADMIN_OPD") {
-        return <div>sidebar admin opd</div>;
+        return <SideBarAdminInduk />;
     } else if (role === "PIMPINAN") {
         return <div>sidebar PIMPINAN</div>;
     }

@@ -1,16 +1,19 @@
 'use client'
 
 import React, { useState } from 'react';
-import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs"; 
+import { SignedIn, SignedOut, UserButton, SignInButton } from "@clerk/nextjs"; 
 import Link from 'next/link';
 import { HiOutlineSearch, HiOutlineX, HiOutlineArrowRight, HiOutlineStatusOnline } from 'react-icons/hi';
 import { Search } from 'lucide-react';
+import LoginModal from '@/components/LoginModal';
 
 const LandingPage = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [nip, setNip] = useState('');
   const [loading, setLoading] = useState(false);
   const [statusResult, setStatusResult] = useState(null); // Dummy state untuk hasil
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleCheckStatus = () => {
     setLoading(true);
@@ -33,7 +36,10 @@ const LandingPage = () => {
       {/* --- ELEGANT FLOATING BUTTON --- */}
       <div className="fixed left-8 bottom-8 z-[100]">
         <button 
-          onClick={() => setIsDrawerOpen(true)}
+          onClick={() => {
+            setIsDrawerOpen(true)
+            setIsModalOpen(false)
+          }}
           className="group relative flex items-center gap-4 p-2 pr-6 bg-white/[0.03] hover:bg-white/[0.08] backdrop-blur-2xl border border-white/10 rounded-full transition-all duration-500 hover:border-[#6d28d9]/50 hover:shadow-[0_0_30px_rgba(109,40,217,0.15)] active:scale-95"
         >
           {/* Icon Container dengan Ring Glow halus */}
@@ -276,10 +282,18 @@ const LandingPage = () => {
 
           <div className="pt-2">
             <SignedOut>
-              <Link href={'/dashboard'} className="inline-block px-8 py-3.5 rounded-xl bg-white text-[#212126] text-sm font-bold tracking-wide transition-all duration-300 hover:bg-gray-100 hover:shadow-[0_0_30px_rgba(255,255,255,0.2)] border border-white shadow-lg">
+              <button 
+                onClick={() => setIsModalOpen(true)}
+                className="inline-block px-8 py-3.5 rounded-xl bg-white text-[#212126] text-sm font-bold tracking-wide transition-all duration-300 hover:bg-gray-100 hover:shadow-[0_0_30px_rgba(255,255,255,0.2)] border border-white shadow-lg"
+              >
                 Sign In
-              </Link>
+              </button>
             </SignedOut>
+              <LoginModal 
+                isOpen={isModalOpen} 
+                onClose={() => setIsModalOpen(false)} 
+              />
+
             <SignedIn>
               <Link href="/dashboard">
                 <button className="px-8 py-3.5 rounded-xl bg-white text-[#212126] text-sm font-bold tracking-wide transition-all duration-300 hover:bg-gray-100 hover:shadow-[0_0_30px_rgba(255,255,255,0.2)] border border-white shadow-lg inline-flex items-center gap-3 group">
@@ -290,6 +304,7 @@ const LandingPage = () => {
                 </button>
               </Link>
             </SignedIn>
+            
           </div>
 
           {/* Authority Badges */}
@@ -315,9 +330,27 @@ const LandingPage = () => {
         </div>
       </main>
 
-      {/* Floating Version Tag (Optionally moved here for cleanliness) */}
-      <div className="fixed bottom-4 right-4 opacity-20 hover:opacity-100 transition-opacity">
-        <span className="text-[8px] font-mono tracking-widest uppercase">System Rev 2.0</span>
+      {/* --- BRAND SIGNATURE --- */}
+      <div className="fixed bottom-4 right-4 z-[70] opacity-30 hover:opacity-100 transition-all duration-500 group">
+        <a 
+          href="https://digoelsoft.com" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.02] hover:bg-white/[0.05] border border-transparent hover:border-white/10 transition-all"
+        >
+          <span className="text-[8px] font-black tracking-[0.2em] uppercase text-gray-500 group-hover:text-indigo-400 transition-colors">
+            Developed by
+          </span>
+          <div className="flex items-center gap-1">
+            <span className="text-[9px] font-black tracking-tighter text-gray-400 group-hover:text-white transition-colors">
+              DIGOELSOFT
+            </span>
+            <span className="text-[8px] animate-pulse">❤️</span>
+          </div>
+          
+          {/* Dekorasi Garis Kecil */}
+          <div className="w-0 group-hover:w-4 h-[1px] bg-indigo-500 transition-all duration-500"></div>
+        </a>
       </div>
     </div>
   );

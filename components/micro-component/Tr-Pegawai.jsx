@@ -3,6 +3,7 @@ import React from 'react'
 import { FaUserEdit } from "react-icons/fa";
 import ButtonDeletePegawai from './ButtonDeletePegawai';
 
+const BASE_PATH = "/dashboard"
 
 
 const TrPegawai = ({no, nama, nip, ttl,tempatLahir,pendidikan,jabatan, id}) => {
@@ -51,7 +52,7 @@ const TrPegawai = ({no, nama, nip, ttl,tempatLahir,pendidikan,jabatan, id}) => {
         </td>
         
         <td className='flex flex-row h-full justify-center items-center gap-5'>
-            {nama &&<Link href={`/edit-pegawai?id=${id}`} className='tooltip' data-tip="Edit">
+            {nama &&<Link href={`${BASE_PATH}/edit-pegawai?id=${id}`} className='tooltip' data-tip="Edit">
                   <FaUserEdit className='text-violet-400 hover:text-violet-600 cursor-pointer' />
             </Link>}
             {nama &&<div className='tooltip' data-tip="Hapus">

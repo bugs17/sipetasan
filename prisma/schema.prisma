@@ -23,6 +23,8 @@ model Jabatan {
   namaJabatan  String
   pegawai Pegawai[]
   tugas Tugas[]
+
+  
   kJ Int @default(0)
   b Int @default(0)
   aBK Float @default(0.00)
