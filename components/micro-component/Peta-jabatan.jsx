@@ -325,3 +325,5 @@ function hitungAbk(data){
 }
 
 export default PetaJabatan
+
+
