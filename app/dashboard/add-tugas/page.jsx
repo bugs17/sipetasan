@@ -1,26 +1,30 @@
+"use client";
+
 import Link from 'next/link';
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { IoMdArrowRoundBack } from "react-icons/io";
 
-import { prisma } from '../../lib/db';
 import ButtonAddTugas from '@/components/micro-component/button-add-tugas';
 import ButtonHapusTugas from '@/components/micro-component/button-hapus-tugas';
 import ButtonEditTugas from '@/components/micro-component/button-edit-tugas';
+import { useSearchParams } from 'next/navigation';
+import { getJabatanByID } from '@/app/actions/get-jabatan-by-id';
 
 
-const page = async ({searchParams}) => {
-    const {id} = searchParams
+const page =  () => {
+    const searchParams = useSearchParams();
+    const id = searchParams.get("id");
 
-    const jabatan = await prisma.jabatan.findFirst({
-        where:{
-            id:parseInt(id)
-        },
-        include:{
-            tugas:true
-        }
-    })
+    const [jabatan, setJabatan] = useState({});
 
-    
+    useEffect(() => {
+        const fetchData = async () => {
+            const res = await getJabatanByID(id);
+            setJabatan(res);
+        };
+
+        fetchData()
+    },[])
 
   return (
     <div className='w-full h-full'>
