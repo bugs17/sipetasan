@@ -4,31 +4,33 @@ import PetaJabatan from '@/components/micro-component/Peta-jabatan';
 import { prisma } from '../lib/db';
 import { auth } from "@clerk/nextjs/server";
 import InstansiCard from '@/components/PetaJabatanInduk';
+import PetaJabatanChart from './test-peta-jabatan';
+import PetaJabatanEditor from './interactive-peta-jabatan';
 
 
 
 const Home = async () => {
     const { userId } = auth();
 
-    const jabatan = await prisma.jabatan.findMany({
-        include:{
-            _count:{
-                select:{
-                    pegawai:true
-                }
-            },
-            pegawai:{
-                include:{
-                    pendidikan:true
-                }
-            },
-            tugas:true
-        }
-    })
+    // const jabatan = await prisma.jabatan.findMany({
+    //     include:{
+    //         _count:{
+    //             select:{
+    //                 pegawai:true
+    //             }
+    //         },
+    //         pegawai:{
+    //             include:{
+    //                 pendidikan:true
+    //             }
+    //         },
+    //         tugas:true
+    //     }
+    // })
 
-    jabatan.forEach(jab => {
-        jab.totalKebutuhanPegawai = jab.tugas.reduce((sum, tugas) => sum + tugas.KebutuhanPegawai, 0);
-    });
+    // jabatan.forEach(jab => {
+    //     jab.totalKebutuhanPegawai = jab.tugas.reduce((sum, tugas) => sum + tugas.KebutuhanPegawai, 0);
+    // });
 
 
 
@@ -50,7 +52,8 @@ const Home = async () => {
         if (role === 'ADMIN_INDUK') {
             return <InstansiCard />
         }else if (role === 'ADMIN_OPD') {
-            return <PetaJabatan />
+            return <PetaJabatanEditor />
+            // return <PetaJabatan />
         }else if (role === 'PIMPINAN') {
             return <div >Pimpinan dashboard</div>
         }
@@ -61,7 +64,7 @@ const Home = async () => {
     
   return (
       <>
-        {role === 'ADMIN_OPD' && (
+        {role === 'jdjda' && (
             <RightSidebarPetajabatan>
                 <div className="space-y-4">
                 {/* Header Kecil di dalam Sidebar */}
