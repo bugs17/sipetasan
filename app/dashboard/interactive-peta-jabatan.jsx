@@ -9,6 +9,7 @@ import {
   HiOutlineExclamation, HiOutlinePencilAlt, HiOutlineCheck, HiOutlineBan
 } from 'react-icons/hi';
 import { BiLoaderAlt } from 'react-icons/bi';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const listPegawai = [
   "Drs. H. Ahmad Fauzi, M.Si", "Siti Aminah, S.E", "Budi Utomo",
@@ -325,41 +326,70 @@ const PetaJabatanEditor = () => {
         ` }} />
 
         {/* EDIT CONTROL DOCK */}
-        <div className="flex items-center gap-2 p-2 rounded-[1.5rem] bg-[#1a1a1e]/90 backdrop-blur-2xl border border-white/10 shadow-2xl">
-          {!isEditMode ? (
-            <div className="tooltip-trigger">
-              <button 
-                onClick={() => setIsEditMode(true)} 
-                className="p-2.5 bg-indigo-600 text-white rounded-xl hover:bg-indigo-500 transition-all shadow-lg shadow-indigo-500/20"
-              >
-                <HiOutlinePencilAlt size={16}/>
-              </button>
-              <div className="tooltip-content">Masuk Mode Edit</div>
-            </div>
-          ) : (
-            <div className="flex items-center gap-2">
-              <div className="tooltip-trigger">
-                <button 
-                  onClick={() => { if(hasChanges) setCancelModal(true); else setIsEditMode(false); }} 
-                  className="p-2.5 bg-white/5 text-white/50 rounded-xl hover:bg-white/10 transition-all border border-white/5"
-                >
-                  <HiOutlineBan size={16}/>
-                </button>
-                <div className="tooltip-content">Batal Perubahan</div>
-              </div>
+<motion.div 
+  layout
+  /* Transisi layout dibuat lebih kencang agar sinkron dengan tombol yang menghilang */
+  transition={{ 
+    type: "spring", 
+    stiffness: 400, // Menaikkan stiffness agar gerakan mengecil lebih cepat
+    damping: 30,    // Mengatur damping agar tidak terlalu membal
+  }}
+  className="flex items-center p-2 rounded-[1.5rem] bg-[#1a1a1e]/90 backdrop-blur-2xl border border-white/10 shadow-2xl"
+>
+  <div className="flex items-center gap-2 relative">
+    <AnimatePresence mode="popLayout"> {/* popLayout krusial agar elemen tidak 'menahan' lebar parent saat exit */}
+      {isEditMode && (
+        <motion.div
+          key="cancel-btn"
+          initial={{ opacity: 0, x: 40 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: 40 }}
+          /* Transisi tombol juga disesuaikan */
+          transition={{ type: "spring", stiffness: 400, damping: 35 }}
+          className="tooltip-trigger"
+        >
+          <button 
+            onClick={() => { if(hasChanges) setCancelModal(true); else setIsEditMode(false); }} 
+            className="p-2.5 bg-white/5 text-white/50 rounded-xl hover:bg-white/10 transition-all border border-white/5 active:scale-95"
+          >
+            <HiOutlineBan size={16}/>
+          </button>
+          <div className="tooltip-content">Batal Perubahan</div>
+        </motion.div>
+      )}
+    </AnimatePresence>
 
-              <div className="tooltip-trigger">
-                <button 
-                  onClick={handleSaveAll} 
-                  className="p-2.5 bg-emerald-600 text-white rounded-xl hover:bg-emerald-500 transition-all shadow-lg shadow-emerald-500/20"
-                >
-                  <HiOutlineCheck size={16}/>
-                </button>
-                <div className="tooltip-content">Simpan Ke Database</div>
-              </div>
-            </div>
-          )}
-        </div>
+    {/* Tombol Utama */}
+    <div className="tooltip-trigger">
+      <motion.button
+        layout
+        key="main-btn"
+        onClick={isEditMode ? handleSaveAll : () => setIsEditMode(true)}
+        className={`p-2.5 rounded-xl transition-all shadow-lg active:scale-95 ${
+          isEditMode 
+            ? 'bg-emerald-600 text-white shadow-emerald-500/20 hover:bg-emerald-500' 
+            : 'bg-indigo-600 text-white shadow-indigo-500/20 hover:bg-indigo-500'
+        }`}
+      >
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.div
+            key={isEditMode ? 'save' : 'edit'}
+            initial={{ opacity: 0, rotate: -90 }}
+            animate={{ opacity: 1, rotate: 0 }}
+            exit={{ opacity: 0, rotate: 90 }}
+            transition={{ duration: 0.15 }}
+          >
+            {isEditMode ? <HiOutlineCheck size={16}/> : <HiOutlinePencilAlt size={16}/>}
+          </motion.div>
+        </AnimatePresence>
+      </motion.button>
+      
+      <div className="tooltip-content">
+        {isEditMode ? "Simpan Ke Database" : "Masuk Mode Edit"}
+      </div>
+    </div>
+  </div>
+</motion.div>
 
         {/* VIEWPORT DOCK */}
         <div className="flex items-center gap-2 p-2 rounded-[1.5rem] bg-[#1a1a1e]/80 backdrop-blur-2xl border border-white/10 shadow-2xl transition-all opacity-60 hover:opacity-100 group/dock">
