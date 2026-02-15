@@ -59,7 +59,10 @@ const JabatanSubmitPage = () => {
                 Submit <span className="text-[#6d28d9]">Tugas.</span>
               </h2>
             </div>
-
+            <p className="text-[9px] text-gray-500 font-bold uppercase tracking-[0.2em] bg-white/5 px-4 py-2 rounded-full border border-white/5">
+              Monitoring & Pengisian Data Uraian Tugas
+            </p>
+          </div>
             <div className="relative w-full md:w-[350px] group">
               <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
                 <HiOutlineSearch className="text-gray-500 group-focus-within:text-[#6d28d9] transition-colors" size={18} />
@@ -72,10 +75,7 @@ const JabatanSubmitPage = () => {
                 className="w-full bg-[#141b20] border border-white/10 rounded-2xl py-3 pl-12 pr-10 text-sm text-white focus:outline-none focus:border-[#6d28d9]/50 transition-all"
               />
             </div>
-          </div>
-          <p className="text-[9px] text-gray-500 font-bold uppercase tracking-[0.2em] bg-white/5 px-4 py-2 rounded-full border border-white/5">
-            Monitoring & Pengisian Data Uraian Tugas
-          </p>
+          
         </div>
 
         {/* --- GRID JABATAN --- */}
@@ -95,7 +95,7 @@ const JabatanSubmitPage = () => {
                   <div className="pt-4 border-t border-white/5">
                     <button 
                       onClick={() => openSubmitDrawer(item)}
-                      className="flex items-center justify-between w-full bg-white hover:bg-[#6d28d9] text-black hover:text-white px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 group/btn"
+                      className="flex items-center justify-between w-full bg-white  text-black px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 group/btn"
                     >
                       Submit Sekarang
                       <HiOutlineArrowRight size={14} className="group-hover/btn:translate-x-1 transition-transform" />
