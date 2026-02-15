@@ -110,16 +110,20 @@ const ConfigDrawer = ({ isOpen, onClose, jabatanId, onUpdate }) => {
   };
 
   return (
-    <div className={`z-[9999] transition-all duration-500 ${isOpen ? 'visible' : 'invisible'}`}>
-      {/* Main Overlay */}
+    <div className={`fixed inset-0 z-[9999] transition-all duration-500 ${isOpen ? 'visible' : 'invisible'}`}>
+      
+      {/* Toast diletakkan di dalam portal ini dengan Z-index lebih tinggi agar tidak tertutup drawer */}
+      <Toaster position="top-left" toastOptions={{ style: { zIndex: 10001 } }} />
+
+      {/* Main Overlay - Menggunakan fixed inset-0 agar full screen sampai atas */}
       <div 
-        className={`absolute inset-0 bg-black/80 backdrop-blur-sm transition-opacity duration-500 ${isOpen ? 'opacity-100' : 'opacity-0'}`} 
+        className={`fixed inset-0 bg-black/80 backdrop-blur-sm transition-opacity duration-500 ${isOpen ? 'opacity-100' : 'opacity-0'}`} 
         onClick={onClose} 
       />
       
       {/* Confirmation Modal Overlay */}
       {confirmDelete && (
-        <div className="absolute inset-0 z-[10000] flex items-center justify-center p-4 bg-black/40 backdrop-blur-md animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-black/40 backdrop-blur-md animate-in fade-in duration-200">
           <div className="bg-[#151c21] border border-white/10 p-8 rounded-[2rem] max-w-sm w-full shadow-3xl text-center space-y-6">
             <div className="w-16 h-16 bg-red-500/10 border border-red-500/20 rounded-full flex items-center justify-center mx-auto text-red-500">
               <HiOutlineExclamation size={32} />
@@ -147,7 +151,7 @@ const ConfigDrawer = ({ isOpen, onClose, jabatanId, onUpdate }) => {
     )}
 
       {/* Drawer Content */}
-      <div className={`absolute top-0 right-0 w-full max-w-4xl h-full bg-[#0f1115] border-l border-white/10 shadow-2xl flex flex-col transition-transform duration-500 ease-in-out transform ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+      <div className={`fixed top-0 right-0 w-full max-w-4xl h-full bg-[#0f1115] border-l border-white/10 shadow-2xl flex flex-col transition-transform duration-500 ease-in-out transform ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}>
         
         {/* Header Drawer */}
         <div className="p-6 border-b border-white/10 flex justify-between items-center bg-[#151c21]">
@@ -259,7 +263,8 @@ const JabatanPage = () => {
   };
 
   return (
-    <div className='p-8 h-full min-screen text-white'>
+    <div className='p-8 w-full min-h-screen text-white overflow-x-hidden'>
+      {/* Toaster Utama untuk halaman ini */}
       <Toaster position="top-left" reverseOrder={false} />
       <div className="max-w-7xl mx-auto space-y-8 pb-5">
         
