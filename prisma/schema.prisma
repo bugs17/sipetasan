@@ -15,21 +15,74 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
-model Jabatan {
+model Opd {
   id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  namaJabatan  String
-  pegawai Pegawai[]
-  tugas Tugas[]
+  namaOpd   String
+  
+  userId    Int?     @unique
+  user      User?    @relation(fields: [userId], references: [id])
 
+  // Tambahkan ini agar OPD tahu jabatan apa saja yang dimilikinya
+  jabatans  Jabatan[]
   
-  kJ Int @default(0)
-  b Int @default(0)
-  aBK Float @default(0.00)
-  kurangLebih Int @default(0)
+  // Tambahkan ini jika Pegawai punya relasi langsung ke OPD
+  pegawai   Pegawai[]
+}
+
+model Jabatan {
+  id           Int      @id @default(autoincrement())
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  namaJabatan  String
+  level        Int      @default(1)
+
+  // --- KOLOM LAMA JANGAN DIHAPUS ---
+  kJ           Int      @default(0)  // Kelas Jabatan tetap di sini!
+  b            Int      @default(0)  // BEZ
+  aBK          Float    @default(0.00) // ABK
+  kurangLebih  Int      @default(0)
+
+  // --- TAMBAHAN HIRARKI ---
+  parentId     Int?     
+  parent       Jabatan?  @relation("JabatanHierarki", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  children     Jabatan[] @relation("JabatanHierarki")
+
+  // --- RELASI OPD ---
+  opdId        Int?      @default(1) // Tambahkan default sementara agar tidak error saat migrate
+  opd          Opd?       @relation(fields: [opdId], references: [id])
+
+  pegawai      Pegawai[]
+  tugas        Tugas[]
+}
+
+
+
+model Pegawai {
+  id              Int      @id @default(autoincrement())
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  nama            String
+  nip             String   @unique // Tambahkan unique untuk keamanan data
+  tanggalLahir    DateTime
+  tempatLahir     String
+  tahunPensiun    Int      @default(0)
+  tahunKebutuhan  Int      @default(0)
+
+  pendidikanId    Int?
+  pendidikan      Pendidikan? @relation(fields: [pendidikanId], references: [id], onDelete: SetNull)
   
+  jabatanId       Int?
+  jabatan         Jabatan?    @relation(fields: [jabatanId], references: [id], onDelete: SetNull)
+
+  // HAPUS bagian atasanId dan bawahanId di sini
+  
+  // Relasi OPD biasanya cukup lewat Jabatan saja, 
+  // tapi jika ingin tetap ada relasi langsung:
+  opdId           Int?
+  opd             Opd?        @relation(fields: [opdId], references: [id])
 }
 
 model Tugas{
@@ -54,30 +107,6 @@ model Pendidikan {
   pegawai Pegawai[]
 }
 
-model Pegawai {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  nama  String
-  nip  String
-  tanggalLahir  DateTime
-  tempatLahir  String
-  tahunPensiun Int @default(0)
-  tahunKebutuhan Int @default(0)
-  pendidikanId Int?
-  pendidikan Pendidikan? @relation(fields: [pendidikanId], references: [id], onDelete: SetNull)
-  jabatanId Int?
-  jabatan Jabatan? @relation(fields: [jabatanId], references: [id], onDelete: SetNull)
-  opd Opd[]
-
-
-  // Self-referencing relationship for hierarchy
-  atasanId       Int?       // ID of the superior
-  atasan         Pegawai?   @relation("Hierarki", fields: [atasanId], references: [id])
-  bawahan        Pegawai[]  @relation("Hierarki")
-}
-
-
 
 model User {
   id        Int      @id @default(autoincrement())
@@ -92,16 +121,69 @@ model User {
   opd Opd?
 }
 
-model Opd {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 
-  namaOpd String
+
+
+
+
+
+
+
+// ################ backup tabel versi lama
+
+// model pegawai versi lama
+// model Pegawai {
+//   id        Int      @id @default(autoincrement())
+//   createdAt DateTime @default(now())
+//   updatedAt DateTime @updatedAt
+//   nama  String
+//   nip  String
+//   tanggalLahir  DateTime
+//   tempatLahir  String
+//   tahunPensiun Int @default(0)
+//   tahunKebutuhan Int @default(0)
+//   pendidikanId Int?
+//   pendidikan Pendidikan? @relation(fields: [pendidikanId], references: [id], onDelete: SetNull)
+//   jabatanId Int?
+//   jabatan Jabatan? @relation(fields: [jabatanId], references: [id], onDelete: SetNull)
+//   opd Opd[]
+
+
+//   // Self-referencing relationship for hierarchy
+//   atasanId       Int?       // ID of the superior
+//   atasan         Pegawai?   @relation("Hierarki", fields: [atasanId], references: [id])
+//   bawahan        Pegawai[]  @relation("Hierarki")
+// }
+
+
+// model jabatan versi lama
+// model Jabatan {
+//   id        Int      @id @default(autoincrement())
+//   createdAt DateTime @default(now())
+//   updatedAt DateTime @updatedAt
+//   namaJabatan  String
+//   pegawai Pegawai[]
+//   tugas Tugas[]
+
   
-  userId Int? @unique
-  user User? @relation(fields: [userId], references: [id])
+//   kJ Int @default(0)
+//   b Int @default(0)
+//   aBK Float @default(0.00)
+//   kurangLebih Int @default(0)
+  
+// }
 
-  pegawaiId Int?
-  pegawai Pegawai? @relation(fields: [pegawaiId], references: [id])
-}
+// model opd versi lama
+// model Opd {
+//   id        Int      @id @default(autoincrement())
+//   createdAt DateTime @default(now())
+//   updatedAt DateTime @updatedAt
+
+//   namaOpd String
+  
+//   userId Int? @unique
+//   user User? @relation(fields: [userId], references: [id])
+
+//   pegawaiId Int?
+//   pegawai Pegawai? @relation(fields: [pegawaiId], references: [id])
+// }
