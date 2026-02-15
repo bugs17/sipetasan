@@ -7,30 +7,17 @@ import {
   HiOutlineClipboardList, 
   HiOutlineSearch, 
   HiOutlineX, 
-  HiOutlinePlus,
   HiOutlineTrash,
   HiOutlinePencil,
   HiOutlineExclamation
 } from 'react-icons/hi'
+import { toast, Toaster } from 'react-hot-toast'
 import { getAllJabatan } from '@/app/actions/get-all-jabatan'
 import { getJabatanByID } from '@/app/actions/get-jabatan-by-id'
 import { getAllTugasByJabatanID } from '@/app/actions/get-all-tugas-by-jabatan-id'
-
-// --- DUMMY SERVER ACTIONS (SIMULASI KE CONSOLE) ---
-const serverAddTugas = async (data) => {
-  console.log("📡 Server: Menambahkan tugas baru...", data);
-  return new Promise(resolve => setTimeout(() => resolve({ ...data, id: Math.random() }), 1000));
-};
-
-const serverUpdateTugas = async (id, data) => {
-  console.log(`📡 Server: Mengupdate tugas ID: ${id}...`, data);
-  return new Promise(resolve => setTimeout(resolve, 1000));
-};
-
-const serverDeleteTugas = async (id) => {
-  console.log(`📡 Server: Menghapus tugas ID: ${id}...`);
-  return new Promise(resolve => setTimeout(resolve, 1000));
-};
+import { serverAddTugas } from '@/app/actions/add-tugas'
+import { serverUpdateTugas } from '@/app/actions/edit-tugas-by-id'
+import { serverDeleteTugas } from '@/app/actions/delete-tugas-by-id'
 
 // --- COMPONENT: DRAWER CONFIG ---
 const ConfigDrawer = ({ isOpen, onClose, jabatanId, onUpdate }) => {
@@ -39,13 +26,10 @@ const ConfigDrawer = ({ isOpen, onClose, jabatanId, onUpdate }) => {
   const [loading, setLoading] = useState(true);
   const [isSubmit, setIsSubmit] = useState(false);
   
-  // Form State
   const [uraianTugasInput, setUraianTugasInput] = useState("");
   const [hasilKerjaInput, setHasilKerjaInput] = useState("");
   const [editId, setEditId] = useState(null);
-
-  // Confirm Delete State
-  const [confirmDelete, setConfirmDelete] = useState(null); // Menyimpan ID yang akan dihapus
+  const [confirmDelete, setConfirmDelete] = useState(null);
 
   const fetchData = async () => {
     setLoading(true);
@@ -55,7 +39,7 @@ const ConfigDrawer = ({ isOpen, onClose, jabatanId, onUpdate }) => {
       const resTugas = await getAllTugasByJabatanID(jabatanId);
       setListTugas(resTugas || []);
     } catch (error) {
-      console.error("Error fetching drawer data:", error);
+      toast.error("Gagal memuat data");
     } finally {
       setLoading(false);
     }
@@ -75,22 +59,21 @@ const ConfigDrawer = ({ isOpen, onClose, jabatanId, onUpdate }) => {
     return () => { document.body.style.overflow = 'unset'; };
   }, [isOpen, jabatanId]);
 
-  // Handler Hapus (Optimistic with Confirmation)
   const handleDelete = async () => {
     const id = confirmDelete;
-    const previousList = [...listTugas];
-    
-    // Langsung tutup modal confirm dan hapus di UI
-    setListTugas(listTugas.filter(t => t.id !== id));
     setConfirmDelete(null);
-    
+    const deletePromise = serverDeleteTugas(id);
+    toast.promise(deletePromise, {
+      loading: 'Menghapus tugas...',
+      success: 'Tugas dihapus',
+      error: 'Gagal menghapus',
+    });
     try {
-      await serverDeleteTugas(id);
+      await deletePromise;
+      const resTugas = await getAllTugasByJabatanID(jabatanId);
+      setListTugas(resTugas || []);
       if(onUpdate) onUpdate(); 
-    } catch (err) {
-      setListTugas(previousList); // Rollback
-      alert("Gagal menghapus data");
-    }
+    } catch (err) { console.error(err); }
   };
 
   const startEdit = (tugas) => {
@@ -100,54 +83,39 @@ const ConfigDrawer = ({ isOpen, onClose, jabatanId, onUpdate }) => {
   };
 
   const handleSubmitTugas = async () => {
-    if (!uraianTugasInput || !hasilKerjaInput) return alert("Isi semua field!");
-    
-    const formData = { 
-      namaTugas: uraianTugasInput, 
-      hasil: hasilKerjaInput, 
-      jabatanId: jabatanId 
-    };
-
+    if (!uraianTugasInput || !hasilKerjaInput) return toast.error("Isi semua field!");
     setIsSubmit(true);
+    const formData = { namaTugas: uraianTugasInput, hasil: hasilKerjaInput, jabatanId: jabatanId };
 
     if (editId) {
-      const previousList = [...listTugas];
-      setListTugas(listTugas.map(t => t.id === editId ? { ...t, ...formData } : t));
-      setEditId(null);
-      setUraianTugasInput("");
-      setHasilKerjaInput("");
-
+      const updatePromise = serverUpdateTugas(editId, formData);
+      toast.promise(updatePromise, { loading: 'Mengupdate...', success: 'Berhasil update', error: 'Gagal update' });
       try {
-        await serverUpdateTugas(editId, formData);
-      } catch (err) {
-        setListTugas(previousList);
-        alert("Gagal update data");
-      } finally { setIsSubmit(false); }
-
+        await updatePromise;
+        setEditId(null); setUraianTugasInput(""); setHasilKerjaInput("");
+        const resTugas = await getAllTugasByJabatanID(jabatanId);
+        setListTugas(resTugas || []);
+      } catch (err) { console.error(err); } finally { setIsSubmit(false); }
     } else {
-      const tempId = Date.now();
-      const newTask = { id: tempId, ...formData };
-      
-      setListTugas([newTask, ...listTugas]);
-      setUraianTugasInput("");
-      setHasilKerjaInput("");
-
+      const addPromise = serverAddTugas(formData);
+      toast.promise(addPromise, { loading: 'Menyimpan...', success: 'Berhasil simpan', error: 'Gagal simpan' });
       try {
-        await serverAddTugas(formData);
+        await addPromise;
+        setUraianTugasInput(""); setHasilKerjaInput("");
+        const resTugas = await getAllTugasByJabatanID(jabatanId);
+        setListTugas(resTugas || []);
         if(onUpdate) onUpdate();
-      } catch (err) {
-        setListTugas(listTugas.filter(t => t.id !== tempId));
-        alert("Gagal menambah data");
-      } finally { setIsSubmit(false); }
+      } catch (err) { console.error(err); } finally { setIsSubmit(false); }
     }
   };
 
-  if (!isOpen) return null;
-
   return (
-    <div className="h-screen w-screen z-[9999]">
+    <div className={`z-[9999] transition-all duration-500 ${isOpen ? 'visible' : 'invisible'}`}>
       {/* Main Overlay */}
-      <div className="absolute inset-0 bg-black/80 backdrop-blur-sm transition-opacity duration-300" onClick={onClose} />
+      <div 
+        className={`absolute inset-0 bg-black/80 backdrop-blur-sm transition-opacity duration-500 ${isOpen ? 'opacity-100' : 'opacity-0'}`} 
+        onClick={onClose} 
+      />
       
       {/* Confirmation Modal Overlay */}
       {confirmDelete && (
@@ -158,7 +126,7 @@ const ConfigDrawer = ({ isOpen, onClose, jabatanId, onUpdate }) => {
             </div>
             <div className="space-y-2">
               <h4 className="text-white font-black uppercase tracking-widest text-sm">Hapus Tugas?</h4>
-              <p className="text-[10px] text-gray-500 font-medium leading-relaxed">Tindakan ini tidak dapat dibatalkan. Data akan dihapus secara permanen dari sistem.</p>
+              <p className="text-[10px] text-gray-500 font-medium leading-relaxed">Tindakan ini akan menyebabkan data dihapus secara permanen dari sistem.</p>
             </div>
             <div className="flex gap-3">
               <button 
@@ -176,10 +144,10 @@ const ConfigDrawer = ({ isOpen, onClose, jabatanId, onUpdate }) => {
             </div>
           </div>
         </div>
-      )}
+    )}
 
       {/* Drawer Content */}
-      <div className="absolute top-0 right-0 w-full max-w-4xl h-full bg-[#0f1115] border-l border-white/10 shadow-2xl flex flex-col animate-in slide-in-from-right duration-300">
+      <div className={`absolute top-0 right-0 w-full max-w-4xl h-full bg-[#0f1115] border-l border-white/10 shadow-2xl flex flex-col transition-transform duration-500 ease-in-out transform ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}>
         
         {/* Header Drawer */}
         <div className="p-6 border-b border-white/10 flex justify-between items-center bg-[#151c21]">
@@ -201,7 +169,6 @@ const ConfigDrawer = ({ isOpen, onClose, jabatanId, onUpdate }) => {
           {/* SISI KIRI: LIST TUGAS */}
           <div className="flex-[1.5] overflow-y-auto p-6 border-r border-white/5 bg-[#151c21]/30 custom-scrollbar">
             <h4 className="text-[11px] font-black text-gray-500 uppercase tracking-[0.2em] mb-4">Daftar Uraian Tugas</h4>
-            
             {loading ? (
                <div className="space-y-3">
                   {[1,2,3,4].map(i => <div key={i} className="h-20 bg-white/5 animate-pulse rounded-2xl" />)}
@@ -239,45 +206,21 @@ const ConfigDrawer = ({ isOpen, onClose, jabatanId, onUpdate }) => {
               <h4 className="text-[11px] font-black text-[#6d28d9] uppercase tracking-[0.2em] mb-6">
                 {editId ? 'Edit Tugas Terpilih' : 'Tambah Tugas Baru'}
               </h4>
-              
               <div className="space-y-4">
                 <div className="space-y-2">
                   <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Uraian Tugas</label>
-                  <textarea 
-                    value={uraianTugasInput}
-                    onChange={e => setUraianTugasInput(e.target.value)}
-                    className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-[#6d28d9] min-h-[150px] transition-all placeholder:text-gray-700 resize-none"
-                    placeholder="Contoh: Menyusun laporan bulanan kinerja ASN..."
-                  />
+                  <textarea value={uraianTugasInput} onChange={e => setUraianTugasInput(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-[#6d28d9] min-h-[150px] transition-all placeholder:text-gray-700 resize-none" placeholder="Isi tugas..."/>
                 </div>
-
                 <div className="space-y-2">
                   <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Hasil Kerja</label>
-                  <input 
-                    type="text"
-                    value={hasilKerjaInput}
-                    onChange={e => setHasilKerjaInput(e.target.value)}
-                    className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-[#6d28d9] transition-all placeholder:text-gray-700"
-                    placeholder="Contoh: Dokumen Laporan"
-                  />
+                  <input type="text" value={hasilKerjaInput} onChange={e => setHasilKerjaInput(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-[#6d28d9] transition-all placeholder:text-gray-700" placeholder="Hasil..."/>
                 </div>
-
                 <div className="flex flex-col gap-2">
-                    <button 
-                    onClick={handleSubmitTugas}
-                    disabled={isSubmit || loading}
-                    className="w-full py-4 bg-[#6d28d9] hover:bg-[#5b21b6] text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2 mt-2 shadow-lg shadow-[#6d28d9]/20"
-                    >
+                    <button onClick={handleSubmitTugas} disabled={isSubmit || loading} className="w-full py-4 bg-[#6d28d9] hover:bg-[#5b21b6] text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2 mt-2 shadow-lg shadow-[#6d28d9]/20">
                     {isSubmit ? <span className="loading loading-spinner loading-xs"></span> : editId ? "Update Perubahan" : "Simpan Tugas"}
                     </button>
-
                     {editId && (
-                        <button 
-                            onClick={() => { setEditId(null); setUraianTugasInput(""); setHasilKerjaInput(""); }}
-                            className="w-full py-2 text-[9px] text-gray-500 font-bold uppercase tracking-widest hover:text-white transition-colors"
-                        >
-                            Batal Edit
-                        </button>
+                        <button onClick={() => { setEditId(null); setUraianTugasInput(""); setHasilKerjaInput(""); }} className="w-full py-2 text-[9px] text-gray-500 font-bold uppercase tracking-widest hover:text-white transition-colors">Batal Edit</button>
                     )}
                 </div>
               </div>
@@ -294,7 +237,6 @@ const JabatanPage = () => {
   const [jabatan, setJabatan] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
-  
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [selectedId, setSelectedId] = useState(null);
 
@@ -302,14 +244,10 @@ const JabatanPage = () => {
     try {
       const res = await getAllJabatan()
       setJabatan(res || [])
-    } finally {
-      setLoading(false)
-    }
+    } finally { setLoading(false) }
   }
 
-  useEffect(() => {
-    fetchData()
-  }, [])
+  useEffect(() => { fetchData() }, [])
 
   const filteredJabatan = jabatan.filter((item) =>
     item.namaJabatan.toLowerCase().includes(searchTerm.toLowerCase())
@@ -322,6 +260,7 @@ const JabatanPage = () => {
 
   return (
     <div className='p-8 h-full min-screen text-white'>
+      <Toaster position="top-left" reverseOrder={false} />
       <div className="max-w-7xl mx-auto space-y-8 pb-5">
         
         {/* --- HEADER SECTION --- */}
@@ -335,24 +274,14 @@ const JabatanPage = () => {
                 URAIAN <span className="text-[#6d28d9]">TUGAS.</span>
               </h2>
             </div>
-            <p className="text-[10px] text-gray-500 font-bold uppercase tracking-[0.2em] ml-1">
-              Uraian Tugas Jabatan ASN.
-            </p>
+            <p className="text-[10px] text-gray-500 font-bold uppercase tracking-[0.2em] ml-1">Uraian Tugas Jabatan ASN.</p>
           </div>
 
-          {/* Search Bar */}
           <div className="relative group w-full md:w-80">
             <HiOutlineSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-[#6d28d9] transition-colors" size={18} />
-            <input 
-              type="text"
-              placeholder="CARI NAMA JABATAN..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full bg-[#151c21]/50 border border-white/10 rounded-2xl py-3 pl-12 pr-4 text-[10px] font-bold tracking-widest text-white placeholder:text-gray-600 focus:outline-none focus:border-[#6d28d9]/50 focus:ring-1 focus:ring-[#6d28d9]/50 transition-all backdrop-blur-md"
-            />
+            <input type="text" placeholder="CARI NAMA JABATAN..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full bg-[#151c21]/50 border border-white/10 rounded-2xl py-3 pl-12 pr-4 text-[10px] font-bold tracking-widest text-white placeholder:text-gray-600 focus:outline-none focus:border-[#6d28d9]/50 transition-all backdrop-blur-md" />
           </div>
           
-          {/* Stats */}
           <div className="px-5 py-2.5 bg-white/[0.03] border border-white/10 rounded-2xl backdrop-blur-md flex items-center gap-4">
             <div className="flex flex-col text-right">
               <span className="text-[9px] font-black text-gray-500 uppercase tracking-widest leading-none mb-1">Total Database</span>
@@ -367,53 +296,29 @@ const JabatanPage = () => {
         {/* --- CARD GRID SECTION --- */}
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-pulse">
-            {[1, 2, 3, 4, 5, 6].map((i) => (
-              <div key={i} className="h-48 bg-[#151c21]/50 rounded-3xl border border-white/5" />
-            ))}
+            {[1, 2, 3, 4, 5, 6].map((i) => <div key={i} className="h-48 bg-[#151c21]/50 rounded-3xl border border-white/5" />)}
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredJabatan.length > 0 ? (
               filteredJabatan.map((item, index) => (
-                <div 
-                  key={item.id} 
-                  className="group relative bg-[#151c21]/90 hover:bg-[#151c21] border border-white/10 hover:border-[#6d28d9]/50 rounded-3xl p-6 transition-all duration-500 flex flex-col justify-between overflow-hidden shadow-xl hover:shadow-[#6d28d9]/5 backdrop-blur-md"
-                >
-                  <div className="absolute -top-10 -right-10 w-24 h-24 bg-[#6d28d9] opacity-0 group-hover:opacity-10 blur-3xl transition-opacity duration-500" />
-                  
+                <div key={item.id} className="group relative bg-[#151c21]/90 hover:bg-[#151c21] border border-white/10 hover:border-[#6d28d9]/50 rounded-3xl p-6 transition-all duration-500 flex flex-col justify-between overflow-hidden shadow-xl backdrop-blur-md">
                   <div className="relative z-10">
                     <div className="flex justify-between items-start mb-4">
-                      <span className="text-[10px] font-mono text-gray-600 font-bold group-hover:text-[#6d28d9] transition-colors">
-                        #{(index + 1).toString().padStart(3, '0')}
-                      </span>
-                      <div className={`px-2 py-1 rounded-lg text-[9px] font-black tracking-widest border ${
-                        item.tugas && item.tugas.length > 0 
-                          ? 'border-[#6d28d9]/30 bg-[#6d28d9]/10 text-[#6d28d9]' 
-                          : 'border-red-500/30 bg-red-500/10 text-red-500'
-                      }`}>
+                      <span className="text-[10px] font-mono text-gray-600 font-bold group-hover:text-[#6d28d9] transition-colors">#{(index + 1).toString().padStart(3, '0')}</span>
+                      <div className={`px-2 py-1 rounded-lg text-[9px] font-black tracking-widest border ${item.tugas && item.tugas.length > 0 ? 'border-[#6d28d9]/30 bg-[#6d28d9]/10 text-[#6d28d9]' : 'border-red-500/30 bg-red-500/10 text-red-500'}`}>
                         {(item.tugas?.length || 0)} URAIAN TUGAS
                       </div>
                     </div>
-
-                    <h3 className="text-lg font-bold text-gray-200 group-hover:text-white leading-tight uppercase tracking-tight mb-2 min-h-[3.5rem] line-clamp-3 transition-colors">
-                      {item.namaJabatan}
-                    </h3>
+                    <h3 className="text-lg font-bold text-gray-200 group-hover:text-white leading-tight uppercase tracking-tight mb-2 min-h-[3.5rem] line-clamp-3 transition-colors">{item.namaJabatan}</h3>
                   </div>
-
                   <div className="relative z-10 pt-6 mt-4 border-t border-white/5 flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center">
-                        <HiOutlineClipboardList className="text-gray-500 group-hover:text-[#6d28d9] transition-colors" />
-                      </div>
+                      <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center"><HiOutlineClipboardList className="text-gray-500 group-hover:text-[#6d28d9] transition-colors" /></div>
                       <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Details</span>
                     </div>
-
-                    <button 
-                        onClick={() => handleOpenConfig(item.id)}
-                        className="flex items-center gap-2 bg-white text-[#1a1a1e] px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-white hover:scale-105 transition-all duration-300 group/btn active:scale-95"
-                        >
-                        Config
-                        <HiOutlineCog size={16} className="group-hover/btn:rotate-90 transition-transform duration-500 ease-in-out text-[#6d28d9]" />
+                    <button onClick={() => handleOpenConfig(item.id)} className="flex items-center gap-2 bg-white text-[#1a1a1e] px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-all duration-300 group/btn active:scale-95">
+                        Config <HiOutlineCog size={16} className="group-hover/btn:rotate-90 transition-transform duration-500 ease-in-out text-[#6d28d9]" />
                     </button>
                   </div>
                 </div>
@@ -421,23 +326,13 @@ const JabatanPage = () => {
             ) : (
               <div className="col-span-full py-32 flex flex-col items-center justify-center border-2 border-dashed border-white/5 rounded-[3rem] opacity-30 grayscale">
                 <HiOutlineBriefcase size={64} />
-                <p className="text-xs font-black uppercase tracking-[0.3em] mt-6 text-white">
-                  {searchTerm ? "Jabatan Tidak Ditemukan" : "Database Jabatan Kosong"}
-                </p>
+                <p className="text-xs font-black uppercase mt-6 text-white">Database Kosong</p>
               </div>
             )}
           </div>
         )}
 
-        {/* --- DRAWER COMPONENT --- */}
-        <ConfigDrawer 
-          isOpen={isDrawerOpen} 
-          onClose={() => setIsDrawerOpen(false)} 
-          jabatanId={selectedId}
-          onUpdate={fetchData}
-        />
-
-        
+        <ConfigDrawer isOpen={isDrawerOpen} onClose={() => setIsDrawerOpen(false)} jabatanId={selectedId} onUpdate={fetchData} />
       </div>
     </div>
   )
