@@ -1,8 +1,7 @@
 import { prisma } from '../../lib/db';
 import ProyeksiInduk from '@/components/ProyeksiPegawai-role-induk';
-import ProyeksiPegawaiRoleOpd from '@/components/ProyeksiPegawai-role-opd';
-import ProyeksiPegawaiRoleOpd2 from '@/components/TestProyeksiOps';
 import { auth } from "@clerk/nextjs/server";
+import ProyeksiPegawaiCard from '@/components/Proyeksi-kebutuhan-Opd-card';
 
 
 const page = async () => {
@@ -25,7 +24,7 @@ const page = async () => {
     if (role === 'ADMIN_INDUK') {
         return <ProyeksiInduk />
     }else if(role === 'ADMIN_OPD'){
-        return <ProyeksiPegawaiRoleOpd2 />
+        return <ProyeksiPegawaiCard />
     }else if (role === 'PIMPINAN') {
         return <div>pimpinan</div>
     }

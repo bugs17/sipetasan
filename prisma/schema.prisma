@@ -58,8 +58,6 @@ model Jabatan {
   tugas        Tugas[]
 }
 
-
-
 model Pegawai {
   id              Int      @id @default(autoincrement())
   createdAt       DateTime @default(now())

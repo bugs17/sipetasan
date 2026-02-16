@@ -326,70 +326,60 @@ const PetaJabatanEditor = () => {
         ` }} />
 
         {/* EDIT CONTROL DOCK */}
-<motion.div 
-  layout
-  /* Transisi layout dibuat lebih kencang agar sinkron dengan tombol yang menghilang */
-  transition={{ 
-    type: "spring", 
-    stiffness: 400, // Menaikkan stiffness agar gerakan mengecil lebih cepat
-    damping: 30,    // Mengatur damping agar tidak terlalu membal
-  }}
-  className="flex items-center p-2 rounded-[1.5rem] bg-[#1a1a1e]/90 backdrop-blur-2xl border border-white/10 shadow-2xl"
->
-  <div className="flex items-center gap-2 relative">
-    <AnimatePresence mode="popLayout"> {/* popLayout krusial agar elemen tidak 'menahan' lebar parent saat exit */}
-      {isEditMode && (
-        <motion.div
-          key="cancel-btn"
-          initial={{ opacity: 0, x: 40 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: 40 }}
-          /* Transisi tombol juga disesuaikan */
-          transition={{ type: "spring", stiffness: 400, damping: 35 }}
-          className="tooltip-trigger"
+        <motion.div 
+          layout
+          transition={{ type: "spring", stiffness: 400, damping: 30 }}
+          className="flex items-center p-2 rounded-[1.5rem] bg-[#1a1a1e]/90 backdrop-blur-2xl border border-white/10 shadow-2xl overflow-visible"
         >
-          <button 
-            onClick={() => { if(hasChanges) setCancelModal(true); else setIsEditMode(false); }} 
-            className="p-2.5 bg-white/5 text-white/50 rounded-xl hover:bg-white/10 transition-all border border-white/5 active:scale-95"
-          >
-            <HiOutlineBan size={16}/>
-          </button>
-          <div className="tooltip-content">Batal Perubahan</div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+          <div className="flex items-center gap-2">
+            <AnimatePresence mode="popLayout">
+              {isEditMode && (
+                <motion.div
+                  key="cancel-btn"
+                  initial={{ opacity: 0, scale: 0.5, x: 20 }}
+                  animate={{ opacity: 1, scale: 1, x: 0 }}
+                  exit={{ opacity: 0, scale: 0.5, x: 20 }}
+                  transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                  className="tooltip-trigger"
+                >
+                  <button 
+                    type="button"
+                    onClick={() => { if(hasChanges) setCancelModal(true); else setIsEditMode(false); }} 
+                    className="h-10 w-10 flex items-center justify-center bg-white/5 text-white/50 rounded-xl hover:bg-white/10 transition-colors border border-white/5 active:scale-90"
+                  >
+                    <HiOutlineBan size={18}/>
+                  </button>
+                  <div className="tooltip-content">Batal</div>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
-    {/* Tombol Utama */}
-    <div className="tooltip-trigger">
-      <motion.button
-        layout
-        key="main-btn"
-        onClick={isEditMode ? handleSaveAll : () => setIsEditMode(true)}
-        className={`p-2.5 rounded-xl transition-all shadow-lg active:scale-95 ${
-          isEditMode 
-            ? 'bg-emerald-600 text-white shadow-emerald-500/20 hover:bg-emerald-500' 
-            : 'bg-indigo-600 text-white shadow-indigo-500/20 hover:bg-indigo-500'
-        }`}
-      >
-        <AnimatePresence mode="wait" initial={false}>
-          <motion.div
-            key={isEditMode ? 'save' : 'edit'}
-            initial={{ opacity: 0, rotate: -90 }}
-            animate={{ opacity: 1, rotate: 0 }}
-            exit={{ opacity: 0, rotate: 90 }}
-            transition={{ duration: 0.15 }}
-          >
-            {isEditMode ? <HiOutlineCheck size={16}/> : <HiOutlinePencilAlt size={16}/>}
-          </motion.div>
-        </AnimatePresence>
-      </motion.button>
-      
-      <div className="tooltip-content">
-        {isEditMode ? "Simpan Ke Database" : "Masuk Mode Edit"}
-      </div>
-    </div>
-  </div>
-</motion.div>
+            {/* Tombol Utama (Static Position) */}
+            <div className="tooltip-trigger">
+              <button
+                type="button"
+                onClick={isEditMode ? handleSaveAll : () => setIsEditMode(true)}
+                className={`h-10 w-10 flex items-center justify-center rounded-xl transition-all duration-300 shadow-lg active:scale-90 ${
+                  isEditMode 
+                    ? 'bg-emerald-600 text-white shadow-emerald-500/20' 
+                    : 'bg-indigo-600 text-white shadow-indigo-500/20'
+                }`}
+              >
+                {/* Simple & Smooth Fade Transition untuk Icon */}
+                <div className="relative h-5 w-5">
+                  {isEditMode ? (
+                    <HiOutlineCheck className="absolute inset-0 transition-all" size={20} />
+                  ) : (
+                    <HiOutlinePencilAlt className="absolute inset-0 transition-all" size={20} />
+                  )}
+                </div>
+              </button>
+              <div className="tooltip-content">
+                {isEditMode ? "Simpan" : "Edit"}
+              </div>
+            </div>
+          </div>
+        </motion.div>
 
         {/* VIEWPORT DOCK */}
         <div className="flex items-center gap-2 p-2 rounded-[1.5rem] bg-[#1a1a1e]/80 backdrop-blur-2xl border border-white/10 shadow-2xl transition-all opacity-60 hover:opacity-100 group/dock">
