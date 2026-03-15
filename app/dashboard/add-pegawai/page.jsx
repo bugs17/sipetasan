@@ -5,10 +5,27 @@ import { prisma } from '../../lib/db';
 import FormInputPegawai from '@/components/micro-component/Form-Input-Pegawai';
 
 const Pegawai = async () => {
+    let pendidikan;
+    let jabatan;
+    let pegawai;
 
-    const pendidikan = await prisma.pendidikan.findMany()
-    const jabatan = await prisma.jabatan.findMany()
-    const pegawai = await prisma.pegawai.findMany()
+    try {
+        pendidikan = await prisma.pendidikan.findMany()
+    } catch (error) {
+        console.log("error get pendidikan")
+    }
+
+    try {
+        jabatan = await prisma.jabatan.findMany()
+    } catch (error) {
+        console.log("Error get jabatans");
+    }
+
+    try {
+        pegawai = await prisma.pegawai.findMany()
+    } catch (error) {
+        console.log("Error get pegawais")
+    }
 
   return (
     <div className='p-5 h-full overflow-y-auto'>

@@ -5,8 +5,12 @@ import ButtonHapusJabatan from '@/components/micro-component/Button-hapus-jabata
 
 
 const Jabtan = async () => {
-
-    const data = await prisma.jabatan.findMany()
+    let data;
+    try {
+        data = await prisma.jabatan.findMany()
+    } catch (error) {
+        console.log("Error get jabatan")
+    }
 
 
   return (

@@ -7,23 +7,47 @@ import FormEditPegawai from '@/components/micro-component/Form-Edit-Pegawai';
 const Pegawai = async ({searchParams}) => {
 
     const id = searchParams.id
-    const pendidikan = await prisma.pendidikan.findMany()
-    const jabatan = await prisma.jabatan.findMany()
-    const pegawai = await prisma.pegawai.findFirst({
-        where:{
-            id:parseInt(id)
-        },
-        include:{
-            jabatan:true
-        }
-    })
-    const allPegawai = await prisma.pegawai.findMany({
-        where:{
-            id:{
-                not:parseInt(pegawai.id)
+    let pendidikan;
+    let jabatan;
+    let pegawai;
+    let allPegawai;
+
+    try {
+        pendidikan = await prisma.pendidikan.findMany()
+    } catch (error) {
+        
+    }
+    try {
+        jabatan = await prisma.jabatan.findMany()
+    } catch (error) {
+        
+    }
+
+
+    try {
+        pegawai = await prisma.pegawai.findFirst({
+            where:{
+                id:parseInt(id)
+            },
+            include:{
+                jabatan:true
             }
-        }
-    })
+        })
+    } catch (error) {
+        
+    }
+    
+    try {
+        allPegawai = await prisma.pegawai.findMany({
+            where:{
+                id:{
+                    not:parseInt(pegawai.id)
+                }
+            }
+        })
+    } catch (error) {
+        
+    }
 
   return (
     <div className='p-5 h-full overflow-y-auto'>

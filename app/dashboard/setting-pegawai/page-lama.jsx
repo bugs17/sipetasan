@@ -7,12 +7,17 @@ import { prisma } from '../../lib/db';
 const BASE_PATH = "/dashboard"
 
 const SettingPegawai = async () => {
-    let pegawai = await prisma.pegawai.findMany({
-      include:{
-        jabatan:true,
-        pendidikan:true
-      }
-    }) ;
+    let pegawai 
+    try {
+      pegawai = await prisma.pegawai.findMany({
+        include:{
+          jabatan:true,
+          pendidikan:true
+        }
+      }) ;
+    } catch (error) {
+      console.log("error get pegawais");
+    }
   return (
     <div className='p-5 h-full overflow-y-auto '>
         <div className='w-full flex justify-end'>

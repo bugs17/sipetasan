@@ -10,11 +10,15 @@ function toUpperCase(sentence) {
 export const addJabatan = async (formData) => {
     const jabatan = formData.get("input-jabatan")
     const fixData = toUpperCase(jabatan)
-    await prisma.jabatan.create({
-        data:{
-            namaJabatan:fixData
-        }
-    })
+    try {
+        await prisma.jabatan.create({
+            data:{
+                namaJabatan:fixData
+            }
+        })
+    } catch (error) {
+        console.log("Error create jabatan")
+    }
 
     revalidatePath("/setting-jabatan")
     revalidatePath('/add-pegawai')
