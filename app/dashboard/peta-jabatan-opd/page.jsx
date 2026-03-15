@@ -12,7 +12,7 @@ function potongKalimat(kalimat, max) {
   }
 
 const page = async () => {
-    let jabatan;
+    let jabatan = [];
     try {
         jabatan = await prisma.jabatan.findMany({
             include:{
@@ -33,9 +33,11 @@ const page = async () => {
         console.log("Error get jabatan");
     }
 
-    jabatan.forEach(jab => {
-        jab.totalKebutuhanPegawai = jab.tugas.reduce((sum, tugas) => sum + tugas.KebutuhanPegawai, 0);
-    });
+    if (jabatan.length > 0) {
+        jabatan.forEach(jab => {
+            jab.totalKebutuhanPegawai = jab.tugas.reduce((sum, tugas) => sum + tugas.KebutuhanPegawai, 0);
+        });
+    }
 
     
   return (
