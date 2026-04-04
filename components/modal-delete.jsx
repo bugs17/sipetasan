@@ -5,7 +5,7 @@ const ModalDelete = ({
   setIsDeleteModalOpen,
   title,
   desc,
-  selectedPegawai,
+  selectedItem,
   handleDelete,
 }) => {
   if (!isDeleteModalOpen) return null;
@@ -27,9 +27,10 @@ const ModalDelete = ({
           <p className="text-xs text-gray-500 leading-relaxed px-4">
             {desc}
             <span className="text-white font-bold">
-              {selectedPegawai?.nama}
-            </span>{" "}
-            akan dihapus permanen.
+              {selectedItem?.nama}
+              {"? "}
+            </span>
+            tindakan ini akan menyebabkan penghapusan data permanen di database!
           </p>
           <div className="flex w-full gap-3 pt-4">
             <button
