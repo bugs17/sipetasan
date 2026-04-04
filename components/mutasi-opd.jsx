@@ -32,8 +32,7 @@ const MutasiOPD = () => {
 
   // State Form
   const [formData, setFormData] = useState({
-    nip: "",
-    jenis: "Antar OPD",
+    id_pegawai: "",
     tujuan: "",
     alasan: "",
   });
@@ -46,6 +45,8 @@ const MutasiOPD = () => {
     "Sekretariat Daerah",
     "Inspektorat Daerah",
   ];
+
+  const daftarPegawai = ["Usher", "Abner aronggear", "Anjulens Aninam"];
 
   const historyMutasi = [
     {
@@ -286,22 +287,25 @@ const MutasiOPD = () => {
                     </label>
                     <div className="relative">
                       <select
-                        value={formData.tujuan}
+                        value={formData.id_pegawai}
                         onChange={(e) =>
-                          setFormData({ ...formData, tujuan: e.target.value })
+                          setFormData({
+                            ...formData,
+                            id_pegawai: e.target.value,
+                          })
                         }
                         className="w-full bg-white/[0.03] border border-white/10 rounded-xl py-3.5 px-4 text-xs text-white focus:outline-none focus:border-[#6d28d9]/50 appearance-none cursor-pointer"
                       >
-                        <option value="" className="bg-[#1a1a1e]">
+                        <option value="" className="bg-[#1a1a1e] text-gray-600">
                           -- Pilih Pegawai --
                         </option>
-                        {daftarInstansi.map((instansi, i) => (
+                        {daftarPegawai.map((pegawai, i) => (
                           <option
                             key={i}
-                            value={instansi}
+                            value={pegawai}
                             className="bg-[#1a1a1e]"
                           >
-                            {instansi}
+                            {pegawai}
                           </option>
                         ))}
                       </select>
