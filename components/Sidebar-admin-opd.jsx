@@ -3,16 +3,17 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-
-import { FaTasks } from "react-icons/fa";
-import { IoIosPeople } from "react-icons/io";
-import { BsDiagram3Fill } from "react-icons/bs";
-import { IoSettingsSharp } from "react-icons/io5";
-import { FaDownload } from "react-icons/fa6";
+import {
+  LayoutGrid,
+  Users,
+  ClipboardList,
+  Settings,
+  Download,
+  Shuffle,
+} from "lucide-react";
 
 /**
  * Base path dashboard
- * gampang diganti kalau nanti berubah
  */
 const BASE_PATH = "/dashboard";
 
@@ -23,36 +24,31 @@ const menuConfig = [
   {
     label: "Peta Jabatan",
     href: `${BASE_PATH}`,
-    icon: <BsDiagram3Fill />,
+    icon: <LayoutGrid size={20} />,
     match: (pathname) => pathname === BASE_PATH,
   },
   {
     label: "Proyeksi Kebutuhan",
     href: `${BASE_PATH}/proyeksi-kebutuhan`,
-    icon: <IoIosPeople />,
+    icon: <Users size={20} />,
     match: (pathname) => pathname === `${BASE_PATH}/proyeksi-kebutuhan`,
   },
   {
     label: "Uraian Tugas",
     href: `${BASE_PATH}/uraian-tugas`,
-    icon: <FaTasks />,
+    icon: <ClipboardList size={20} />,
     match: (pathname) =>
       pathname === `${BASE_PATH}/uraian-tugas` ||
       pathname.includes(`${BASE_PATH}/tugas`),
   },
   {
     label: "Master",
-    icon: <IoSettingsSharp />,
+    icon: <Settings size={20} />,
     type: "group",
     openWhen: (pathname) =>
       pathname.startsWith(`${BASE_PATH}/setting`) ||
       pathname.startsWith(`${BASE_PATH}/add`),
     children: [
-      // {
-      //   label: "Seting Jabatan",
-      //   href: `${BASE_PATH}/setting-jabatan`,
-      //   match: (pathname) => pathname === `${BASE_PATH}/setting-jabatan`,
-      // },
       {
         label: "Seting Pegawai",
         href: `${BASE_PATH}/setting-pegawai`,
@@ -71,7 +67,7 @@ const menuConfig = [
   },
   {
     label: "Download",
-    icon: <FaDownload />,
+    icon: <Download size={20} />,
     type: "group",
     children: [
       {
@@ -84,6 +80,14 @@ const menuConfig = [
       },
     ],
   },
+  {
+    label: "Mutasi",
+    href: `${BASE_PATH}/mutasi`,
+    icon: <Shuffle size={20} />,
+    match: (pathname) =>
+      pathname === `${BASE_PATH}/mutasi` ||
+      pathname.includes(`${BASE_PATH}/mutasi`),
+  },
 ];
 
 /**
@@ -95,9 +99,6 @@ const SideBarAdminOpd = () => {
   return (
     <ul className="menu w-full">
       {menuConfig.map((item, index) => {
-        // =====================
-        // SINGLE MENU
-        // =====================
         if (!item.type) {
           const isActive = item.match?.(pathname);
 
@@ -105,7 +106,9 @@ const SideBarAdminOpd = () => {
             <li key={index}>
               <Link
                 href={item.href}
-                className={`hover:text-violet-500 ${isActive ? "active" : ""}`}
+                className={`flex items-center gap-2 hover:text-violet-500 ${
+                  isActive ? "active" : ""
+                }`}
               >
                 {item.icon}
                 <span>{item.label}</span>
@@ -114,18 +117,15 @@ const SideBarAdminOpd = () => {
           );
         }
 
-        // =====================
-        // GROUP MENU
-        // =====================
         return (
           <li key={index}>
             <details open={item.openWhen?.(pathname)}>
-              <summary className="hover:text-violet-500">
+              <summary className="flex items-center gap-2 hover:text-violet-500">
                 {item.icon}
                 <span>{item.label}</span>
               </summary>
 
-              <ul>
+              <ul className="ml-6 mt-1">
                 {item.children.map((child, idx) => {
                   const isActive = child.match?.(pathname);
 
@@ -133,7 +133,9 @@ const SideBarAdminOpd = () => {
                     <li key={idx}>
                       <Link
                         href={child.href}
-                        className={`hover:text-violet-500 ${isActive ? "active" : ""}`}
+                        className={`hover:text-violet-500 ${
+                          isActive ? "active" : ""
+                        }`}
                       >
                         {child.label}
                       </Link>

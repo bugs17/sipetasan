@@ -12,6 +12,7 @@ import {
   Search,
   X,
   ChevronDown,
+  Shuffle,
 } from "lucide-react";
 import FormMutasiOpdSkeleton from "./skeleton/form-mutasi-opd-skeleton";
 import ListMutasiOpdSkeleton from "./skeleton/list-mutasi-opd-skeleton";
@@ -267,7 +268,7 @@ const MutasiOPD = () => {
               <div className="bg-[#1a1a1e]/40 backdrop-blur-2xl border border-white/10 p-8 rounded-[2.5rem] shadow-2xl h-full flex flex-col">
                 <div className="flex items-center gap-4 mb-8 shrink-0">
                   <div className="p-3 bg-[#6d28d9]/10 rounded-2xl border border-[#6d28d9]/20 text-[#6d28d9]">
-                    <ArrowRightLeft size={24} />
+                    <Shuffle size={24} />
                   </div>
                   <div>
                     <h4 className="text-sm font-bold text-white uppercase tracking-tight">
@@ -281,21 +282,32 @@ const MutasiOPD = () => {
                 <div className="grid grid-cols-2 gap-6 flex-1 content-start">
                   <div className="col-span-2 space-y-2">
                     <label className="text-[10px] font-black text-gray-400 uppercase ml-1">
-                      Cari Pegawai (NIP)
+                      Pegawai Yang Akan Mutasi
                     </label>
                     <div className="relative">
-                      <Search
-                        size={14}
-                        className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600"
-                      />
-                      <input
-                        type="text"
-                        value={formData.nip}
+                      <select
+                        value={formData.tujuan}
                         onChange={(e) =>
-                          setFormData({ ...formData, nip: e.target.value })
+                          setFormData({ ...formData, tujuan: e.target.value })
                         }
-                        placeholder="Masukkan NIP Pegawai..."
-                        className="w-full bg-white/[0.03] border border-white/10 rounded-xl py-3.5 pl-10 pr-4 text-xs text-white focus:outline-none focus:border-[#6d28d9]/50 transition-all"
+                        className="w-full bg-white/[0.03] border border-white/10 rounded-xl py-3.5 px-4 text-xs text-white focus:outline-none focus:border-[#6d28d9]/50 appearance-none cursor-pointer"
+                      >
+                        <option value="" className="bg-[#1a1a1e]">
+                          -- Pilih Pegawai --
+                        </option>
+                        {daftarInstansi.map((instansi, i) => (
+                          <option
+                            key={i}
+                            value={instansi}
+                            className="bg-[#1a1a1e]"
+                          >
+                            {instansi}
+                          </option>
+                        ))}
+                      </select>
+                      <ChevronDown
+                        size={14}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none"
                       />
                     </div>
                   </div>
