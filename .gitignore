@@ -39,3 +39,5 @@ next-env.d.ts
 .env
 /realDB
 realDB/
+# clerk configuration (can include secrets)
+/.clerk/
