@@ -339,9 +339,11 @@ const Page = () => {
         setFormData={setFormData}
       />
       <ModalDelete
+        title={"Hapus Pegawai"}
+        desc={"Anda yakin akan menghapus, "}
         isDeleteModalOpen={isDeleteModalOpen}
         setIsDeleteModalOpen={setIsDeleteModalOpen}
-        selectedPegawai={selectedPegawai}
+        selectedItem={selectedPegawai}
         handleDelete={handleDelete}
       />
     </div>

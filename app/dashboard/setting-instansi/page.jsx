@@ -12,6 +12,7 @@ import {
   Users,
 } from "lucide-react";
 import AdminIndukWrapper from "@/components/admin-induk-wrapper";
+import ModalDelete from "@/components/modal-delete";
 
 // Impor komponen modal buatan Anda (asumsi penamaan)
 // import ModalAddInstansi from "@/components/modal-add-instansi";
@@ -129,7 +130,7 @@ const Page = () => {
                 />
                 <input
                   type="text"
-                  placeholder="Cari kode atau nama..."
+                  placeholder="Cari nama instansi..."
                   value={searchTerm}
                   onChange={(e) => {
                     setSearchTerm(e.target.value);
@@ -298,6 +299,14 @@ const Page = () => {
         {/* Modal Placeholder (Sesuaikan dengan komponen modal Anda) */}
         {/* <ModalAddInstansi isModalOpen={isModalOpen} closeModal={() => setIsModalOpen(false)} formData={formData} /> */}
         {/* <ModalDelete isDeleteModalOpen={isDeleteModalOpen} setIsDeleteModalOpen={setIsDeleteModalOpen} selectedItem={selectedInstansi} handleDelete={handleDelete} /> */}
+        <ModalDelete
+          title={"Hapus Instansi"}
+          desc={"Anda yakin akan menghapus, "}
+          isDeleteModalOpen={isDeleteModalOpen}
+          setIsDeleteModalOpen={setIsDeleteModalOpen}
+          selectedItem={selectedInstansi}
+          handleDelete={handleDelete}
+        />
       </div>
     </AdminIndukWrapper>
   );
