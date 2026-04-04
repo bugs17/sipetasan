@@ -52,7 +52,7 @@ const menuConfig = [
     children: [
       {
         label: "Seting Instansi",
-        href: `${BASE_PATH}/setting-pegawai`,
+        href: `${BASE_PATH}/setting-instansi`,
         match: (pathname) => pathname === `${BASE_PATH}/setting-instansi`,
       },
       {
