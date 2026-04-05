@@ -1,4 +1,11 @@
-import { Briefcase, Calendar, GraduationCap, MapPin, User } from "lucide-react";
+import {
+  Briefcase,
+  Building2,
+  Calendar,
+  GraduationCap,
+  MapPin,
+  User,
+} from "lucide-react";
 
 const jenjangPendidikan = [
   "SMA/SMK",
@@ -13,6 +20,7 @@ const jenjangPendidikan = [
 const ModalAddPegawai = ({
   isModalOpen,
   closeModal,
+  instansi,
   formData,
   setFormData,
   handleSubmit,
@@ -33,7 +41,7 @@ const ModalAddPegawai = ({
               Manajemen Profil & Jabatan
             </p>
           </div>
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-4">
             <div className="space-y-1.5">
               <label className="text-[9px] font-black text-gray-500 uppercase ml-1 tracking-widest flex items-center gap-2">
                 <User size={10} /> Nama Lengkap
@@ -42,7 +50,7 @@ const ModalAddPegawai = ({
                 autoFocus
                 required
                 type="text"
-                placeholder="Nama & Gelar..."
+                placeholder="Contoh: John Doe S.H"
                 value={formData.nama}
                 onChange={(e) =>
                   setFormData({ ...formData, nama: e.target.value })
@@ -57,7 +65,6 @@ const ModalAddPegawai = ({
                   <MapPin size={10} /> Kota Lahir
                 </label>
                 <input
-                  required
                   type="text"
                   placeholder="Kota"
                   value={formData.tmptLahir}
@@ -72,7 +79,6 @@ const ModalAddPegawai = ({
                   <Calendar size={10} /> Tanggal
                 </label>
                 <input
-                  required
                   type="date"
                   value={formData.tglLahir}
                   onChange={(e) =>
@@ -82,43 +88,66 @@ const ModalAddPegawai = ({
                 />
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <label className="text-[9px] font-black text-gray-500 uppercase ml-1 tracking-widest flex items-center gap-2">
-                  <GraduationCap size={10} /> Pendidikan
-                </label>
-                <select
-                  required
-                  value={formData.pendidikan}
-                  onChange={(e) =>
-                    setFormData({ ...formData, pendidikan: e.target.value })
-                  }
-                  className="w-full bg-[#1a1a1e] border border-white/10 rounded-2xl py-3 px-4 text-sm text-white focus:outline-none focus:border-[#6d28d9]/50 appearance-none"
-                >
-                  <option value="">Jenjang</option>
-                  {jenjangPendidikan.map((j) => (
-                    <option key={j} value={j}>
-                      {j}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-[9px] font-black text-gray-500 uppercase ml-1 tracking-widest">
-                  NIP
-                </label>
-                <input
-                  required
-                  type="text"
-                  placeholder="19XXXXXXXX"
-                  value={formData.nip}
-                  onChange={(e) =>
-                    setFormData({ ...formData, nip: e.target.value })
-                  }
-                  className="w-full bg-white/[0.03] border border-white/10 rounded-2xl py-3 px-4 text-sm text-white focus:outline-none focus:border-[#6d28d9]/50 font-mono"
-                />
-              </div>
+
+            {/* nip */}
+            <div className="space-y-1.5">
+              <label className="text-[9px] font-black text-gray-500 uppercase ml-1 tracking-widest">
+                NIP
+              </label>
+              <input
+                type="text"
+                placeholder="19XXXXXXXX"
+                value={formData.nip}
+                onChange={(e) =>
+                  setFormData({ ...formData, nip: e.target.value })
+                }
+                className="w-full bg-white/[0.03] border border-white/10 rounded-2xl py-3 px-4 text-sm text-white focus:outline-none focus:border-[#6d28d9]/50 font-mono"
+              />
             </div>
+
+            {/* pendidikan */}
+            <div className="space-y-1.5 ">
+              <label className="text-[9px] font-black text-gray-500 uppercase ml-1 tracking-widest flex items-center gap-2">
+                <GraduationCap size={10} /> Pendidikan
+              </label>
+              <select
+                value={formData.pendidikan}
+                onChange={(e) =>
+                  setFormData({ ...formData, pendidikan: e.target.value })
+                }
+                className="w-full bg-white/[0.03] border border-white/10 rounded-2xl py-3 px-4 text-sm text-white focus:outline-none focus:border-[#6d28d9]/50 appearance-none"
+              >
+                <option value="">Jenjang</option>
+                {jenjangPendidikan.map((j) => (
+                  <option key={j} value={j}>
+                    {j}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* instansi */}
+            <div className="space-y-1.5">
+              <label className="text-[9px] font-black text-gray-500 uppercase ml-1 tracking-widest flex items-center gap-2">
+                <Building2 size={10} /> Instansi
+              </label>
+              <select
+                value={formData.opdId || ""}
+                onChange={(e) =>
+                  setFormData({ ...formData, opdId: e.target.value })
+                }
+                className="w-full bg-white/[0.03] border border-white/10 rounded-2xl py-3 px-4 text-sm text-white focus:outline-none focus:border-[#6d28d9]/50 appearance-none"
+              >
+                <option value={null}>--Instansi--</option>
+                {instansi.map((i) => (
+                  <option key={i.id} value={i.id}>
+                    {i.namaOpd}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* button */}
             <div className="flex gap-3 pt-4">
               <button
                 type="button"
@@ -134,7 +163,7 @@ const ModalAddPegawai = ({
                 {formData.id ? "Update Profil" : "Simpan Pegawai"}
               </button>
             </div>
-          </form>
+          </div>
         </div>
       </div>
     </div>
