@@ -18,6 +18,7 @@ import ModalAddPegawai from "@/components/modal-add-pegawai";
 import SettingPegawaiSkeleton, {
   ListSkeleton,
 } from "@/components/skeleton/setting-pegawai-skeleton";
+import { getColorFromId } from "@/app/utils/generate-color";
 
 const Page = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -57,7 +58,7 @@ const Page = () => {
 
   const [pegawai, setPegawai] = useState(() => {
     return Array.from({ length: 30 }).map((_, i) => ({
-      id: `p${i}`,
+      id: `${i}`,
       nama: i === 0 ? "Dr. Ahmad Sujatmiko" : `Pegawai Simulasi ${i + 1}`,
       nip: `1988021120150310${String(i).padStart(2, "0")}`,
       foto: "PS",
@@ -200,6 +201,7 @@ const Page = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">
+                {/* TODO: kerjakan logika show sekeloton saat update list */}
                 {!true ? (
                   <ListSkeleton />
                 ) : (
@@ -213,8 +215,8 @@ const Page = () => {
                           <div
                             className="h-10 w-10 rounded-xl flex items-center justify-center text-[10px] font-black border border-white/10 shrink-0"
                             style={{
-                              backgroundColor: `${p.color}15`,
-                              color: p.color,
+                              backgroundColor: `${getColorFromId(p.id)}15`,
+                              color: getColorFromId(p.id),
                             }}
                           >
                             {p.nama.substring(0, 2).toUpperCase()}

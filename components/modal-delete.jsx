@@ -27,7 +27,7 @@ const ModalDelete = ({
           <p className="text-xs text-gray-500 leading-relaxed px-4">
             {desc}
             <span className="text-white font-bold">
-              {selectedItem?.nama}
+              {selectedItem?.namaOpd}
               {"? "}
             </span>
             tindakan ini akan menyebabkan penghapusan data permanen di database!

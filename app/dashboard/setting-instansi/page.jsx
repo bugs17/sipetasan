@@ -18,6 +18,8 @@ import SettingInstansiSkeleton from "@/components/skeleton/setting-instansi-skel
 import { getListInstansi } from "@/app/actions/getListInstansi";
 import { addOrUpdateInstansi } from "@/app/actions/addOrUpdateInstansi";
 import toast, { Toaster } from "react-hot-toast";
+import { deleteInstansi } from "@/app/actions/deleteInstansi";
+import { getColorFromId } from "@/app/utils/generate-color";
 
 // Impor komponen modal buatan Anda (asumsi penamaan)
 // import ModalAddInstansi from "@/components/modal-add-instansi";
@@ -62,12 +64,25 @@ const Page = () => {
     currentPage * itemsPerPage,
   );
 
-  const handleDelete = () => {
-    // TODO: kerjakan fungsi delete instansi dari database
-    setInstansi(instansi.filter((i) => i.id !== selectedInstansi.id));
+  // function handle delete instansi
+  const handleDelete = async () => {
+    setIsLoading(true);
+    const promise = deleteInstansi(selectedInstansi.id);
+    const { status } = await toast.promise(promise, {
+      loading: "Proses..",
+      success: "Instansi berhasil dihapus.",
+      error: "Instansi gagal dihapus!",
+    });
+    if (status === "sukses") {
+      setInstansi((prev) =>
+        prev.filter((item) => item.id !== selectedInstansi.id),
+      );
+    }
     setIsDeleteModalOpen(false);
+    setIsLoading(false);
   };
 
+  // function handle create dan update
   const handleSubmit = async (e) => {
     setIsLoading(true);
     if (!formData.namaOpd) {
@@ -96,6 +111,7 @@ const Page = () => {
     setIsModalInputOpen(false);
   };
 
+  // cek apakah ui sudah ready jika belum ready maka tampilkan skeleton
   if (!isUiReady) return <SettingInstansiSkeleton />;
 
   return (
@@ -111,13 +127,10 @@ const Page = () => {
             <div className="space-y-1">
               <div className="flex items-center gap-2 mb-1">
                 <Building2 size={14} className="text-[#6d28d9]" />
-                <span className="text-[9px] font-black text-[#6d28d9] uppercase tracking-[0.3em]">
-                  Pengaturan Struktur
+                <span className="text-[9px] font-black text-white] uppercase tracking-[0.3em]">
+                  Setting Data Instansi
                 </span>
               </div>
-              <h2 className="text-3xl font-black text-white tracking-tighter italic uppercase leading-none">
-                MANAGE <span className="text-[#6d28d9]">INSTANSI.</span>
-              </h2>
             </div>
 
             <div className="flex flex-wrap items-center gap-3">
@@ -179,8 +192,8 @@ const Page = () => {
                           <div
                             className="h-10 w-10 rounded-xl flex items-center justify-center border border-white/10 shrink-0"
                             style={{
-                              backgroundColor: `${item.warna}15`,
-                              color: item.warna,
+                              backgroundColor: `${getColorFromId(item.id)}15`,
+                              color: getColorFromId(item.id),
                             }}
                           >
                             <Building2 size={18} />
@@ -203,7 +216,7 @@ const Page = () => {
                             {item._count.pegawai}
                           </span>
                           <span className="text-[8px] font-bold text-gray-600 uppercase tracking-tighter">
-                            Personil terdaftar
+                            Pegawai terdaftar
                           </span>
                         </div>
                       </td>
