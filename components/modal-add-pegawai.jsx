@@ -7,16 +7,6 @@ import {
   User,
 } from "lucide-react";
 
-const jenjangPendidikan = [
-  "SMA/SMK",
-  "D3",
-  "D4",
-  "S1",
-  "S2",
-  "S3",
-  "Spesialis",
-];
-
 const ModalAddPegawai = ({
   isModalOpen,
   closeModal,
@@ -24,6 +14,7 @@ const ModalAddPegawai = ({
   formData,
   setFormData,
   handleSubmit,
+  pendidikan,
 }) => {
   if (!isModalOpen) return null;
   return (
@@ -51,7 +42,7 @@ const ModalAddPegawai = ({
                 required
                 type="text"
                 placeholder="Contoh: John Doe S.H"
-                value={formData.nama}
+                value={formData.nama || ""}
                 onChange={(e) =>
                   setFormData({ ...formData, nama: e.target.value })
                 }
@@ -67,9 +58,9 @@ const ModalAddPegawai = ({
                 <input
                   type="text"
                   placeholder="Kota"
-                  value={formData.tmptLahir}
+                  value={formData.tempatLahir || ""}
                   onChange={(e) =>
-                    setFormData({ ...formData, tmptLahir: e.target.value })
+                    setFormData({ ...formData, tempatLahir: e.target.value })
                   }
                   className="w-full bg-white/[0.03] border border-white/10 rounded-2xl py-3 px-4 text-sm text-white focus:outline-none focus:border-[#6d28d9]/50"
                 />
@@ -80,9 +71,13 @@ const ModalAddPegawai = ({
                 </label>
                 <input
                   type="date"
-                  value={formData.tglLahir}
+                  value={
+                    new Date(formData.tanggalLahir)
+                      .toISOString()
+                      .split("T")[0] || ""
+                  }
                   onChange={(e) =>
-                    setFormData({ ...formData, tglLahir: e.target.value })
+                    setFormData({ ...formData, tanggalLahir: e.target.value })
                   }
                   className="w-full bg-white/[0.03] border border-white/10 rounded-2xl py-3 px-4 text-xs text-white focus:outline-none focus:border-[#6d28d9]/50 [color-scheme:dark]"
                 />
@@ -97,7 +92,7 @@ const ModalAddPegawai = ({
               <input
                 type="text"
                 placeholder="19XXXXXXXX"
-                value={formData.nip}
+                value={formData.nip || ""}
                 onChange={(e) =>
                   setFormData({ ...formData, nip: e.target.value })
                 }
@@ -111,16 +106,16 @@ const ModalAddPegawai = ({
                 <GraduationCap size={10} /> Pendidikan
               </label>
               <select
-                value={formData.pendidikan}
+                value={formData.pendidikanId || ""}
                 onChange={(e) =>
-                  setFormData({ ...formData, pendidikan: e.target.value })
+                  setFormData({ ...formData, pendidikanId: e.target.value })
                 }
                 className="w-full bg-white/[0.03] border border-white/10 rounded-2xl py-3 px-4 text-sm text-white focus:outline-none focus:border-[#6d28d9]/50 appearance-none"
               >
-                <option value="">Jenjang</option>
-                {jenjangPendidikan.map((j) => (
-                  <option key={j} value={j}>
-                    {j}
+                <option value="">--Pilih pendidikan--</option>
+                {pendidikan.map((j) => (
+                  <option key={j.id} value={j.id}>
+                    {j.namaPendidikan}
                   </option>
                 ))}
               </select>
@@ -157,7 +152,7 @@ const ModalAddPegawai = ({
                 Batal
               </button>
               <button
-                type="submit"
+                onClick={handleSubmit}
                 className="flex-[2] px-6 py-4 rounded-2xl bg-white text-[#1a1a1e] text-[10px] font-black uppercase tracking-widest hover:bg-gray-200 transition-all"
               >
                 {formData.id ? "Update Profil" : "Simpan Pegawai"}

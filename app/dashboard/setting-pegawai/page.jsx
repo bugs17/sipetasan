@@ -22,6 +22,8 @@ import SettingPegawaiSkeleton, {
 import { getColorFromId } from "@/app/utils/generate-color";
 import AdminIndukWrapper from "@/components/admin-induk-wrapper";
 import { getPegawaiDanInstansi } from "@/app/actions/getListPegawaiDanInstansi";
+import toast, { Toaster } from "react-hot-toast";
+import { addOrUpdatePegawaiByAdminInduk } from "@/app/actions/addOrUpdatePegawaiByAdmin";
 
 const Page = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -37,22 +39,25 @@ const Page = () => {
   const [isUiReady, setIsUiReady] = useState(false);
   const [pegawai, setPegawai] = useState([]);
   const [instansi, setInstansi] = useState([]);
+  const [pendidikan, setPendidikan] = useState([]);
 
   const [formData, setFormData] = useState({
-    id: null,
+    id: "",
     nama: "",
     nip: "",
-    tanggalLahir: "",
     tempatLahir: "",
+    tanggalLahir: "",
     pendidikanId: "",
-    opdId: null,
+    opdId: "",
   });
 
   useEffect(() => {
     const fetchData = async () => {
-      const { dataInstansi, dataPegawai } = await getPegawaiDanInstansi();
+      const { dataInstansi, dataPegawai, dataPendidikan } =
+        await getPegawaiDanInstansi();
       setInstansi(dataInstansi);
       setPegawai(dataPegawai);
+      setPendidikan(dataPendidikan);
     };
     fetchData();
     setIsUiReady(true);
@@ -60,20 +65,22 @@ const Page = () => {
 
   // Filter Logic: Fokus hanya pada search
   const filteredData = useMemo(() => {
-    return pegawai.filter((p) => {
-      const matchSearch =
-        p.nama.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        p.nip.includes(searchTerm);
+    return pegawai
+      .filter((p) => {
+        const matchSearch =
+          p.nama.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          p.nip.includes(searchTerm);
 
-      let matchInstansi = true;
+        let matchInstansi = true;
 
-      if (filterInstansi === "unattach") {
-        matchInstansi = !p.opdId; // null / undefined
-      } else if (filterInstansi) {
-        matchInstansi = p.opdId === filterInstansi;
-      }
-      return matchSearch && matchInstansi;
-    });
+        if (filterInstansi === "unattach") {
+          matchInstansi = !p.opdId; // null / undefined
+        } else if (filterInstansi) {
+          matchInstansi = p.opdId === filterInstansi;
+        }
+        return matchSearch && matchInstansi;
+      })
+      .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
   }, [pegawai, searchTerm, filterInstansi]);
 
   const itemsPerPage = 10;
@@ -87,13 +94,13 @@ const Page = () => {
   const closeModal = () => {
     setIsModalOpen(false);
     setFormData({
-      id: null,
+      id: "",
       nama: "",
       nip: "",
-      tanggalLahir: "",
       tempatLahir: "",
+      tanggalLahir: "",
       pendidikanId: "",
-      opdId: null,
+      opdId: "",
     });
   };
 
@@ -104,16 +111,39 @@ const Page = () => {
   };
 
   const handleSubmit = async () => {
+    setIsLoading(true);
     if (!formData.nama) {
       alert("Kolom nama tidak boleh kosong!");
       return;
     }
+    const promise = addOrUpdatePegawaiByAdminInduk(formData);
+    const { operasi, obj } = await toast.promise(promise, {
+      loading: "Proses...",
+      success: "Berhasil ditambahkan!",
+      error: "Gagal menambahkan data!",
+    });
+
+    if (operasi === null) return;
+    if (operasi === "create") {
+      setPegawai((prev) => [...prev, obj]);
+    }
+    if (operasi === "update") {
+      setPegawai((prev) =>
+        prev.map((item) => (item.id === obj.id ? obj : item)),
+      );
+    }
+    setIsLoading(false);
+    setIsModalOpen(false);
   };
 
   if (!isUiReady) return <SettingPegawaiSkeleton />;
 
   return (
     <AdminIndukWrapper>
+      <Toaster
+        position="top-right"
+        toastOptions={{ style: { zIndex: 10001 } }}
+      />
       <div className="w-full min-h-screen text-white p-4 md:p-8 font-sans bg-transparent text-left">
         <div className="max-w-7xl mx-auto space-y-8">
           {/* HEADER SECTION */}
@@ -235,7 +265,7 @@ const Page = () => {
                                 {p.nama}
                               </p>
                               <p className="text-[10px] font-mono text-gray-500 tracking-tighter">
-                                {p.nip}
+                                {p.nip || "--"}
                               </p>
                             </div>
                           </div>
@@ -250,7 +280,7 @@ const Page = () => {
                               </span>
                             </div>
                             <span className="text-[9px] w-fit px-2 py-0.5 rounded-md bg-white/5 text-gray-400 border border-white/5 uppercase font-black tracking-widest">
-                              {p.pendidikan.namaPendidikan ||
+                              {p.pendidikan?.namaPendidikan ||
                                 "Belum ada data pendidikan terakhir"}
                             </span>
                           </div>
@@ -263,7 +293,15 @@ const Page = () => {
                             <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                               <button
                                 onClick={() => {
-                                  setFormData(p);
+                                  setFormData({
+                                    id: p.id,
+                                    nama: p.nama,
+                                    nip: p.nip,
+                                    opdId: p.opdId,
+                                    pendidikanId: p.pendidikanId,
+                                    tempatLahir: p.tempatLahir,
+                                    tanggalLahir: p.tanggalLahir,
+                                  });
                                   setIsModalOpen(true);
                                 }}
                                 className="p-2 bg-white/5 hover:bg-[#6d28d9]/20 hover:text-[#6d28d9] rounded-lg text-gray-400 border border-white/5 transition-all"
@@ -355,6 +393,8 @@ const Page = () => {
           formData={formData}
           setFormData={setFormData}
           instansi={instansi}
+          pendidikan={pendidikan}
+          handleSubmit={handleSubmit}
         />
         <ModalDelete
           title={"Hapus Pegawai"}

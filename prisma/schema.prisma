@@ -63,9 +63,9 @@ model Pegawai {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
   nama            String
-  nip             String   @unique // Tambahkan unique untuk keamanan data
-  tanggalLahir    DateTime
-  tempatLahir     String
+  nip             String?   @unique // Tambahkan unique untuk keamanan data
+  tanggalLahir    DateTime?
+  tempatLahir     String?
   tahunPensiun    Int      @default(0)
   tahunKebutuhan  Int      @default(0)
 

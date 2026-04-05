@@ -46,6 +46,6 @@ export const addOrUpdateInstansi = async (data) => {
       "Gagal melakukan upsert data instansi. Error Msg: ",
       error.message,
     );
-    return { operasi: performType, obj: null };
+    return { operasi: null, obj: null };
   }
 };
