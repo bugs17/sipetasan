@@ -237,6 +237,7 @@ const Page = () => {
                             </button>
                             <button
                               onClick={() => {
+                                console.log(item);
                                 setSelectedInstansi(item);
                                 setIsDeleteModalOpen(true);
                               }}
@@ -321,7 +322,7 @@ const Page = () => {
           desc={"Anda yakin akan menghapus, "}
           isDeleteModalOpen={isDeleteModalOpen}
           setIsDeleteModalOpen={setIsDeleteModalOpen}
-          selectedItem={selectedInstansi}
+          selectedItem={selectedInstansi?.namaOpd}
           handleDelete={handleDelete}
         />
       </div>

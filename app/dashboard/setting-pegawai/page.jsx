@@ -1,10 +1,9 @@
 "use client";
-import React, { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   Users,
   Search,
   Plus,
-  MapPin,
   Edit2,
   Trash2,
   Database,
@@ -24,23 +23,21 @@ import AdminIndukWrapper from "@/components/admin-induk-wrapper";
 import { getPegawaiDanInstansi } from "@/app/actions/getListPegawaiDanInstansi";
 import toast, { Toaster } from "react-hot-toast";
 import { addOrUpdatePegawaiByAdminInduk } from "@/app/actions/addOrUpdatePegawaiByAdmin";
+import { deletePegawai } from "@/app/actions/deletePegawai";
 
 const Page = () => {
+  // state
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-
-  // Secara default pilih index 0 (Biro Organisasi)
   const [filterInstansi, setFilterInstansi] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedPegawai, setSelectedPegawai] = useState(null);
-
   const [currentPage, setCurrentPage] = useState(1);
   const [isUiReady, setIsUiReady] = useState(false);
   const [pegawai, setPegawai] = useState([]);
   const [instansi, setInstansi] = useState([]);
   const [pendidikan, setPendidikan] = useState([]);
-
   const [formData, setFormData] = useState({
     id: "",
     nama: "",
@@ -51,6 +48,7 @@ const Page = () => {
     opdId: "",
   });
 
+  // fetch data dan set ui ready
   useEffect(() => {
     const fetchData = async () => {
       const { dataInstansi, dataPegawai, dataPendidikan } =
@@ -84,13 +82,13 @@ const Page = () => {
   }, [pegawai, searchTerm, filterInstansi]);
 
   const itemsPerPage = 10;
-
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
   const currentItems = filteredData.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage,
   );
 
+  // bersihkan formData saat close modal
   const closeModal = () => {
     setIsModalOpen(false);
     setFormData({
@@ -104,12 +102,25 @@ const Page = () => {
     });
   };
 
-  const handleDelete = () => {
-    // TODO: kerjakan delete pegawai
-    setPegawai(pegawai.filter((p) => p.id !== selectedPegawai.id));
+  // function handle delete pegawai
+  const handleDelete = async () => {
+    setIsLoading(true);
+    const promise = deletePegawai(selectedPegawai.id);
+    const { status } = await toast.promise(promise, {
+      loading: "Proses..",
+      success: "Pegawai berhasil dihapus.",
+      error: "Pegawai gagal dihapus!",
+    });
+    if (status === "sukses") {
+      setPegawai((prev) =>
+        prev.filter((item) => item.id !== selectedPegawai.id),
+      );
+    }
     setIsDeleteModalOpen(false);
+    setIsLoading(false);
   };
 
+  // function handle create/update pegawa
   const handleSubmit = async () => {
     setIsLoading(true);
     if (!formData.nama) {
@@ -136,6 +147,7 @@ const Page = () => {
     setIsModalOpen(false);
   };
 
+  // skeleton
   if (!isUiReady) return <SettingPegawaiSkeleton />;
 
   return (
@@ -194,10 +206,10 @@ const Page = () => {
                   className="bg-white/5 border border-white/10 rounded-2xl py-3 pl-4 pr-10 text-[10px] font-black uppercase tracking-widest text-gray-300 focus:outline-none focus:border-[#6d28d9]/50 appearance-none cursor-pointer"
                 >
                   <option value="all" className="bg-[#1a1a1e]">
-                    --Semua Instansi--
+                    --Semua pegawai--
                   </option>
                   <option value="unattach" className="bg-[#1a1a1e]">
-                    --Belum memiliki dinas--
+                    --Belum memiliki instansi--
                   </option>
 
                   {instansi.map((j) => (
@@ -240,89 +252,84 @@ const Page = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/5">
-                  {/* TODO: kerjakan logika show sekeloton saat update list */}
-                  {!true ? (
-                    <ListSkeleton />
-                  ) : (
-                    currentItems.map((p) => (
-                      <tr
-                        key={p.id}
-                        className="group hover:bg-white/[0.03] transition-colors duration-300"
-                      >
-                        <td className="p-4 px-6">
-                          <div className="flex items-center gap-4">
-                            <div
-                              className="h-10 w-10 rounded-xl flex items-center justify-center text-[10px] font-black border border-white/10 shrink-0"
-                              style={{
-                                backgroundColor: `${getColorFromId(p.id)}15`,
-                                color: getColorFromId(p.id),
-                              }}
-                            >
-                              {p.nama.substring(0, 2).toUpperCase()}
-                            </div>
-                            <div>
-                              <p className="text-sm font-bold text-white leading-none mb-1">
-                                {p.nama}
-                              </p>
-                              <p className="text-[10px] font-mono text-gray-500 tracking-tighter">
-                                {p.nip || "--"}
-                              </p>
-                            </div>
+                  {currentItems.map((p) => (
+                    <tr
+                      key={p.id}
+                      className="group hover:bg-white/[0.03] transition-colors duration-300"
+                    >
+                      <td className="p-4 px-6">
+                        <div className="flex items-center gap-4">
+                          <div
+                            className="h-10 w-10 rounded-xl flex items-center justify-center text-[10px] font-black border border-white/10 shrink-0"
+                            style={{
+                              backgroundColor: `${getColorFromId(p.id)}15`,
+                              color: getColorFromId(p.id),
+                            }}
+                          >
+                            {p.nama.substring(0, 2).toUpperCase()}
                           </div>
-                        </td>
+                          <div>
+                            <p className="text-sm font-bold text-white leading-none mb-1">
+                              {p.nama}
+                            </p>
+                            <p className="text-[10px] font-mono text-gray-500 tracking-tighter">
+                              {p.nip || "--"}
+                            </p>
+                          </div>
+                        </div>
+                      </td>
 
-                        <td className="p-4 px-6 hidden lg:table-cell">
-                          <div className="flex flex-col gap-1">
-                            <div className="flex items-center gap-2 text-gray-400">
-                              <Building2 size={10} />
-                              <span className="text-[10px] font-bold">
-                                {p.opd?.namaOpd || "Belum memiliki dinas"}
-                              </span>
-                            </div>
-                            <span className="text-[9px] w-fit px-2 py-0.5 rounded-md bg-white/5 text-gray-400 border border-white/5 uppercase font-black tracking-widest">
-                              {p.pendidikan?.namaPendidikan ||
-                                "Belum ada data pendidikan terakhir"}
+                      <td className="p-4 px-6 hidden lg:table-cell">
+                        <div className="flex flex-col gap-1">
+                          <div className="flex items-center gap-2 text-gray-400">
+                            <Building2 size={10} />
+                            <span className="text-[10px] font-bold">
+                              {p.opd?.namaOpd || "Belum memiliki dinas"}
                             </span>
                           </div>
-                        </td>
-                        <td className="p-4 px-6 text-right">
-                          <div className="relative flex items-center justify-end min-h-[40px]">
-                            <div className="absolute right-0 opacity-100 group-hover:opacity-0 transition-opacity duration-200 text-gray-600 pointer-events-none">
-                              <MoreHorizontal size={18} />
-                            </div>
-                            <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                              <button
-                                onClick={() => {
-                                  setFormData({
-                                    id: p.id,
-                                    nama: p.nama,
-                                    nip: p.nip,
-                                    opdId: p.opdId,
-                                    pendidikanId: p.pendidikanId,
-                                    tempatLahir: p.tempatLahir,
-                                    tanggalLahir: p.tanggalLahir,
-                                  });
-                                  setIsModalOpen(true);
-                                }}
-                                className="p-2 bg-white/5 hover:bg-[#6d28d9]/20 hover:text-[#6d28d9] rounded-lg text-gray-400 border border-white/5 transition-all"
-                              >
-                                <Edit2 size={14} />
-                              </button>
-                              <button
-                                onClick={() => {
-                                  setSelectedPegawai(p);
-                                  setIsDeleteModalOpen(true);
-                                }}
-                                className="p-2 bg-red-500/10 hover:bg-red-500/20 rounded-lg text-gray-500 hover:text-red-500 border border-red-500/10 transition-all"
-                              >
-                                <Trash2 size={14} />
-                              </button>
-                            </div>
+                          <span className="text-[9px] w-fit px-2 py-0.5 rounded-md bg-white/5 text-gray-400 border border-white/5 uppercase font-black tracking-widest">
+                            {p.pendidikan?.namaPendidikan ||
+                              "Belum ada data pendidikan terakhir"}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="p-4 px-6 text-right">
+                        <div className="relative flex items-center justify-end min-h-[40px]">
+                          <div className="absolute right-0 opacity-100 group-hover:opacity-0 transition-opacity duration-200 text-gray-600 pointer-events-none">
+                            <MoreHorizontal size={18} />
                           </div>
-                        </td>
-                      </tr>
-                    ))
-                  )}
+                          <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                            <button
+                              onClick={() => {
+                                setFormData({
+                                  id: p.id,
+                                  nama: p.nama,
+                                  nip: p.nip,
+                                  opdId: p.opdId,
+                                  pendidikanId: p.pendidikanId,
+                                  tempatLahir: p.tempatLahir,
+                                  tanggalLahir: p.tanggalLahir,
+                                });
+                                setIsModalOpen(true);
+                              }}
+                              className="p-2 bg-white/5 hover:bg-[#6d28d9]/20 hover:text-[#6d28d9] rounded-lg text-gray-400 border border-white/5 transition-all"
+                            >
+                              <Edit2 size={14} />
+                            </button>
+                            <button
+                              onClick={() => {
+                                setSelectedPegawai(p);
+                                setIsDeleteModalOpen(true);
+                              }}
+                              className="p-2 bg-red-500/10 hover:bg-red-500/20 rounded-lg text-gray-500 hover:text-red-500 border border-red-500/10 transition-all"
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>
@@ -398,10 +405,10 @@ const Page = () => {
         />
         <ModalDelete
           title={"Hapus Pegawai"}
-          desc={"Anda yakin akan menghapus, "}
+          desc={"Anda yakin akan menghapus pegawai dengan "}
           isDeleteModalOpen={isDeleteModalOpen}
           setIsDeleteModalOpen={setIsDeleteModalOpen}
-          selectedItem={selectedPegawai}
+          selectedItem={`nama: ${selectedPegawai?.nama}. nip: ${selectedPegawai?.nip}`}
           handleDelete={handleDelete}
         />
       </div>

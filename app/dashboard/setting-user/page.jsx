@@ -1,205 +1,425 @@
-'use client'
+"use client";
+import { useState, useEffect, useMemo } from "react";
+import {
+  Users,
+  Search,
+  Plus,
+  Edit2,
+  Trash2,
+  ChevronLeft,
+  ChevronRight,
+  MoreHorizontal,
+  ChevronDown,
+  Building2,
+  User2,
+} from "lucide-react";
+import ModalDelete from "@/components/modal-delete";
+import ModalAddPegawai from "@/components/modal-add-pegawai";
+import SettingPegawaiSkeleton, {
+  ListSkeleton,
+} from "@/components/skeleton/setting-pegawai-skeleton";
+import { getColorFromId } from "@/app/utils/generate-color";
+import AdminIndukWrapper from "@/components/admin-induk-wrapper";
+import { getPegawaiDanInstansi } from "@/app/actions/getListPegawaiDanInstansi";
+import toast, { Toaster } from "react-hot-toast";
+import { addOrUpdatePegawaiByAdminInduk } from "@/app/actions/addOrUpdatePegawaiByAdmin";
+import { deletePegawai } from "@/app/actions/deletePegawai";
+import { getListUserOpd } from "@/app/actions/getListUser";
+import { useUser } from "@clerk/nextjs";
+import ModalAddUser from "@/components/modal-add-user";
 
-import React, { useState, useEffect } from 'react'
-import { createPortal } from 'react-dom' // Import Portal
-import { HiOutlineOfficeBuilding, HiOutlineUser, HiOutlineLockClosed, HiOutlinePlus, HiOutlineTrash, HiOutlineExclamationCircle } from 'react-icons/hi'
-import { PiCaretDownBold } from 'react-icons/pi'
+const Page = () => {
+  // state
+  const { user, isLoaded } = useUser();
+  const [isLoading, setIsLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterInstansi, setFilterInstansi] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [selectedPegawai, setSelectedPegawai] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [isUiReady, setIsUiReady] = useState(false);
+  const [userList, setUserList] = useState([]);
+  const [instansi, setInstansi] = useState([]);
+  const [formData, setFormData] = useState({
+    id: "",
+    clerkUserId: "",
+    email: "",
+    nama_user: "",
+    opdId: "",
+  });
 
-const UserManagementOPD = () => {
-    const [mounted, setMounted] = useState(false) // Untuk memastikan portal hanya render di client
-    const [isOpen, setIsOpen] = useState(false)
-    const [selectedData, setSelectedData] = useState(null) 
-    const [isDeleteOpen, setIsDeleteOpen] = useState(false)
-    const [isBanOpen, setIsBanOpen] = useState(false);
-
-    useEffect(() => {
-        setMounted(true)
-    }, [])
-
-    const opdOptions = [
-        { id: 'opd-1', name: 'Dinas Komunikasi dan Informatika' },
-        { id: 'opd-2', name: 'Badan Kepegawaian Daerah' },
-        { id: 'opd-3', name: 'Dinas Kesehatan' },
-        { id: 'opd-4', name: 'Dinas Pendidikan, Perpustakaan dan Arsip Daerah' },
-        { id: 'opd-5', name: 'Sekretariat Daerah' },
-    ]
-
-    const existingData = [
-        { id: 1, instansi: 'Dinas Komunikasi dan Informatika', username: 'kominfo_papua' },
-        { id: 2, instansi: 'Badan Kepegawaian Daerah', username: 'bkd_papua' },
-    ]
-
-    const handleOpenModal = (data = null) => {
-        setSelectedData(data)
-        setIsOpen(true)
-    }
-
-    const handleCloseAll = () => {
-        setIsOpen(false)
-        setIsDeleteOpen(false)
-        setIsBanOpen(false)
-        setSelectedData(null)
-    }
-
-    const handleOpenDelete = (data) => {
-        setSelectedData(data)
-        setIsDeleteOpen(true)
-    }
-
-    const handleOpenBan = (data) => {
-        setSelectedData(data);
-        setIsBanOpen(true);
-    }
-
-    // --- RENDER MODAL MENGGUNAKAN PORTAL ---
-    const renderModal = (content) => {
-        if (!mounted) return null;
-        return createPortal(
-            <div className="fixed inset-0 w-screen h-screen z-[999999] flex items-center justify-center bg-black/80 backdrop-blur-md animate-in fade-in duration-300">
-                {content}
-                <div className="absolute inset-0 z-[-1]" onClick={handleCloseAll}></div>
-            </div>,
-            document.body
-        );
+  // fetch data dan set ui ready
+  useEffect(() => {
+    const fetchData = async () => {
+      const { dataUser, dataInstansi } = await getListUserOpd();
+      setUserList(dataUser);
+      setInstansi(dataInstansi);
     };
+    fetchData();
+    setIsUiReady(true);
+  }, []);
 
-    return (
-        <div className="p-6 space-y-6 min-h-screen">
-            {/* --- HEADER SECTION --- */}
-            <div className="flex justify-between items-center">
-                <div>
-                    <h2 className="text-xl font-black text-white tracking-tight uppercase">Manajemen User OPD</h2>
-                    <p className="text-xs text-gray-500 font-medium">Kelola akses akun instansi pemerintah</p>
-                </div>
-                <button 
-                    onClick={() => handleOpenModal()} 
-                    className="group flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white text-[#1a1a1e] text-xs font-bold hover:bg-gray-200 transition-all shadow-xl active:scale-95"
+  // Filter Logic: Fokus hanya pada search
+  const filteredData = useMemo(() => {
+    return userList
+      .filter((p) => {
+        const matchSearch = p.nama_user
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase());
+
+        return matchSearch;
+      })
+      .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+  }, [userList, searchTerm]);
+
+  const itemsPerPage = 10;
+  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+  const currentItems = filteredData.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage,
+  );
+
+  // bersihkan formData saat close modal
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setFormData({
+      id: "",
+      clerkUserId: "",
+      email: "",
+      nama_user: "",
+      opdId: "",
+    });
+  };
+
+  // function handle delete pegawai
+  const handleDelete = async () => {
+    // setIsLoading(true);
+    // const promise = deletePegawai(selectedUser.id);
+    // const { status } = await toast.promise(promise, {
+    //   loading: "Proses..",
+    //   success: "Pegawai berhasil dihapus.",
+    //   error: "Pegawai gagal dihapus!",
+    // });
+    // if (status === "sukses") {
+    //   setPegawai((prev) => prev.filter((item) => item.id !== selectedUser.id));
+    // }
+    // setIsDeleteModalOpen(false);
+    // setIsLoading(false);
+  };
+
+  // function handle create/update pegawa
+  const handleSubmit = async () => {
+    // setIsLoading(true);
+    // if (!formData.nama) {
+    //   alert("Kolom nama tidak boleh kosong!");
+    //   return;
+    // }
+    // const promise = addOrUpdatePegawaiByAdminInduk(formData);
+    // const { operasi, obj } = await toast.promise(promise, {
+    //   loading: "Proses...",
+    //   success: "Berhasil ditambahkan!",
+    //   error: "Gagal menambahkan data!",
+    // });
+    // if (operasi === null) return;
+    // if (operasi === "create") {
+    //   setPegawai((prev) => [...prev, obj]);
+    // }
+    // if (operasi === "update") {
+    //   setPegawai((prev) =>
+    //     prev.map((item) => (item.id === obj.id ? obj : item)),
+    //   );
+    // }
+    // setIsLoading(false);
+    // setIsModalOpen(false);
+  };
+
+  // skeleton
+  if (!isUiReady) return <SettingPegawaiSkeleton />;
+
+  return (
+    <AdminIndukWrapper>
+      <Toaster
+        position="top-right"
+        toastOptions={{ style: { zIndex: 10001 } }}
+      />
+      <div className="w-full min-h-screen text-white p-4 md:p-8 font-sans bg-transparent text-left">
+        <div className="max-w-7xl mx-auto space-y-8">
+          {/* HEADER SECTION */}
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 bg-[#0f0f12]/40 p-6 rounded-[2.5rem] border border-white/5 backdrop-blur-md sticky top-0 z-30">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2 mb-1">
+                <User2 size={14} className="text-[#6d28d9]" />
+                <span className="text-[9px] font-black text-white uppercase tracking-[0.3em]">
+                  Manage user
+                </span>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-3">
+              {/* Search Box */}
+              <div className="relative group">
+                <Search
+                  size={16}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-[#6d28d9] transition-colors"
+                />
+                <input
+                  type="text"
+                  placeholder="Cari user..."
+                  value={searchTerm}
+                  onChange={(e) => {
+                    setSearchTerm(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                  className="bg-white/5 border border-white/10 rounded-2xl py-3 pl-12 pr-6 text-sm text-white focus:outline-none focus:border-[#6d28d9]/50 transition-all w-full md:w-64"
+                />
+              </div>
+
+              {/* Instansi Selector */}
+              <div className="relative">
+                <select
+                  value={filterInstansi ?? "all"}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (value === "all") {
+                      setFilterInstansi(null);
+                    } else {
+                      setFilterInstansi(Number(value));
+                    }
+                    setCurrentPage(1);
+                  }}
+                  className="bg-white/5 border border-white/10 rounded-2xl py-3 pl-4 pr-10 text-[10px] font-black uppercase tracking-widest text-gray-300 focus:outline-none focus:border-[#6d28d9]/50 appearance-none cursor-pointer"
                 >
-                    <HiOutlinePlus size={18} />
-                    Tambah User Baru
+                  <option value="all" className="bg-[#1a1a1e]">
+                    --Semua User--
+                  </option>
+
+                  {instansi.map((j) => (
+                    <option key={j.id} value={j.id} className="bg-[#1a1a1e]">
+                      {j.namaOpd}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown
+                  size={14}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none"
+                />
+              </div>
+
+              <button
+                onClick={() => setIsModalOpen(true)}
+                className="bg-[#6d28d9] hover:bg-[#7c3aed] text-white px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all flex items-center gap-2 shadow-lg shadow-[#6d28d9]/20"
+              >
+                <Plus size={16} /> Tambah user
+              </button>
+            </div>
+          </div>
+
+          {/* TABLE SECTION */}
+          <div className="bg-[#0f0f12]/60 border border-white/10 rounded-[2.5rem] overflow-hidden backdrop-blur-xl shadow-2xl">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="border-b border-white/5 bg-white/[0.02]">
+                    <th className="p-6 text-[10px] font-black uppercase tracking-[0.2em] text-gray-500">
+                      User
+                    </th>
+
+                    <th className="p-6 text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 hidden lg:table-cell">
+                      Instansi
+                    </th>
+                    <th className="p-6 text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 text-right">
+                      Aksi
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/5">
+                  {currentItems.map((p) => (
+                    <tr
+                      key={p.id}
+                      className="group hover:bg-white/[0.03] transition-colors duration-300"
+                    >
+                      <td className="p-4 px-6">
+                        <div className="flex items-center gap-4">
+                          <div
+                            className="h-10 w-10 rounded-xl flex items-center justify-center text-[10px] font-black border border-white/10 shrink-0 overflow-hidden"
+                            style={{
+                              backgroundColor: `${getColorFromId(p.id)}15`,
+                              color: getColorFromId(p.id),
+                            }}
+                          >
+                            {!isLoaded ? (
+                              // ⏳ loading → fallback dulu
+                              <span className="animate-pulse">
+                                {p.nama_user?.substring(0, 2).toUpperCase()}
+                              </span>
+                            ) : user?.imageUrl ? (
+                              // ✅ ada image → tampilkan
+                              <img
+                                src={user.imageUrl}
+                                alt="profile"
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              // ❌ tidak ada image → fallback
+                              <span>
+                                {p.nama_user?.substring(0, 2).toUpperCase()}
+                              </span>
+                            )}
+                          </div>
+                          <div>
+                            <p className="text-sm font-bold text-white leading-none mb-1">
+                              {p.nama_user || "--"}
+                            </p>
+                            <p className="text-[10px] font-mono text-gray-500 tracking-tighter">
+                              {p.email || "--"}
+                            </p>
+                          </div>
+                        </div>
+                      </td>
+
+                      <td className="p-4 px-6 hidden lg:table-cell">
+                        <div className="flex flex-col gap-1">
+                          <div className="flex items-center gap-2 text-gray-400">
+                            <Building2 size={10} />
+                            <span className="text-[10px] font-bold">
+                              {p.opd?.namaOpd || "Belum memiliki dinas"}
+                            </span>
+                          </div>
+                          <span className="text-[9px] w-fit px-2 py-0.5 rounded-md bg-white/5 text-gray-400 border border-white/5 uppercase font-black tracking-widest">
+                            {p.pendidikan?.namaPendidikan ||
+                              "Belum ada data pendidikan terakhir"}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="p-4 px-6 text-right">
+                        <div className="relative flex items-center justify-end min-h-[40px]">
+                          <div className="absolute right-0 opacity-100 group-hover:opacity-0 transition-opacity duration-200 text-gray-600 pointer-events-none">
+                            <MoreHorizontal size={18} />
+                          </div>
+                          <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                            <button
+                              onClick={() => {
+                                setFormData({
+                                  id: p.id,
+                                  clerkUserId: p.clerkId,
+                                  nama_user: p.nama_user,
+                                  opdId: p.opdId,
+                                });
+                                setIsModalOpen(true);
+                              }}
+                              className="p-2 bg-white/5 hover:bg-[#6d28d9]/20 hover:text-[#6d28d9] rounded-lg text-gray-400 border border-white/5 transition-all"
+                            >
+                              <Edit2 size={14} />
+                            </button>
+                            <button
+                              onClick={() => {
+                                setSelectedUser(p);
+                                setIsDeleteModalOpen(true);
+                              }}
+                              className="p-2 bg-red-500/10 hover:bg-red-500/20 rounded-lg text-gray-500 hover:text-red-500 border border-red-500/10 transition-all"
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* PAGINATION */}
+            <div className="p-6 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-4 bg-white/[0.01]">
+              <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest">
+                Menampilkan{" "}
+                <span className="text-white">{currentItems.length}</span> dari{" "}
+                <span className="text-white">{filteredData.length}</span>{" "}
+                Pegawai di{" "}
+                <span className="text-white">
+                  {filterInstansi
+                    ? instansi.find((i) => i.id === filterInstansi)?.namaOpd
+                    : "Semua Instansi"}
+                </span>
+              </p>
+              <div className="flex items-center gap-2">
+                <button
+                  disabled={currentPage === 1}
+                  onClick={() => setCurrentPage((prev) => prev - 1)}
+                  className="p-2 rounded-xl bg-white/5 border border-white/10 disabled:opacity-20 hover:bg-white/10 transition-all"
+                >
+                  <ChevronLeft size={16} />
                 </button>
+                <div className="flex items-center gap-1">
+                  {[...Array(totalPages)].map((_, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setCurrentPage(i + 1)}
+                      className={`w-8 h-8 rounded-xl text-[10px] font-black transition-all ${
+                        currentPage === i + 1
+                          ? "bg-[#6d28d9] text-white shadow-lg shadow-[#6d28d9]/20"
+                          : "bg-white/5 text-gray-500 hover:bg-white/10"
+                      }`}
+                    >
+                      {i + 1}
+                    </button>
+                  ))}
+                </div>
+                <button
+                  disabled={currentPage === totalPages}
+                  onClick={() => setCurrentPage((prev) => prev + 1)}
+                  className="p-2 rounded-xl bg-white/5 border border-white/10 disabled:opacity-20 hover:bg-white/10 transition-all"
+                >
+                  <ChevronRight size={16} />
+                </button>
+              </div>
             </div>
+          </div>
 
-            {/* --- TABLE DATA --- */}
-            <div className="overflow-hidden rounded-2xl border border-white/5 bg-white/[0.02] backdrop-blur-md">
-                <table className="w-full text-left border-collapse">
-                    <thead>
-                        <tr className="border-b border-white/10 bg-white/[0.03]">
-                            <th className="p-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Nama Instansi</th>
-                            <th className="p-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-white/[0.05]">
-                        {existingData.map((data) => (
-                            <tr key={data.id} className="group hover:bg-white/[0.04] transition-colors">
-                                <td className="p-4">
-                                    <div className="flex flex-col">
-                                        <span className="text-xs font-bold text-gray-200 uppercase">{data.instansi}</span>
-                                        <span className="text-[10px] font-mono text-gray-500">{data.username}</span>
-                                    </div>
-                                </td>
-                                <td className="p-4">
-                                    <div className="flex justify-center gap-2">
-                                        <button onClick={() => handleOpenModal(data)} className="px-3 py-1.5 rounded-lg border border-white/10 text-[10px] font-bold text-gray-400 hover:bg-white/10 hover:text-white transition-all">Edit</button>
-                                        <button onClick={() => handleOpenBan(data)} className="px-3 py-1.5 rounded-lg border border-amber-500/20 text-[10px] font-bold text-amber-500 hover:bg-amber-500 hover:text-white transition-all"><svg stroke="currentColor" fill="none" strokeWidth="2" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round" height="14" width="14" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10"></circle><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line></svg></button>
-                                        <button onClick={() => handleOpenDelete(data)} className="px-3 py-1.5 rounded-lg border border-red-500/20 text-[10px] font-bold text-red-400 hover:bg-red-500 hover:text-white transition-all"><HiOutlineTrash size={14} /></button>
-                                    </div>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
+          {filteredData.length === 0 && !isLoading && (
+            <div className="py-20 text-center border-2 border-dashed border-white/10 rounded-[3rem] bg-white/[0.02]">
+              <Users
+                size={48}
+                className="mx-auto text-gray-800 mb-4 opacity-20"
+              />
+              <p className="text-gray-500 font-black uppercase tracking-[0.3em] text-[10px]">
+                Tidak ada user ditemukan di {filterInstansi}
+              </p>
             </div>
-
-            {/* --- MODAL INPUT REGISTRASI --- */}
-            {isOpen && renderModal(
-                <div className="bg-[#151c21] border border-white/10 p-8 rounded-[2.5rem] max-w-md w-full shadow-3xl relative overflow-hidden animate-in zoom-in-95 duration-200 mx-4">
-                    <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }}></div>
-                    <div className="relative z-10 space-y-6">
-                        <div className="text-center space-y-1">
-                            <h3 className="text-2xl font-black text-white italic tracking-tighter uppercase">{selectedData ? 'UPDATE' : 'REGISTRASI'} <span className="text-[#6d28d9]">USER.</span></h3>
-                            <p className="text-[10px] text-gray-500 font-bold uppercase tracking-[0.2em]">{selectedData ? 'Perbarui Kredensial User' : 'Pilih Instansi & Input Kredensial'}</p>
-                        </div>
-                        <div className="space-y-4">
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Pilih Instansi / OPD</label>
-                                <div className="relative group">
-                                    <HiOutlineOfficeBuilding className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-[#6d28d9] transition-colors z-10" />
-                                    <select defaultValue={selectedData?.instansi || ""} className="w-full bg-white/[0.03] border border-white/10 rounded-xl py-3.5 pl-12 pr-10 text-xs text-white focus:outline-none focus:border-[#6d28d9]/50 transition-all appearance-none cursor-pointer font-bold uppercase tracking-wider">
-                                        <option value="" disabled className="bg-[#151c21]">-- Pilih OPD --</option>
-                                        {opdOptions.map((opd) => <option key={opd.id} value={opd.name} className="bg-[#151c21]">{opd.name}</option>)}
-                                    </select>
-                                    <PiCaretDownBold className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none group-focus-within:text-[#6d28d9]" />
-                                </div>
-                            </div>
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Username Akun</label>
-                                <div className="relative group">
-                                    <HiOutlineUser className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-[#6d28d9] transition-colors" />
-                                    <input type="text" defaultValue={selectedData?.username || ''} placeholder="admin_dinkes" className="w-full bg-white/[0.03] border border-white/10 rounded-xl py-3.5 pl-12 pr-4 text-xs font-mono text-white focus:outline-none focus:border-[#6d28d9]/50 transition-all placeholder:text-gray-700" />
-                                </div>
-                            </div>
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">{selectedData ? 'Password Baru (Opsional)' : 'Password'}</label>
-                                <div className="relative group">
-                                    <HiOutlineLockClosed className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-[#6d28d9] transition-colors" />
-                                    <input type="password" placeholder="••••••••" className="w-full bg-white/[0.03] border border-white/10 rounded-xl py-3.5 pl-12 pr-4 text-xs text-white focus:outline-none focus:border-[#6d28d9]/50 transition-all" />
-                                </div>
-                            </div>
-                        </div>
-                        <div className="flex gap-3 pt-4">
-                            <button onClick={handleCloseAll} className="flex-1 px-6 py-3.5 rounded-xl border border-white/5 text-[10px] font-black uppercase tracking-widest text-gray-500 hover:bg-white/5 transition-all">Batal</button>
-                            <button className="flex-1 px-6 py-3.5 rounded-xl bg-white text-[#1a1a1e] text-[10px] font-black uppercase tracking-widest hover:bg-[#6d28d9] hover:text-white transition-all shadow-xl active:scale-95">{selectedData ? 'Simpan Data' : 'Daftarkan User'}</button>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {/* --- MODAL KONFIRMASI HAPUS --- */}
-            {isDeleteOpen && renderModal(
-                <div className="bg-[#1a1a1e] border border-red-500/20 p-8 shadow-2xl rounded-[2.5rem] max-w-sm w-full text-center relative overflow-hidden mx-4 animate-in zoom-in-95 duration-200">
-                    <div className="absolute -top-10 -left-10 w-32 h-32 bg-red-500 opacity-10 blur-[50px] pointer-events-none" />
-                    <div className="relative z-10 space-y-6">
-                        <div className="flex justify-center">
-                            <div className="w-16 h-16 bg-red-500/10 border border-red-500/20 rounded-full flex items-center justify-center text-red-500 animate-pulse">
-                                <HiOutlineExclamationCircle size={32} />
-                            </div>
-                        </div>
-                        <div className="space-y-2">
-                            <h3 className="text-xl font-black text-white uppercase tracking-tighter">Hapus User?</h3>
-                            <p className="text-xs text-gray-500 leading-relaxed px-4">Anda akan menghapus akses untuk <span className="text-red-400 font-bold">{selectedData?.username}</span>.</p>
-                        </div>
-                        <div className="flex flex-col gap-2">
-                            <button className="w-full py-3 rounded-xl bg-red-500 hover:bg-red-600 text-white text-[10px] font-black uppercase tracking-widest transition-all shadow-lg active:scale-95" onClick={handleCloseAll}>Ya, Hapus Sekarang</button>
-                            <button onClick={handleCloseAll} className="w-full py-3 rounded-xl bg-white/[0.03] border border-white/10 text-[10px] font-black uppercase tracking-widest text-gray-400 hover:bg-white/5 transition-all">Batalkan</button>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {/* --- MODAL KONFIRMASI BAN --- */}
-            {isBanOpen && renderModal(
-                <div className="bg-[#1a1a1e] border border-amber-500/20 p-8 shadow-2xl rounded-[2.5rem] max-w-sm w-full text-center relative overflow-hidden mx-4 animate-in zoom-in-95 duration-200">
-                    <div className="absolute -top-10 -right-10 w-32 h-32 bg-amber-500 opacity-10 blur-[50px] pointer-events-none" />
-                    <div className="relative z-10 space-y-6">
-                        <div className="flex justify-center">
-                            <div className="w-16 h-16 bg-amber-500/10 border border-amber-500/20 rounded-full flex items-center justify-center text-amber-500">
-                                <svg stroke="currentColor" fill="none" strokeWidth="2" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round" height="32" width="32" xmlns="http://www.w3.org/2000/svg"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
-                            </div>
-                        </div>
-                        <div className="space-y-2">
-                            <h3 className="text-xl font-black text-white uppercase tracking-tighter">Ban Akses User?</h3>
-                            <p className="text-xs text-gray-500 leading-relaxed px-4">Akses untuk <span className="text-amber-500 font-bold">{selectedData?.username}</span> akan ditangguhkan.</p>
-                        </div>
-                        <div className="flex flex-col gap-2">
-                            <button className="w-full py-3 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-[10px] font-black uppercase tracking-widest transition-all shadow-lg active:scale-95" onClick={handleCloseAll}>Ya, Tangguhkan Akses</button>
-                            <button onClick={handleCloseAll} className="w-full py-3 rounded-xl bg-white/[0.03] border border-white/10 text-[10px] font-black uppercase tracking-widest text-gray-400 hover:bg-white/5 transition-all">Batalkan</button>
-                        </div>
-                    </div>
-                </div>
-            )}
+          )}
         </div>
-    )
-}
 
-export default UserManagementOPD
+        <ModalAddUser
+          isModalOpen={isModalOpen}
+          closeModal={closeModal}
+          formData={formData}
+          setFormData={setFormData}
+          instansi={instansi}
+          handleSubmit={handleSubmit}
+        />
+
+        {/* <ModalAddPegawai
+          isModalOpen={isModalOpen}
+          closeModal={closeModal}
+          formData={formData}
+          setFormData={setFormData}
+          instansi={instansi}
+          pendidikan={pendidikan}
+          handleSubmit={handleSubmit}
+        />
+        <ModalDelete
+          title={"Hapus User"}
+          desc={"Anda yakin akan menghapus user dengan "}
+          isDeleteModalOpen={isDeleteModalOpen}
+          setIsDeleteModalOpen={setIsDeleteModalOpen}
+          selectedItem={`username: ${selectedUser?.username}.`}
+          handleDelete={handleDelete}
+        /> */}
+      </div>
+    </AdminIndukWrapper>
+  );
+};
+
+export default Page;
