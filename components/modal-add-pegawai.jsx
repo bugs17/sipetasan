@@ -72,9 +72,11 @@ const ModalAddPegawai = ({
                 <input
                   type="date"
                   value={
-                    new Date(formData.tanggalLahir)
-                      .toISOString()
-                      .split("T")[0] || ""
+                    formData.tanggalLahir === "" || null
+                      ? ""
+                      : new Date(formData.tanggalLahir)
+                          .toISOString()
+                          .split("T")[0]
                   }
                   onChange={(e) =>
                     setFormData({ ...formData, tanggalLahir: e.target.value })
