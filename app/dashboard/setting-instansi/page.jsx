@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import {
   Search,
   Plus,
@@ -13,84 +13,47 @@ import {
 } from "lucide-react";
 import AdminIndukWrapper from "@/components/admin-induk-wrapper";
 import ModalDelete from "@/components/modal-delete";
+import ModalAddInstansi from "@/components/modal-add-instansi";
+import SettingInstansiSkeleton from "@/components/skeleton/setting-instansi-skeleton";
+import { getListInstansi } from "@/app/actions/getListInstansi";
+import { addOrUpdateInstansi } from "@/app/actions/addOrUpdateInstansi";
+import toast, { Toaster } from "react-hot-toast";
 
 // Impor komponen modal buatan Anda (asumsi penamaan)
 // import ModalAddInstansi from "@/components/modal-add-instansi";
 // import ModalDelete from "@/components/modal-delete";
 
 const Page = () => {
+  // state
   const [searchTerm, setSearchTerm] = useState("");
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalInputOpen, setIsModalInputOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedInstansi, setSelectedInstansi] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isUiReady, setIsUiReady] = useState(false);
+  const [instansi, setInstansi] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [formData, setFormData] = useState({ id: null, namaOpd: "" });
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const response = await getListInstansi();
+      setInstansi(response);
+    };
+    fetchData();
+    setIsUiReady(true);
+  }, []);
 
   // Pagination State
-  const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
 
-  // Data Dummy Instansi
-  const [instansi, setInstansi] = useState([
-    {
-      id: "i1",
-      nama: "Biro Organisasi",
-      kode: "ORG-01",
-      totalPegawai: 24,
-      warna: "#6d28d9",
-    },
-    {
-      id: "i2",
-      nama: "Dinas Kesehatan",
-      kode: "KES-02",
-      totalPegawai: 156,
-      warna: "#ef4444",
-    },
-    {
-      id: "i3",
-      nama: "Dinas Pendidikan",
-      kode: "DIK-03",
-      totalPegawai: 432,
-      warna: "#3b82f6",
-    },
-    {
-      id: "i4",
-      nama: "Dinas Perhubungan",
-      kode: "HUB-04",
-      totalPegawai: 89,
-      warna: "#f59e0b",
-    },
-    {
-      id: "i5",
-      nama: "Dinas Pemberdayaan Perempuan",
-      kode: "PP-05",
-      totalPegawai: 45,
-      warna: "#ec4899",
-    },
-    {
-      id: "i6",
-      nama: "Badan Keuangan Daerah",
-      kode: "BKD-06",
-      totalPegawai: 67,
-      warna: "#10b981",
-    },
-    {
-      id: "i7",
-      nama: "Dinas Komunikasi & Informatika",
-      kode: "KOM-07",
-      totalPegawai: 34,
-      warna: "#06b6d4",
-    },
-  ]);
-
-  const [formData, setFormData] = useState({ id: null, nama: "", kode: "" });
-
-  // Filter Logic
+  // Filter Logic pada kolom pencarian
   const filteredData = useMemo(() => {
-    return instansi.filter(
-      (item) =>
-        item.nama.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.kode.toLowerCase().includes(searchTerm.toLowerCase()),
-    );
+    return instansi
+      .filter((item) =>
+        item.namaOpd.toLowerCase().includes(searchTerm.toLowerCase()),
+      )
+      .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
   }, [instansi, searchTerm]);
 
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
@@ -100,12 +63,47 @@ const Page = () => {
   );
 
   const handleDelete = () => {
+    // TODO: kerjakan fungsi delete instansi dari database
     setInstansi(instansi.filter((i) => i.id !== selectedInstansi.id));
     setIsDeleteModalOpen(false);
   };
 
+  const handleSubmit = async (e) => {
+    setIsLoading(true);
+    if (!formData.namaOpd) {
+      alert("Mohon lengkapi semua form!");
+      return;
+    }
+    const promise = addOrUpdateInstansi(formData);
+    const { operasi, obj } = await toast.promise(promise, {
+      loading: "Proses..",
+      success: (res) =>
+        res.operasi === "create"
+          ? "Berhasil menambahkan instansi"
+          : "Berhasil update instansi",
+      error: "Gagal",
+    });
+    if (operasi === null) return;
+    if (operasi === "create") {
+      setInstansi((prev) => [...prev, obj]);
+    }
+    if (operasi === "update") {
+      setInstansi((prev) =>
+        prev.map((item) => (item.id === obj.id ? obj : item)),
+      );
+    }
+    setIsLoading(false);
+    setIsModalInputOpen(false);
+  };
+
+  if (!isUiReady) return <SettingInstansiSkeleton />;
+
   return (
     <AdminIndukWrapper>
+      <Toaster
+        position="top-right"
+        toastOptions={{ style: { zIndex: 10001 } }}
+      />
       <div className="w-full min-h-screen text-white p-4 md:p-8 font-sans bg-transparent text-left">
         <div className="max-w-7xl mx-auto space-y-8">
           {/* HEADER SECTION */}
@@ -142,8 +140,8 @@ const Page = () => {
 
               <button
                 onClick={() => {
-                  setFormData({ id: null, nama: "", kode: "" });
-                  setIsModalOpen(true);
+                  setFormData({ id: null, nama: "" });
+                  setIsModalInputOpen(true);
                 }}
                 className="bg-[#6d28d9] hover:bg-[#7c3aed] text-white px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all flex items-center gap-2 shadow-lg shadow-[#6d28d9]/20"
               >
@@ -189,7 +187,7 @@ const Page = () => {
                           </div>
                           <div>
                             <p className="text-sm font-bold text-white leading-none mb-1">
-                              {item.nama}
+                              {item.namaOpd}
                             </p>
                             <p className="text-[10px] text-gray-500 uppercase font-black tracking-widest">
                               Government Branch
@@ -202,7 +200,7 @@ const Page = () => {
                         <div className="flex items-center gap-2">
                           <Users size={12} className="text-gray-500" />
                           <span className="text-[11px] font-black italic">
-                            {item.totalPegawai}
+                            {item._count.pegawai}
                           </span>
                           <span className="text-[8px] font-bold text-gray-600 uppercase tracking-tighter">
                             Personil terdaftar
@@ -218,7 +216,7 @@ const Page = () => {
                             <button
                               onClick={() => {
                                 setFormData(item);
-                                setIsModalOpen(true);
+                                setIsModalInputOpen(true);
                               }}
                               className="p-2 bg-white/5 hover:bg-[#6d28d9]/20 hover:text-[#6d28d9] rounded-lg text-gray-400 border border-white/5 transition-all"
                             >
@@ -297,8 +295,14 @@ const Page = () => {
         </div>
 
         {/* Modal Placeholder (Sesuaikan dengan komponen modal Anda) */}
-        {/* <ModalAddInstansi isModalOpen={isModalOpen} closeModal={() => setIsModalOpen(false)} formData={formData} /> */}
-        {/* <ModalDelete isDeleteModalOpen={isDeleteModalOpen} setIsDeleteModalOpen={setIsDeleteModalOpen} selectedItem={selectedInstansi} handleDelete={handleDelete} /> */}
+        <ModalAddInstansi
+          isModalOpen={isModalInputOpen}
+          closeModal={() => setIsModalInputOpen(false)}
+          formData={formData}
+          setFormData={setFormData}
+          handleSubmit={handleSubmit}
+        />
+
         <ModalDelete
           title={"Hapus Instansi"}
           desc={"Anda yakin akan menghapus, "}
