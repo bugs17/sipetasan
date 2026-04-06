@@ -17,30 +17,72 @@ const createClerkUser = async (data) => {
 export const addNewUser = async (data) => {
   const isAdminOpd = data.role === "ADMIN_OPD";
   const isPimpinan = data.role === "PIMPINAN";
+  const isCreateNew = data.id === "";
 
   let objUser;
+  let performOperation;
   try {
-    if (isAdminOpd || isPimpinan) {
-      // Jika createClerkUser gagal, ia akan langsung melempar error ke blok catch di bawah
-      const objClerk = await createClerkUser(data);
+    if (isCreateNew) {
+      if (isAdminOpd || isPimpinan) {
+        // Jika createClerkUser gagal, ia akan langsung melempar error ke blok catch di bawah
+        const objClerk = await createClerkUser(data);
 
-      objUser = await prisma.user.create({
+        objUser = await prisma.user.create({
+          data: {
+            clerkUserId: objClerk.id,
+            nama_user: data.nama_user,
+            role: data.role, // Gunakan data.role secara dinamis
+            opdId: isAdminOpd ? Number(data.opdId) : null,
+            email: data.email,
+            whatsapp: data.whatsapp || null,
+          },
+          include: {
+            opd: true,
+          },
+        });
+      }
+      performOperation = "create";
+    } else {
+      const existingUser = await prisma.user.findFirst({
+        where: {
+          id: Number(data.id),
+        },
+      });
+      const isEmailStillSame = data.email === existingUser.email;
+      if (!isEmailStillSame) {
+        await clerkClient.emailAddresses.createEmailAddress({
+          userId: data.clerkUserId,
+          emailAddress: data.email,
+          primary: true,
+          verified: true,
+        });
+      }
+      objUser = await prisma.user.update({
+        where: {
+          id: Number(data.id),
+        },
         data: {
-          clerkUserId: objClerk.id,
-          nama_user: data.nama_user,
-          role: data.role, // Gunakan data.role secara dinamis
-          opdId: isAdminOpd ? Number(data.opdId) : null,
           email: data.email,
-          whatsapp: data.whatsapp || null,
+          nama_user: data.nama_user,
+          whatsapp: data.whatsapp,
         },
         include: {
           opd: true,
         },
       });
+      performOperation = "update";
     }
-    return { isSukses: true, dataObj: objUser };
+    return {
+      isSukses: true,
+      dataObj: objUser,
+      performOperation: performOperation,
+    };
   } catch (error) {
     console.log("Gagal create new user. errorMsg: ", error.message);
-    return { isSukses: false, dataObj: null };
+    return {
+      isSukses: false,
+      dataObj: null,
+      performOperation: performOperation,
+    };
   }
 };

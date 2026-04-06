@@ -15,22 +15,21 @@ import {
   KeyRound,
 } from "lucide-react";
 import ModalDelete from "@/components/modal-delete";
-import ModalAddPegawai from "@/components/modal-add-pegawai";
 import SettingPegawaiSkeleton, {
   ListSkeleton,
 } from "@/components/skeleton/setting-pegawai-skeleton";
 import { getColorFromId } from "@/app/utils/generate-color";
 import AdminIndukWrapper from "@/components/admin-induk-wrapper";
-import { getPegawaiDanInstansi } from "@/app/actions/getListPegawaiDanInstansi";
 import toast, { Toaster } from "react-hot-toast";
-import { addOrUpdatePegawaiByAdminInduk } from "@/app/actions/addOrUpdatePegawaiByAdmin";
-import { deletePegawai } from "@/app/actions/deletePegawai";
 import { getListUserOpd } from "@/app/actions/getListUser";
 import { useUser } from "@clerk/nextjs";
 import ModalAddUser from "@/components/modal-add-user";
 import { addNewUser } from "@/app/actions/addUser";
-import { validasiNomorTelepon } from "@/app/utils/validasi-no-whatsapp";
 import Link from "next/link";
+import { validationForm } from "@/app/utils/validasi-form-user";
+import ModalChangePassword from "@/components/modal-change-password";
+import { changePasswordUser } from "@/app/actions/change-password-user";
+import { deleteUser } from "@/app/actions/deleteUser";
 
 const Page = () => {
   // state
@@ -39,9 +38,9 @@ const Page = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterInstansi, setFilterInstansi] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalPasswordOpen, setIsModalPasswordOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
-  const [selectedPegawai, setSelectedPegawai] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [isUiReady, setIsUiReady] = useState(false);
   const [userList, setUserList] = useState([]);
@@ -68,7 +67,7 @@ const Page = () => {
     setIsUiReady(true);
   }, []);
 
-  // Filter Logic: Fokus hanya pada search
+  // Filter Logic
   const filteredData = useMemo(() => {
     return userList
       .filter((p) => {
@@ -94,6 +93,7 @@ const Page = () => {
   // bersihkan formData saat close modal
   const closeModal = () => {
     setIsModalOpen(false);
+    setIsModalPasswordOpen(false);
     setFormData({
       id: "",
       clerkUserId: "",
@@ -108,80 +108,78 @@ const Page = () => {
 
   // function handle delete pegawai
   const handleDelete = async () => {
-    // setIsLoading(true);
-    // const promise = deletePegawai(selectedUser.id);
-    // const { status } = await toast.promise(promise, {
-    //   loading: "Proses..",
-    //   success: "Pegawai berhasil dihapus.",
-    //   error: "Pegawai gagal dihapus!",
-    // });
-    // if (status === "sukses") {
-    //   setPegawai((prev) => prev.filter((item) => item.id !== selectedUser.id));
-    // }
-    // setIsDeleteModalOpen(false);
-    // setIsLoading(false);
+    setIsLoading(true);
+    if (!selectedUser.id || !selectedUser.clerkUserId) {
+      toast.error("Terjadi kesalahan. refresh browser anda!");
+      setIsLoading(false);
+      return;
+    }
+    const response = await deleteUser(selectedUser);
+
+    if (response) {
+      setUserList((prev) => prev.filter((item) => item.id !== selectedUser.id));
+      toast.success("Sukses");
+    } else {
+      toast.error("Gagal");
+    }
+    setIsDeleteModalOpen(false);
+    setIsLoading(false);
   };
 
-  // function handle create new user
+  // function handle create/update user
   const handleCreate = async () => {
     setIsLoading(true);
-    const valid = validationForm();
-    if (!valid) return;
+    const valid = validationForm(formData);
+    if (!valid) {
+      setIsLoading(false);
+      return;
+    }
     const promise = addNewUser(formData);
-    const { isSukses, dataObj } = await toast.promise(promise, {
-      loading: "Proses",
-      success: "User berhasil ditambahkan!",
-      error: "gagal!",
-    });
+    const { isSukses, dataObj, performOperation } = await toast.promise(
+      promise,
+      {
+        loading: "Proses",
+        success: "Sukses ✅",
+        error: "gagal! ",
+      },
+    );
     if (isSukses) {
-      setUserList((prev) => [...prev, dataObj]);
+      if (performOperation === "create") {
+        setUserList((prev) => [...prev, dataObj]);
+      }
+      if (performOperation === "update") {
+        setUserList((prev) =>
+          prev.map((item) => (item.id === dataObj.id ? dataObj : item)),
+        );
+      }
     }
     setIsLoading(false);
     setIsModalOpen(false);
   };
 
-  // function validasi form
-  const validationForm = () => {
-    if (!formData.nama_user) {
-      alert("Nama user tidak boleh kosong!");
-      return false;
-    }
-    if (!formData.email) {
-      alert("Email tidak boleh kosong!");
-      return false;
-    }
-    if (!formData.whatsapp) {
-      alert("Kontak whatsapp tidak boleh kosong!");
-      return false;
-    }
-    if (!validasiNomorTelepon(formData.whatsapp)) {
-      alert("Kontak whatsapp tidak valid!");
-      return false;
-    }
-    if (!formData.email.includes("@")) {
-      alert("Email tidak valid!");
-      return false;
-    }
-    if (!formData.password) {
-      alert("Password tidak boleh kosong!");
-      return false;
+  // function change password
+  const changePassword = async () => {
+    setIsLoading(true);
+    if (formData.password === "" || undefined) {
+      toast.error("Password tidak boleh kosong");
+      setIsLoading(false);
+      return;
     }
     if (formData.password.length < 8) {
-      alert("Password minimal 8 karakter!");
-      return false;
+      toast.error("Minimal 8 karakter");
+      setIsLoading(false);
+      return;
     }
-    if (!formData.role) {
-      alert("Role tidak boleh kosong!");
-      return false;
+
+    const result = await changePasswordUser(formData);
+    if (result) {
+      toast.success("sukses!");
+    } else {
+      toast.error("gagal!");
     }
-    if (formData.role === "ADMIN_OPD") {
-      if (!formData.opdId) {
-        alert("Instansi tidak boleh kosong!");
-        return false;
-      }
-    }
-    // return true jika semua kondisi berhasil dicek
-    return true;
+
+    setIsLoading(false);
+    setIsModalPasswordOpen(false);
   };
 
   // skeleton
@@ -354,12 +352,12 @@ const Page = () => {
                             <button
                               onClick={() => {
                                 setFormData({
+                                  clerkUserId: p.clerkUserId,
                                   id: p.id,
-                                  clerkUserId: p.clerkId,
                                   nama_user: p.nama_user,
-                                  opdId: p.opdId,
+                                  password: "",
                                 });
-                                // setIsModalOpen(true);
+                                setIsModalPasswordOpen(true);
                               }}
                               className="p-2 bg-white/5 hover:bg-[#28d998]/20 hover:text-[#28d998] rounded-lg text-gray-400 border border-white/5 transition-all"
                             >
@@ -367,14 +365,7 @@ const Page = () => {
                             </button>
                             <button
                               onClick={() => {
-                                setFormData({
-                                  id: p.id,
-                                  clerkUserId: p.clerkId,
-                                  nama_user: p.nama_user,
-                                  opdId: p.opdId,
-                                  whatsapp: p.whatsapp,
-                                  email: p.email,
-                                });
+                                setFormData(p);
                                 setIsModalOpen(true);
                               }}
                               className="p-2 bg-white/5 hover:bg-[#6d28d9]/20 hover:text-[#6d28d9] rounded-lg text-gray-400 border border-white/5 transition-all"
@@ -469,23 +460,23 @@ const Page = () => {
           disabled={isLoading}
         />
 
-        {/* <ModalAddPegawai
-          isModalOpen={isModalOpen}
+        <ModalChangePassword
+          isModalOpen={isModalPasswordOpen}
           closeModal={closeModal}
+          disabled={isLoading}
           formData={formData}
           setFormData={setFormData}
-          instansi={instansi}
-          pendidikan={pendidikan}
-          handleSubmit={handleSubmit}
+          handleSubmit={changePassword}
         />
+
         <ModalDelete
           title={"Hapus User"}
-          desc={"Anda yakin akan menghapus user dengan "}
+          desc={"Anda yakin akan menghapus user dengan username: "}
           isDeleteModalOpen={isDeleteModalOpen}
           setIsDeleteModalOpen={setIsDeleteModalOpen}
-          selectedItem={`username: ${selectedUser?.username}.`}
+          selectedItem={`${selectedUser?.nama_user}`}
           handleDelete={handleDelete}
-        /> */}
+        />
       </div>
     </AdminIndukWrapper>
   );
