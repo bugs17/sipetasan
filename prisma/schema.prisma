@@ -113,7 +113,10 @@ model User {
   updatedAt DateTime @updatedAt
   clerkUserId String? @unique // dari Clerk
 
+  email String?
+  whatsapp String?
   nama_user String?
+
 
   role String? // ADMIN_INDUK | ADMIN_OPD | PIMPINAN
 

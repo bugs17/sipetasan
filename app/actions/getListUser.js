@@ -1,5 +1,6 @@
 "use server";
 
+import { clerkClient } from "../lib/clerck-server";
 import { prisma } from "../lib/db";
 
 export const getListUserOpd = async () => {
@@ -7,6 +8,9 @@ export const getListUserOpd = async () => {
     const list = await prisma.user.findMany({
       where: {
         role: "ADMIN_OPD",
+      },
+      include: {
+        opd: true,
       },
     });
     const listInstansi = await prisma.opd.findMany();

@@ -12,6 +12,7 @@ import {
   ChevronDown,
   Building2,
   User2,
+  KeyRound,
 } from "lucide-react";
 import ModalDelete from "@/components/modal-delete";
 import ModalAddPegawai from "@/components/modal-add-pegawai";
@@ -27,11 +28,14 @@ import { deletePegawai } from "@/app/actions/deletePegawai";
 import { getListUserOpd } from "@/app/actions/getListUser";
 import { useUser } from "@clerk/nextjs";
 import ModalAddUser from "@/components/modal-add-user";
+import { addNewUser } from "@/app/actions/addUser";
+import { validasiNomorTelepon } from "@/app/utils/validasi-no-whatsapp";
+import Link from "next/link";
 
 const Page = () => {
   // state
   const { user, isLoaded } = useUser();
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterInstansi, setFilterInstansi] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -46,8 +50,11 @@ const Page = () => {
     id: "",
     clerkUserId: "",
     email: "",
+    whatsapp: "",
+    password: "",
     nama_user: "",
     opdId: "",
+    role: "",
   });
 
   // fetch data dan set ui ready
@@ -69,10 +76,13 @@ const Page = () => {
           .toLowerCase()
           .includes(searchTerm.toLowerCase());
 
-        return matchSearch;
+        const matchInstansi =
+          p.opdId === filterInstansi || filterInstansi === null;
+
+        return matchSearch && matchInstansi;
       })
       .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
-  }, [userList, searchTerm]);
+  }, [userList, searchTerm, filterInstansi]);
 
   const itemsPerPage = 10;
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
@@ -88,8 +98,11 @@ const Page = () => {
       id: "",
       clerkUserId: "",
       email: "",
+      whatsapp: "",
+      password: "",
       nama_user: "",
       opdId: "",
+      role: "",
     });
   };
 
@@ -109,30 +122,66 @@ const Page = () => {
     // setIsLoading(false);
   };
 
-  // function handle create/update pegawa
-  const handleSubmit = async () => {
-    // setIsLoading(true);
-    // if (!formData.nama) {
-    //   alert("Kolom nama tidak boleh kosong!");
-    //   return;
-    // }
-    // const promise = addOrUpdatePegawaiByAdminInduk(formData);
-    // const { operasi, obj } = await toast.promise(promise, {
-    //   loading: "Proses...",
-    //   success: "Berhasil ditambahkan!",
-    //   error: "Gagal menambahkan data!",
-    // });
-    // if (operasi === null) return;
-    // if (operasi === "create") {
-    //   setPegawai((prev) => [...prev, obj]);
-    // }
-    // if (operasi === "update") {
-    //   setPegawai((prev) =>
-    //     prev.map((item) => (item.id === obj.id ? obj : item)),
-    //   );
-    // }
-    // setIsLoading(false);
-    // setIsModalOpen(false);
+  // function handle create new user
+  const handleCreate = async () => {
+    setIsLoading(true);
+    const valid = validationForm();
+    if (!valid) return;
+    const promise = addNewUser(formData);
+    const { isSukses, dataObj } = await toast.promise(promise, {
+      loading: "Proses",
+      success: "User berhasil ditambahkan!",
+      error: "gagal!",
+    });
+    if (isSukses) {
+      setUserList((prev) => [...prev, dataObj]);
+    }
+    setIsLoading(false);
+    setIsModalOpen(false);
+  };
+
+  // function validasi form
+  const validationForm = () => {
+    if (!formData.nama_user) {
+      alert("Nama user tidak boleh kosong!");
+      return false;
+    }
+    if (!formData.email) {
+      alert("Email tidak boleh kosong!");
+      return false;
+    }
+    if (!formData.whatsapp) {
+      alert("Kontak whatsapp tidak boleh kosong!");
+      return false;
+    }
+    if (!validasiNomorTelepon(formData.whatsapp)) {
+      alert("Kontak whatsapp tidak valid!");
+      return false;
+    }
+    if (!formData.email.includes("@")) {
+      alert("Email tidak valid!");
+      return false;
+    }
+    if (!formData.password) {
+      alert("Password tidak boleh kosong!");
+      return false;
+    }
+    if (formData.password.length < 8) {
+      alert("Password minimal 8 karakter!");
+      return false;
+    }
+    if (!formData.role) {
+      alert("Role tidak boleh kosong!");
+      return false;
+    }
+    if (formData.role === "ADMIN_OPD") {
+      if (!formData.opdId) {
+        alert("Instansi tidak boleh kosong!");
+        return false;
+      }
+    }
+    // return true jika semua kondisi berhasil dicek
+    return true;
   };
 
   // skeleton
@@ -275,6 +324,13 @@ const Page = () => {
                             <p className="text-[10px] font-mono text-gray-500 tracking-tighter">
                               {p.email || "--"}
                             </p>
+                            <Link
+                              href={`https://wa.me/${p.whatsapp}`}
+                              target="_blank"
+                              className="text-[10px] font-mono text-green-400 underline tracking-tighter"
+                            >
+                              {p.whatsapp || "--"}
+                            </Link>
                           </div>
                         </div>
                       </td>
@@ -284,13 +340,9 @@ const Page = () => {
                           <div className="flex items-center gap-2 text-gray-400">
                             <Building2 size={10} />
                             <span className="text-[10px] font-bold">
-                              {p.opd?.namaOpd || "Belum memiliki dinas"}
+                              {p.opd?.namaOpd || "PIMPINAN"}
                             </span>
                           </div>
-                          <span className="text-[9px] w-fit px-2 py-0.5 rounded-md bg-white/5 text-gray-400 border border-white/5 uppercase font-black tracking-widest">
-                            {p.pendidikan?.namaPendidikan ||
-                              "Belum ada data pendidikan terakhir"}
-                          </span>
                         </div>
                       </td>
                       <td className="p-4 px-6 text-right">
@@ -306,6 +358,22 @@ const Page = () => {
                                   clerkUserId: p.clerkId,
                                   nama_user: p.nama_user,
                                   opdId: p.opdId,
+                                });
+                                // setIsModalOpen(true);
+                              }}
+                              className="p-2 bg-white/5 hover:bg-[#28d998]/20 hover:text-[#28d998] rounded-lg text-gray-400 border border-white/5 transition-all"
+                            >
+                              <KeyRound size={14} />
+                            </button>
+                            <button
+                              onClick={() => {
+                                setFormData({
+                                  id: p.id,
+                                  clerkUserId: p.clerkId,
+                                  nama_user: p.nama_user,
+                                  opdId: p.opdId,
+                                  whatsapp: p.whatsapp,
+                                  email: p.email,
                                 });
                                 setIsModalOpen(true);
                               }}
@@ -385,7 +453,7 @@ const Page = () => {
                 className="mx-auto text-gray-800 mb-4 opacity-20"
               />
               <p className="text-gray-500 font-black uppercase tracking-[0.3em] text-[10px]">
-                Tidak ada user ditemukan di {filterInstansi}
+                User tidak ditemukan!
               </p>
             </div>
           )}
@@ -397,7 +465,8 @@ const Page = () => {
           formData={formData}
           setFormData={setFormData}
           instansi={instansi}
-          handleSubmit={handleSubmit}
+          handleSubmit={handleCreate}
+          disabled={isLoading}
         />
 
         {/* <ModalAddPegawai
