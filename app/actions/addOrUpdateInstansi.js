@@ -1,8 +1,10 @@
 "use server";
 
 import { prisma } from "../lib/db";
+import { generateSlug } from "../utils/slugify";
 
 export const addOrUpdateInstansi = async (data) => {
+  const slug = generateSlug(data.namaOpd);
   let performType = "";
   let result;
   try {
@@ -29,6 +31,7 @@ export const addOrUpdateInstansi = async (data) => {
       result = await prisma.opd.create({
         data: {
           namaOpd: data.namaOpd,
+          slug: slug,
         },
         include: {
           _count: {

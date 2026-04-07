@@ -20,7 +20,6 @@ const RenderSidebar = () => {
   }
 
   // Sekarang kita bisa aman melihat log karena isClient sudah true
-  console.log("Current User Role:", userRole);
 
   const allowedRoles = ["PIMPINAN", "ADMIN_INDUK", "ADMIN_OPD"];
 

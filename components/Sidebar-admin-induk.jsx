@@ -33,7 +33,7 @@ const menuConfig = [
     label: "Proyeksi Kebutuhan",
     href: `${BASE_PATH}/proyeksi-kebutuhan`,
     icon: <Users size={20} />,
-    match: (pathname) => pathname === `${BASE_PATH}/proyeksi-kebutuhan`,
+    match: (pathname) => pathname.startsWith(`${BASE_PATH}/proyeksi-kebutuhan`),
   },
   {
     label: "Master",

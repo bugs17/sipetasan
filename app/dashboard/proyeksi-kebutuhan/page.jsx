@@ -1,350 +1,208 @@
-import { prisma } from '../../lib/db';
-import ProyeksiInduk from '@/components/ProyeksiPegawai-role-induk';
-import { auth } from "@clerk/nextjs/server";
-import ProyeksiPegawaiCard from '@/components/Proyeksi-kebutuhan-Opd-card';
+"use client";
+import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+import {
+  BarChart3,
+  TrendingUp,
+  PieChart,
+  Activity,
+  Target,
+  Zap,
+  LineChart,
+  GanttChartSquare,
+  ArrowUpRight,
+  FileSpreadsheet,
+  Search,
+  X,
+} from "lucide-react";
 
+const Page = () => {
+  const router = useRouter();
 
-const page = async () => {
-    const { userId } = auth();
+  // 1. State untuk menyimpan input pencarian
+  const [searchTerm, setSearchTerm] = useState("");
 
-    let user;
-    try {
-        user = await prisma.user.findFirst({
-            where:{
-                clerkUserId:userId
-            }
-        })
-    } catch (error) {
-        console.log("Error :", error)
-        return {}
-    }
-    
-    const role = user.role
+  const instansiProyeksi = [
+    {
+      id: 1,
+      nama: "Dinas Kesehatan",
+      slug: "dinas-kesehatan",
+      icon: <Activity />,
+      color: "#0ea5e9",
+    },
+    {
+      id: 2,
+      nama: "Dinas Pendidikan",
+      slug: "dinas-pendidikan",
+      icon: <TrendingUp />,
+      color: "#22c55e",
+    },
+    {
+      id: 3,
+      nama: "Dinas Pekerjaan Umum",
+      slug: "dinas-pu",
+      icon: <BarChart3 />,
+      color: "#f59e0b",
+    },
+    {
+      id: 4,
+      nama: "Sekretariat Daerah",
+      slug: "setda",
+      icon: <Target />,
+      color: "#6366f1",
+    },
+    {
+      id: 5,
+      nama: "Inspektorat",
+      slug: "inspektorat",
+      icon: <PieChart />,
+      color: "#ec4899",
+    },
+    {
+      id: 6,
+      nama: "Bappeda",
+      slug: "bappeda",
+      icon: <LineChart />,
+      color: "#a855f7",
+    },
+    {
+      id: 7,
+      nama: "Dinas Sosial",
+      slug: "dinsos",
+      icon: <Zap />,
+      color: "#f97316",
+    },
+    {
+      id: 8,
+      nama: "Dinas Lingkungan Hidup",
+      slug: "dlh",
+      icon: <GanttChartSquare />,
+      color: "#10b981",
+    },
+    {
+      id: 9,
+      nama: "BKPSDM",
+      slug: "bkpsdm",
+      icon: <FileSpreadsheet />,
+      color: "#06b6d4",
+    },
+    {
+      id: 10,
+      nama: "Dinas Perhubungan",
+      slug: "dishub",
+      icon: <Activity />,
+      color: "#64748b",
+    },
+  ];
 
-    if (role === 'ADMIN_INDUK') {
-        return <ProyeksiInduk />
-    }else if(role === 'ADMIN_OPD'){
-        return <ProyeksiPegawaiCard />
-    }else if (role === 'PIMPINAN') {
-        return <div>pimpinan</div>
-    }
+  // 2. Logika Filtering
+  const filteredInstansi = instansiProyeksi.filter((item) =>
+    item.nama.toLowerCase().includes(searchTerm.toLowerCase()),
+  );
 
-    return null
-}
+  return (
+    <div className="w-full max-w-7xl mx-auto p-6 space-y-10">
+      {/* Header Section dengan Search Bar di Kanan Atas */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div className="flex flex-col items-start space-y-4">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20">
+            <TrendingUp size={14} className="text-blue-400" />
+            <span className="text-[10px] font-bold text-blue-400 uppercase tracking-[0.2em]">
+              Modul Perencanaan
+            </span>
+          </div>
+          <div>
+            <h2 className="text-4xl font-black text-white tracking-tighter italic">
+              PROYEKSI <span className="text-[#6d28d9]">KEBUTUHAN</span>
+            </h2>
+          </div>
+        </div>
 
-export default page
+        {/* 3. Search Bar Component */}
+        <div className="relative group w-full md:w-80">
+          <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
+            <Search
+              size={18}
+              className="text-gray-500 group-focus-within:text-blue-400 transition-colors"
+            />
+          </div>
+          <input
+            type="text"
+            placeholder="Cari instansi..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full bg-white/5 border border-white/10 rounded-2xl py-3 pl-12 pr-10 text-sm text-white placeholder:text-gray-600 focus:outline-none focus:border-blue-500/50 focus:bg-white/10 transition-all backdrop-blur-md"
+          />
+          {searchTerm && (
+            <button
+              onClick={() => setSearchTerm("")}
+              className="absolute inset-y-0 right-4 flex items-center text-gray-500 hover:text-white"
+            >
+              <X size={16} />
+            </button>
+          )}
+        </div>
+      </div>
 
+      {/* Grid - Menggunakan data yang sudah difilter */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {filteredInstansi.length > 0 ? (
+          filteredInstansi.map((item) => (
+            <button
+              key={item.id}
+              onClick={() => router.push(`/dashboard/proyeksi/${item.slug}`)}
+              className="group relative bg-white/5 backdrop-blur-xl border border-white/5 rounded-[2rem] p-8 text-left transition-all duration-500 hover:border-blue-500/30 hover:bg-white/10 overflow-hidden"
+            >
+              <div
+                className="absolute -right-10 -bottom-10 w-40 h-40 opacity-5 group-hover:opacity-20 transition-opacity duration-700 pointer-events-none rounded-full"
+                style={{ backgroundColor: item.color, filter: "blur(50px)" }}
+              />
 
-// komponen proyeksi pegawai untuk role admin_opd
-// const ProyeksiPegawaiRoleOpd = async () => {
-//     const getTahun = getYearsFromNowToNextFive()
+              <div className="flex justify-between items-start mb-8">
+                <div
+                  className="p-4 rounded-2xl bg-[#212126] border border-white/5 transition-all duration-500 group-hover:scale-110"
+                  style={{ color: item.color }}
+                >
+                  {React.cloneElement(item.icon, {
+                    size: 28,
+                    strokeWidth: 1.5,
+                  })}
+                </div>
+                <div className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[9px] font-bold text-gray-500 group-hover:text-white">
+                  AKTIF
+                </div>
+              </div>
 
-//     const jabatan = await prisma.jabatan.findMany({
-//         include:{
-//             _count:{
-//                 select:{
-//                     pegawai:true
-//                 }
-//             },
-//             pegawai:{
-//                 include:{
-//                     pendidikan:true,
-//                     bawahan:true
-//                 }
-//             },
-//             tugas:true
-//         }
-//     })
+              <div className="space-y-2">
+                <h3 className="text-lg font-bold text-white tracking-tight group-hover:text-blue-400 transition-colors">
+                  {item.nama}
+                </h3>
+                <p className="text-xs text-gray-500 font-medium leading-relaxed">
+                  Klik untuk melihat detail proyeksi kebutuhan pegawai.
+                </p>
+              </div>
 
-//     let pegawai = []
-//     const allPegawai = await prisma.pegawai.findMany({
-//         include: {
-//             jabatan: {
-//                 include:{
-//                     tugas:true,
-//                     _count:{
-//                         select:{
-//                             pegawai:true
-//                         }
-//                     }
-//                 }
-//             },
-//             pendidikan:true
-//         },
-//     });
+              <div className="mt-8 pt-6 border-t border-white/5 flex items-center justify-between">
+                <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">
+                  Lihat Analisis
+                </span>
+                <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-blue-500 transition-all duration-500">
+                  <ArrowUpRight size={16} className="text-white" />
+                </div>
+              </div>
+            </button>
+          ))
+        ) : (
+          /* State jika pencarian tidak ditemukan */
+          <div className="col-span-full py-20 text-center">
+            <p className="text-gray-500 italic">
+              Instansi "{searchTerm}" tidak ditemukan...
+            </p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
 
-//     // Step 2: Index semua pegawai berdasarkan ID untuk akses cepat
-//     const pegawaiMap = new Map();
-//     allPegawai.forEach((pegawaiItem) => pegawaiMap.set(pegawaiItem.id, { ...pegawaiItem, bawahan: [] }));
-
-//     // Step 3: Buat hirarki dengan menambahkan pegawai ke `bawahan` atasan mereka
-//     const rootPegawai = [];
-
-//     pegawaiMap.forEach((pegawaiItem) => {
-//         if (pegawaiItem.atasanId) {
-//             const atasan = pegawaiMap.get(pegawaiItem.atasanId);
-//             if (atasan) {
-//                 atasan.bawahan.push(pegawaiItem);
-//             }
-//         } else {
-//             rootPegawai.push(pegawaiItem); // Pegawai tanpa atasan (teratas)
-//         }
-//     });
-
-//     pegawai = rootPegawai;
-    
-
-//     jabatan.forEach(jab => {
-//         jab.totalKebutuhanPegawai = jab.tugas.reduce((sum, tugas) => sum + tugas.KebutuhanPegawai, 0);
-//     });
-
-
-//     const cekJumlahPensiun = (pegawai, tahun) => {
-//         let jumlah = 0;
-    
-//         pegawai.map(item => {
-//             if (item.tahunPensiun === tahun) {
-//                 jumlah++;
-//             }
-//         })
-    
-//         if (jumlah > 0) {
-//             return jumlah
-//         }else{
-//             return '-'
-//         }
-//     };
-
-
-//    const cekKebutuhanPegawai = (pegawai, tahun) => {
-//     let jumlah = 0;
-//     pegawai.map(item => {
-//         if (item.tahunKebutuhan === tahun) {
-//             jumlah++
-//         }
-//     })
-
-//     if (jumlah > 0) {
-//         return jumlah
-//     }else{
-//         return '-'
-//     }
-//    }
-
-
-    
-//     function hitungAbk(data){
-//         if (data.length === 0) {
-//             return 0
-//         }else{
-//             return Math.round(data.reduce((total, tugas) => total + tugas.KebutuhanPegawai, 0))
-//         }
-//     }
-    
-
-//   return (
-//     <div className='w-full h-full'>
-//         <div className='py-5 px-1 w-full h-auto flex flex-row justify-between items-center'>
-//             <div className='flex justify-center items-center w-full'>
-                
-//             </div>
-//             <div className='flex flex-row gap-3 justify-center items-center w-full'>
-//                 <div className='flex flex-row gap-2 items-center'>
-//                     <div className='h-3 w-3 rounded-full bg-red-500' />
-//                     <span className='text-xs text-white'>JUMLAH YANG AKAN PENSIUN</span>
-//                 </div>
-//                 <div className='flex flex-row gap-2 items-center'>
-//                     <div className='h-3 w-3 rounded-full bg-yellow-500' />
-//                     <span className='text-xs text-white'>PEGAWAI YANG DIBUTUHKAN</span>
-//                 </div>
-//             </div>
-//             <div className='flex flex-row gap-3 justify-center items-center w-full'>
-                
-//             </div>
-//         </div>
-//         <div className='w-full overflow-y-auto py-8 px-3'>
-//         <div className="overflow-x-auto w-full rounded-lg border border-gray-300 ">
-//             <table className="table w-full ">
-//                 <thead>
-//                     <tr className="border-b border-gray-300">
-//                         <th className="border-r border-gray-300"></th>
-//                         <th className="border-r border-gray-300 text-center align-middle text-white">NAMA UNIT ORGANISASI DAN NAMA JABATAN</th>
-//                         <th className="border-r border-gray-300 text-center align-middle text-white">BEZETTING PEGAWAI SAAT INI</th>
-//                         <th className='border-r border-gray-300 text-center align-middle text-white'>KEBUTUHAN PEGAWAI BERDASARKAN ABK</th>
-//                         {getTahun.map((tahun, index) => (
-//                             <th key={index} className='border-r border-gray-300 text-center align-middle text-white bg-red-600'>{tahun}</th>
-//                         ))}
-//                         {getTahun.map((tahun, index) => (
-//                             <th key={index + 1} className='border-r border-gray-300 text-center align-middle text-white bg-yellow-600'>{tahun}</th>
-//                         ))}
-//                     </tr>
-//                 </thead>
-//                         {pegawai.length > 0 &&
-//                             pegawai.map((kepala, index) => 
-//                                 (
-//                                 <tbody key={index}>
-//                                     <tr  className="bg-base-200 border-b border-gray-300">
-//                                         <td className="border-r border-gray-300 text-center text-violet-500">#</td>
-//                                         <td className="border-r border-gray-300 font-semibold">{kepala.jabatan.namaJabatan}</td>
-//                                         <td className="border-r border-gray-300 text-center">{kepala.jabatan._count.pegawai}</td>
-//                                         <td className="border-r text-center">{hitungAbk(kepala.jabatan.tugas)}</td>
-//                                         {getTahun.map((tahun, index) => (
-//                                             <td key={index} className={`border-r text-center  ${cekJumlahPensiun(pegawai, tahun) !== '-' ? 'text-black bg-red-500 font-semibold' : 'text-slate-800'}`}>
-//                                                 <div className='tooltip' data-tip={`Pegawai yang pensiun di tahun ${tahun}`}>
-//                                                     {cekJumlahPensiun(pegawai, tahun)}
-//                                                 </div>
-//                                             </td>
-//                                         ))}
-//                                         {getTahun.map((tahun, index) => (
-//                                             <td key={index + 1} className={`border-r text-center  ${cekKebutuhanPegawai(pegawai, tahun) !== '-' ? 'text-black bg-yellow-500 font-semibold' : 'text-slate-800'} `}>
-//                                                 <div className='tooltip' data-tip={`Pegawai yang dibutuhkan di tahun ${tahun}`}>
-//                                                     {cekKebutuhanPegawai(pegawai, tahun)}
-//                                                 </div>
-//                                             </td>
-//                                         ))}
-
-//                                     </tr>
-
-//                                     {kepala.bawahan.length > 0 && (
-//                                         kepala.bawahan.map((kabag, index) => 
-//                                             (
-//                                                 <React.Fragment key={index}>
-//                                                     <tr key={index} className="bg-base-200 border-b border-gray-300">
-//                                                     <td className="border-r border-gray-300 text-center text-orange-500">#</td>
-//                                                     <td className="border-r border-gray-300 font-semibold">{kabag.jabatan.namaJabatan}</td>
-//                                                     <td className="border-r border-gray-300 text-center">{kabag.jabatan._count.pegawai}</td>
-//                                                     <td className="border-r text-center">{hitungAbk(kabag.jabatan.tugas)}</td>
-//                                                     {getTahun.map((tahun, index) => (
-//                                                         <td key={index} className={`border-r text-center  ${cekJumlahPensiun(kepala.bawahan, tahun) !== '-' ? 'text-black bg-red-500 font-semibold' : 'text-slate-800'}`}>
-//                                                             <div className='tooltip' data-tip={`Pegawai yang pensiun di tahun ${tahun}`}>
-//                                                                 {cekJumlahPensiun(kepala.bawahan, tahun)}
-//                                                             </div>
-//                                                         </td>
-//                                                     ))}
-//                                                     {getTahun.map((tahun, index) => (
-//                                                         <td key={index + 1} className={`border-r text-center  ${cekKebutuhanPegawai(kepala.bawahan, tahun) !== '-' ? 'text-black bg-yellow-500 font-semibold' : 'text-slate-800'} `}>
-//                                                             <div className='tooltip' data-tip={`Pegawai yang dibutuhkan di tahun ${tahun}`}>
-//                                                                 {cekKebutuhanPegawai(kepala.bawahan, tahun)}
-//                                                             </div>
-//                                                         </td>
-//                                                     ))}
-//                                                     </tr>
-//                                                     {kabag.bawahan.length > 0 &&
-//                                                         kabag.bawahan.map((kasubag, index) => (
-//                                                             <React.Fragment key={index}>
-//                                                                 <tr key={index} className="bg-base-200 border-b border-gray-300">
-//                                                                     <td className="border-r border-gray-300 text-center text-lime-600">#</td>
-//                                                                     <td className="border-r border-gray-300 font-semibold">{kasubag.jabatan.namaJabatan}</td>
-//                                                                     <td className="border-r border-gray-300 text-center">{kasubag.jabatan._count.pegawai}</td>
-//                                                                     <td className="border-r text-center">{hitungAbk(kasubag.jabatan.tugas)}</td>
-//                                                                     {getTahun.map((tahun, index) => (
-//                                                                         <td key={index} className={`border-r text-center  ${cekJumlahPensiun(kabag.bawahan, tahun) !== '-' ? 'text-black bg-red-500 font-semibold' : 'text-slate-800'}`}>
-//                                                                             <div className='tooltip' data-tip={`Pegawai yang pensiun di tahun ${tahun}`}>
-//                                                                                 {cekJumlahPensiun(kabag.bawahan, tahun)}
-//                                                                             </div>
-//                                                                         </td>
-//                                                                     ))}
-//                                                                     {getTahun.map((tahun, index) => (
-//                                                                         <td key={index + 1} className={`border-r text-center  ${cekKebutuhanPegawai(kabag.bawahan, tahun) !== '-' ? 'text-black bg-yellow-500 font-semibold' : 'text-slate-800'} `}>
-//                                                                             <div className='tooltip' data-tip={`Pegawai yang dibutuhkan di tahun ${tahun}`}>
-//                                                                                 {cekKebutuhanPegawai(kabag.bawahan, tahun)}
-//                                                                             </div>
-//                                                                         </td>
-//                                                                     ))}
-//                                                                 </tr>
-//                                                                 {kasubag.bawahan.length > 0 && (() => {
-//                                                                     const bawahanS1 = kasubag.bawahan.filter(item => item.pendidikan.namaPendidikan === "S1")
-//                                                                     const bawahanD3 = kasubag.bawahan.filter(item => item.pendidikan.namaPendidikan === "D3")
-//                                                                     const bawahanSMA = kasubag.bawahan.filter(item => item.pendidikan.namaPendidikan === "SMA")
-
-//                                                                     return (
-//                                                                         <>
-//                                                                             {bawahanS1.length > 0 && (
-//                                                                                 <tr key={bawahanS1[0].id} className="bg-base-200 border-b border-gray-300">
-//                                                                                     <td className="border-r border-gray-300 text-center text-teal-600">#</td>
-//                                                                                     <td className="border-r border-gray-300 text-xs">{bawahanS1[0].jabatan.namaJabatan}</td>
-//                                                                                     <td className="border-r border-gray-300 text-center">{bawahanS1.length}</td>
-//                                                                                     <td className="border-r text-center">{hitungAbk(bawahanS1[0].jabatan.tugas)}</td>
-//                                                                                     {getTahun.map((tahun, index) => (
-//                                                                                         <td key={index} className={`border-r text-center  ${cekJumlahPensiun(bawahanS1, tahun) !== '-' ? 'text-black bg-red-500 font-semibold' : 'text-slate-800'}`}>
-//                                                                                             <div className='tooltip' data-tip={`Pegawai yang pensiun di tahun ${tahun}`}>
-//                                                                                                 {cekJumlahPensiun(bawahanS1, tahun)}
-//                                                                                             </div>
-//                                                                                         </td>
-//                                                                                     ))}
-//                                                                                     {getTahun.map((tahun, index) => (
-//                                                                                         <td key={index + 1} className={`border-r text-center  ${cekKebutuhanPegawai(bawahanS1, tahun) !== '-' ? 'text-black bg-yellow-500 font-semibold' : 'text-slate-800'} `}>
-//                                                                                             <div className='tooltip' data-tip={`Pegawai yang dibutuhkan di tahun ${tahun}`}>
-//                                                                                                 {cekKebutuhanPegawai(bawahanS1, tahun)}
-//                                                                                             </div>
-//                                                                                         </td>
-//                                                                                     ))}
-//                                                                                 </tr>)}
-                                                                            
-//                                                                             {bawahanD3.length > 0 && (
-//                                                                                 <tr key={bawahanD3[0].id} className="bg-base-200 border-b border-gray-300">
-//                                                                                     <td className="border-r border-gray-300 text-center text-xs text-teal-600">#</td>
-//                                                                                     <td className="border-r border-gray-300 text-xs">{bawahanD3[0].jabatan.namaJabatan}</td>
-//                                                                                     <td className="border-r border-gray-300 text-center">{bawahanD3.length}</td>
-//                                                                                     <td className="border-r text-center">{hitungAbk(bawahanD3[0].jabatan.tugas)}</td>
-//                                                                                     {getTahun.map((tahun, index) => (
-//                                                                                         <td key={index} className={`border-r text-center  ${cekJumlahPensiun(bawahanD3, tahun) !== '-' ? 'text-black bg-red-500 font-semibold' : 'text-slate-800'}`}>
-//                                                                                             <div className='tooltip' data-tip={`Pegawai yang pensiun di tahun ${tahun}`}>
-//                                                                                                 {cekJumlahPensiun(bawahanD3, tahun)}
-//                                                                                             </div>
-//                                                                                         </td>
-//                                                                                     ))}
-//                                                                                     {getTahun.map((tahun, index) => (
-//                                                                                         <td key={index + 1} className={`border-r text-center  ${cekKebutuhanPegawai(bawahanD3, tahun) !== '-' ? 'text-black bg-yellow-500 font-semibold' : 'text-slate-800'} `}>
-//                                                                                             <div className='tooltip' data-tip={`Pegawai yang dibutuhkan di tahun ${tahun}`}>
-//                                                                                                 {cekKebutuhanPegawai(bawahanD3, tahun)}
-//                                                                                             </div>
-//                                                                                         </td>
-//                                                                                     ))}
-//                                                                                 </tr>
-//                                                                             )}
-
-//                                                                             {bawahanSMA.length > 0 && (
-//                                                                                 <tr key={bawahanSMA[0].id} className="bg-base-200 border-b border-gray-300">
-//                                                                                     <td className="border-r border-gray-300 text-center text-xs text-teal-600">#</td>
-//                                                                                     <td className="border-r border-gray-300 text-xs">{bawahanSMA[0].jabatan.namaJabatan}</td>
-//                                                                                     <td className="border-r border-gray-300 text-center">{bawahanSMA.length}</td>
-//                                                                                     <td className="border-r text-center">{hitungAbk(bawahanSMA[0].jabatan.tugas)}</td>
-//                                                                                     {getTahun.map((tahun, index) => (
-//                                                                                         <td key={index} className={`border-r text-center  ${cekJumlahPensiun(bawahanSMA, tahun) !== '-' ? 'text-black bg-red-500 font-semibold' : 'text-slate-800'}`}>
-//                                                                                             <div className='tooltip' data-tip={`Pegawai yang pensiun di tahun ${tahun}`}>
-//                                                                                                 {cekJumlahPensiun(bawahanSMA, tahun)}
-//                                                                                             </div>
-//                                                                                         </td>
-//                                                                                     ))}
-//                                                                                     {getTahun.map((tahun, index) => (
-//                                                                                         <td key={index + 1} className={`border-r text-center  ${cekKebutuhanPegawai(bawahanSMA, tahun) !== '-' ? 'text-black bg-yellow-500 font-semibold' : 'text-slate-800'} `}>
-//                                                                                             <div className='tooltip' data-tip={`Pegawai yang dibutuhkan di tahun ${tahun}`}>
-//                                                                                                 {cekKebutuhanPegawai(bawahanSMA, tahun)}
-//                                                                                             </div>
-//                                                                                         </td>
-//                                                                                     ))}
-//                                                                                 </tr>
-//                                                                             )}
-
-//                                                                         </>
-//                                                                     )
-
-//                                                                 })()}
-//                                                             </React.Fragment>
-//                                                         ))
-//                                                     }
-//                                                 </React.Fragment>
-//                                             )
-//                                         )
-//                                     )}
-//                                 </tbody>
-//                                 )
-//                             )
-//                         }
-//             </table>
-//         </div>
-//         </div>
-//     </div>
-//   )
-// }
+export default Page;

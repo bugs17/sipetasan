@@ -29,9 +29,9 @@ const menuConfig = [
   },
   {
     label: "Proyeksi Kebutuhan",
-    href: `${BASE_PATH}/proyeksi-kebutuhan`,
+    href: `${BASE_PATH}/proyeksi-kebutuhan-pegawai`,
     icon: <Users size={20} />,
-    match: (pathname) => pathname === `${BASE_PATH}/proyeksi-kebutuhan`,
+    match: (pathname) => pathname === `${BASE_PATH}/proyeksi-kebutuhan-pegawai`,
   },
   {
     label: "Uraian Tugas",

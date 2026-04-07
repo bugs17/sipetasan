@@ -98,7 +98,7 @@ const rawData = [
 
 const USIA_PENSIUN = 58;
 
-const ProyeksiPegawaiCard = () => {
+const Page = () => {
   // State untuk kontrol tahun awal proyeksi
   const [startYear, setStartYear] = useState(2025);
 
@@ -363,4 +363,4 @@ const ProyeksiPegawaiCard = () => {
   );
 };
 
-export default ProyeksiPegawaiCard;
+export default Page;
