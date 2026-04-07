@@ -1,27 +1,27 @@
 "use client";
 
 import { getUser } from "@/app/actions/getUser";
+import useUserStore from "@/app/store/useStore";
 import { useAuth } from "@clerk/nextjs";
-import { ShieldX } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 const AdminIndukWrapper = ({ children }) => {
   const { userId, isLoaded } = useAuth();
-  const [user, setUser] = useState(null);
+  const { userRole, setUserRole } = useUserStore();
 
   useEffect(() => {
     const fetchUser = async () => {
       if (isLoaded && userId) {
         try {
           const userData = await getUser(userId);
-          setUser(userData);
+          setUserRole(userData.role);
         } catch (error) {}
       }
     };
     fetchUser();
   }, [userId, isLoaded]);
 
-  if (!user || user.role !== "ADMIN_INDUK") {
+  if (userRole !== "ADMIN_INDUK") {
     return null;
   }
 

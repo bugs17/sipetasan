@@ -1,6 +1,6 @@
 "use client";
 
-const SettingPegawaiSkeleton = () => {
+const SettingSkeleton = () => {
   return (
     <div className="w-full min-h-screen text-white p-4 md:p-8 font-sans bg-transparent text-left">
       <div className="max-w-7xl mx-auto space-y-8 animate-pulse">
@@ -11,7 +11,6 @@ const SettingPegawaiSkeleton = () => {
               <div className="h-3 w-3 bg-white/10 rounded-full" />
               <div className="h-2 w-24 bg-white/5 rounded" />
             </div>
-            <div className="h-8 w-48 bg-white/10 rounded-lg" />
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
@@ -83,7 +82,7 @@ const SettingPegawaiSkeleton = () => {
   );
 };
 
-export default SettingPegawaiSkeleton;
+export default SettingSkeleton;
 
 export function ListSkeleton() {
   return [...Array(6)].map((_, i) => (

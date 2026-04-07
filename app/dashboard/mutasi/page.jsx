@@ -25,8 +25,6 @@ const page = async () => {
   } else {
     return null;
   }
-
-  return <div>Not Authorized...</div>;
 };
 
 export default page;

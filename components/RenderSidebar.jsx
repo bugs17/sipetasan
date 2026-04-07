@@ -1,48 +1,47 @@
 "use client";
-import { useAuth } from "@clerk/clerk-react";
-import { getUser } from "@/app/actions/getUser";
 import { useEffect, useState } from "react";
 import SideBarAdminInduk from "./Sidebar-admin-induk";
 import SidebarSkeleton from "./Sidebar-skeleton";
 import SideBarAdminOpd from "./Sidebar-admin-opd";
+import useUserStore from "@/app/store/useStore";
 
 const RenderSidebar = () => {
-  const { userId, isLoaded } = useAuth();
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [isClient, setIsClient] = useState(false);
+  const { userRole } = useUserStore();
 
+  // 1. Pastikan komponen sudah "Hydrated" di client
   useEffect(() => {
-    const fetchUser = async () => {
-      if (isLoaded && userId) {
-        try {
-          const userData = await getUser(userId);
-          setUser(userData);
-        } catch (error) {
-          console.error("Gagal mengambil data user:", error);
-        } finally {
-          setLoading(false);
-        }
-      } else if (isLoaded && !userId) {
-        setLoading(false);
-      }
-    };
+    setIsClient(true);
+  }, []);
 
-    fetchUser();
-  }, [userId, isLoaded]); // Menjalankan ulang jika userId atau isLoaded berubah
-
-  if (!isLoaded || loading) return <SidebarSkeleton />;
-
-  if (!user) {
-    return <div>Role tidak dikenal..</div>;
+  // 2. Tampilkan Skeleton selama masih proses loading client-side
+  if (!isClient) {
+    return <SidebarSkeleton />;
   }
 
-  const role = user.role;
+  // Sekarang kita bisa aman melihat log karena isClient sudah true
+  console.log("Current User Role:", userRole);
 
-  if (role === "ADMIN_INDUK") {
+  const allowedRoles = ["PIMPINAN", "ADMIN_INDUK", "ADMIN_OPD"];
+
+  // 3. Cek apakah role terdaftar
+  if (!allowedRoles.includes(userRole)) {
+    return (
+      <div className="p-4 text-white">Unauthorized / No Role Assigned</div>
+    );
+    // Atau return null jika ingin sidebar kosong saja
+  }
+
+  // 4. Render Sidebar sesuai Role
+  if (userRole === "ADMIN_INDUK") {
     return <SideBarAdminInduk />;
-  } else if (role === "ADMIN_OPD") {
+  }
+
+  if (userRole === "ADMIN_OPD") {
     return <SideBarAdminOpd />;
-  } else if (role === "PIMPINAN") {
+  }
+
+  if (userRole === "PIMPINAN") {
     return <div>sidebar PIMPINAN</div>;
   }
 

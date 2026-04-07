@@ -15,15 +15,13 @@ import {
 } from "lucide-react";
 import ModalDelete from "@/components/modal-delete";
 import ModalAddPegawai from "@/components/modal-add-pegawai";
-import SettingPegawaiSkeleton, {
-  ListSkeleton,
-} from "@/components/skeleton/setting-pegawai-skeleton";
 import { getColorFromId } from "@/app/utils/generate-color";
 import AdminIndukWrapper from "@/components/admin-induk-wrapper";
 import { getPegawaiDanInstansi } from "@/app/actions/getListPegawaiDanInstansi";
 import toast, { Toaster } from "react-hot-toast";
 import { addOrUpdatePegawaiByAdminInduk } from "@/app/actions/addOrUpdatePegawaiByAdmin";
 import { deletePegawai } from "@/app/actions/deletePegawai";
+import SettingSkeleton from "@/components/skeleton/setting-skeleton";
 
 const Page = () => {
   // state
@@ -148,7 +146,7 @@ const Page = () => {
   };
 
   // skeleton
-  if (!isUiReady) return <SettingPegawaiSkeleton />;
+  if (!isUiReady) return <SettingSkeleton />;
 
   return (
     <AdminIndukWrapper>

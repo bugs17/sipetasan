@@ -11,6 +11,7 @@ import {
   ClipboardList,
   Settings,
   Download,
+  Shuffle,
 } from "lucide-react";
 
 /**
@@ -33,14 +34,6 @@ const menuConfig = [
     href: `${BASE_PATH}/proyeksi-kebutuhan`,
     icon: <Users size={20} />,
     match: (pathname) => pathname === `${BASE_PATH}/proyeksi-kebutuhan`,
-  },
-  {
-    label: "Uraian Tugas",
-    href: `${BASE_PATH}/uraian-tugas`,
-    icon: <ClipboardList size={20} />,
-    match: (pathname) =>
-      pathname === `${BASE_PATH}/uraian-tugas` ||
-      pathname.includes(`${BASE_PATH}/tugas`),
   },
   {
     label: "Master",
@@ -70,6 +63,14 @@ const menuConfig = [
           pathname.includes(`${BASE_PATH}/setting-user`),
       },
     ],
+  },
+  {
+    label: "Mutasi",
+    href: `${BASE_PATH}/mutasi`,
+    icon: <Shuffle size={20} />,
+    match: (pathname) =>
+      pathname === `${BASE_PATH}/mutasi` ||
+      pathname.includes(`${BASE_PATH}/mutasi`),
   },
   // Jika nanti mau download group, bisa diaktifkan
   // {

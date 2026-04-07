@@ -5,22 +5,37 @@ import SidebarLogo from "@/components/SidebarLogo";
 import TitleDashboard from "@/components/micro-component/Title-Dashboard";
 import UserProfileDropdown from "@/components/UserProfileDropdown";
 import RenderSidebar from "@/components/RenderSidebar";
+import { useAuth } from "@clerk/nextjs";
+import useUserStore from "../store/useStore";
+import { useEffect } from "react";
+import { getUser } from "../actions/getUser";
 
-
-const AuthWrapper = dynamic(
-  () => import("../context/AuthWraper"),
-  { ssr: false }
-);
+const AuthWrapper = dynamic(() => import("../context/AuthWraper"), {
+  ssr: false,
+});
 
 export default function DashboardLayout({ children }) {
+  const { userId, isLoaded } = useAuth();
+  const { userRole, setUserRole } = useUserStore();
 
-  
-
+  useEffect(() => {
+    const fetchUser = async () => {
+      if (isLoaded && userId) {
+        try {
+          const userData = await getUser(userId);
+          setUserRole(userData.role);
+        } catch (error) {}
+      }
+    };
+    fetchUser();
+  }, [userId, isLoaded]);
 
   return (
     <AuthWrapper>
       <div className="fixed bottom-4 right-4 opacity-20 ">
-        <span className="text-[8px] font-mono tracking-widest uppercase">System Rev {process.env.NEXT_PUBLIC_APP_VERSION}</span>
+        <span className="text-[8px] font-mono tracking-widest uppercase">
+          System Rev {process.env.NEXT_PUBLIC_APP_VERSION}
+        </span>
       </div>
 
       <div className="w-screen h-screen flex flex-row">
@@ -49,4 +64,3 @@ export default function DashboardLayout({ children }) {
     </AuthWrapper>
   );
 }
-

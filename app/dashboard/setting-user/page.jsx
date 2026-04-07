@@ -15,9 +15,6 @@ import {
   KeyRound,
 } from "lucide-react";
 import ModalDelete from "@/components/modal-delete";
-import SettingPegawaiSkeleton, {
-  ListSkeleton,
-} from "@/components/skeleton/setting-pegawai-skeleton";
 import { getColorFromId } from "@/app/utils/generate-color";
 import AdminIndukWrapper from "@/components/admin-induk-wrapper";
 import toast, { Toaster } from "react-hot-toast";
@@ -30,6 +27,7 @@ import { validationForm } from "@/app/utils/validasi-form-user";
 import ModalChangePassword from "@/components/modal-change-password";
 import { changePasswordUser } from "@/app/actions/change-password-user";
 import { deleteUser } from "@/app/actions/deleteUser";
+import SettingSkeleton from "@/components/skeleton/setting-skeleton";
 
 const Page = () => {
   // state
@@ -143,6 +141,14 @@ const Page = () => {
         error: "gagal! ",
       },
     );
+    // console.log(
+    //   "status: ",
+    //   isSukses,
+    //   "obj: ",
+    //   dataObj,
+    //   "perform: ",
+    //   performOperation,
+    // );
     if (isSukses) {
       if (performOperation === "create") {
         setUserList((prev) => [...prev, dataObj]);
@@ -183,7 +189,7 @@ const Page = () => {
   };
 
   // skeleton
-  if (!isUiReady) return <SettingPegawaiSkeleton />;
+  if (!isUiReady) return <SettingSkeleton />;
 
   return (
     <AdminIndukWrapper>

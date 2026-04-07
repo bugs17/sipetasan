@@ -14,16 +14,12 @@ import {
 import AdminIndukWrapper from "@/components/admin-induk-wrapper";
 import ModalDelete from "@/components/modal-delete";
 import ModalAddInstansi from "@/components/modal-add-instansi";
-import SettingInstansiSkeleton from "@/components/skeleton/setting-instansi-skeleton";
 import { getListInstansi } from "@/app/actions/getListInstansi";
 import { addOrUpdateInstansi } from "@/app/actions/addOrUpdateInstansi";
 import toast, { Toaster } from "react-hot-toast";
 import { deleteInstansi } from "@/app/actions/deleteInstansi";
 import { getColorFromId } from "@/app/utils/generate-color";
-
-// Impor komponen modal buatan Anda (asumsi penamaan)
-// import ModalAddInstansi from "@/components/modal-add-instansi";
-// import ModalDelete from "@/components/modal-delete";
+import SettingSkeleton from "@/components/skeleton/setting-skeleton";
 
 const Page = () => {
   // state
@@ -112,7 +108,7 @@ const Page = () => {
   };
 
   // cek apakah ui sudah ready jika belum ready maka tampilkan skeleton
-  if (!isUiReady) return <SettingInstansiSkeleton />;
+  if (!isUiReady) return <SettingSkeleton />;
 
   return (
     <AdminIndukWrapper>
