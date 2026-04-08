@@ -31,11 +31,16 @@ const InstansiCard = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const res = await getListInstansi();
-      setInstansiList(res);
+      try {
+        setIsLoaded(true);
+        const res = await getListInstansi();
+        setInstansiList(res);
+      } catch (error) {
+      } finally {
+        setIsLoaded(false);
+      }
     };
     fetchData();
-    setIsLoaded(false);
   }, []);
 
   const filteredInstansi = useMemo(() => {
@@ -108,7 +113,7 @@ const InstansiCard = () => {
             <button
               key={instansi.id}
               onClick={() =>
-                router.push(`/dashboard/detai-peta-jabatan/${instansi.slug}`)
+                router.push(`/dashboard/detail-peta-jabatan/${instansi.slug}`)
               }
               className="group relative flex flex-col items-start p-6 rounded-3xl border border-white/5 bg-white/5 backdrop-blur-xl transition-all duration-500 hover:border-white/20 hover:bg-white/10 active:scale-95 overflow-hidden text-left"
             >

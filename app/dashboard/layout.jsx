@@ -9,12 +9,16 @@ import { useAuth } from "@clerk/nextjs";
 import useUserStore from "../store/useStore";
 import { useEffect } from "react";
 import { getUser } from "../actions/getUser";
+import Link from "next/link";
+import { SendHorizontal } from "lucide-react";
+import { usePathname } from "next/navigation";
 
 const AuthWrapper = dynamic(() => import("../context/AuthWraper"), {
   ssr: false,
 });
 
 export default function DashboardLayout({ children }) {
+  const pathname = usePathname();
   const { userId, isLoaded } = useAuth();
   const { userRole, setUserRole } = useUserStore();
 
@@ -47,6 +51,7 @@ export default function DashboardLayout({ children }) {
           <div className="w-full flex-grow overflow-y-auto py-5">
             <RenderSidebar />
           </div>
+
           <UserProfileDropdown />
         </div>
 

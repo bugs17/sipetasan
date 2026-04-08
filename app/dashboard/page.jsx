@@ -1,7 +1,7 @@
 import React from "react";
 import { auth } from "@clerk/nextjs/server";
 import InstansiCard from "@/components/PetaJabatanInduk";
-import PetaJabatanEditor from "./interactive-peta-jabatan";
+import PetaJabatanEditor from "../../components/interactive-peta-jabatan";
 import { getUserRoleByClerkID } from "../actions/get-user-role-by-clerk-id";
 
 const Home = async () => {

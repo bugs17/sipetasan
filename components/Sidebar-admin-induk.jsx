@@ -12,6 +12,7 @@ import {
   Settings,
   Download,
   Shuffle,
+  SendHorizontal,
 } from "lucide-react";
 
 /**
@@ -71,6 +72,14 @@ const menuConfig = [
     match: (pathname) =>
       pathname === `${BASE_PATH}/mutasi` ||
       pathname.includes(`${BASE_PATH}/mutasi`),
+  },
+  {
+    label: "Chat",
+    href: `${BASE_PATH}/chat`,
+    icon: <SendHorizontal size={20} />,
+    match: (pathname) =>
+      pathname === `${BASE_PATH}/chat` ||
+      pathname.includes(`${BASE_PATH}/chat`),
   },
   // Jika nanti mau download group, bisa diaktifkan
   // {

@@ -5,6 +5,7 @@ import { TrendingUp, ArrowUpRight, Search, X, Building2 } from "lucide-react";
 import AdminIndukWrapper from "@/components/admin-induk-wrapper";
 import { getColorFromId } from "@/app/utils/generate-color";
 import { getListInstansi } from "@/app/actions/getListInstansi";
+import SkeletonProyeksiKebutuhanListInstansi from "@/components/skeleton/list-proyeksi-kebutuhan-pegawai-admin-skeleton";
 
 const Page = () => {
   const router = useRouter();
@@ -14,11 +15,16 @@ const Page = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const res = await getListInstansi();
-      setInstansi(res);
+      try {
+        setIsLoaded(true);
+        const res = await getListInstansi();
+        setInstansi(res);
+      } catch (error) {
+      } finally {
+        setIsLoaded(false);
+      }
     };
     fetchData();
-    setIsLoaded(false);
   }, []);
 
   // 2. Logika Filtering
@@ -27,6 +33,8 @@ const Page = () => {
       item.namaOpd.toLowerCase().includes(searchTerm.toLowerCase()),
     );
   }, [searchTerm, instansi]); // Re-run hanya jika search atau data berubah
+
+  if (isLoaded) return <SkeletonProyeksiKebutuhanListInstansi />;
 
   return (
     <AdminIndukWrapper>
