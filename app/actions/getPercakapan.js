@@ -172,3 +172,42 @@ export async function deleteConversation(chatId) {
     return { success: false, error: error.message };
   }
 }
+
+export async function createConversation(opdUserId) {
+  try {
+    // 1. Cari Admin Induk (Pusat)
+    const adminInduk = await prisma.user.findFirst({
+      where: { role: "ADMIN_INDUK" },
+    });
+
+    if (!adminInduk) throw new Error("Admin Induk tidak ditemukan");
+
+    // 2. Buat Ruang Obrolan baru
+    const newChat = await prisma.ruangObrolan.create({
+      data: {
+        peserta: {
+          create: [{ userId: opdUserId }, { userId: adminInduk.id }],
+        },
+      },
+      include: {
+        peserta: {
+          include: {
+            user: {
+              include: { opd: true },
+            },
+          },
+        },
+      },
+    });
+
+    // Format agar sesuai dengan struktur state 'conversations' kamu
+    return {
+      id: newChat.id,
+      nama_user: adminInduk.nama_user,
+      opd: { namaOpd: "Pusat Bantuan / Admin Induk" },
+    };
+  } catch (error) {
+    console.error("Error creating conversation:", error);
+    return null;
+  }
+}

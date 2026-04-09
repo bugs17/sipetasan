@@ -12,7 +12,9 @@ import {
   getMessages,
   sendMessage,
   deleteMessage,
+  createConversation,
 } from "@/app/actions/getPercakapan";
+import toast from "react-hot-toast";
 
 const Page = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -29,6 +31,9 @@ const Page = () => {
   const [conversations, setConversations] = useState([]);
   const [messages, setMessages] = useState([]);
 
+  // Lock untuk mencegah double-creation saat development/strict mode
+  const isCreatingChat = useRef(false);
+
   // 1. Fetch User Data & Initial Conversations
   useEffect(() => {
     const fetchUserAndChat = async () => {
@@ -38,10 +43,21 @@ const Page = () => {
           setDbUser(userData);
           setUserRole(userData.role);
 
-          const convs = await getConversations(userData.id);
+          let convs = await getConversations(userData.id);
+
+          // LOGIKA PERBAIKAN: Gunakan Ref Lock untuk mencegah duplikasi request
+          if (convs.length === 0 && !isCreatingChat.current) {
+            isCreatingChat.current = true; // Kunci proses
+            console.log("Memulai percakapan baru untuk OPD...");
+
+            const newChat = await createConversation(userData.id);
+            if (newChat) {
+              convs = [newChat];
+            }
+          }
+
           setConversations(convs);
 
-          // OTOMATIS pilih chat pertama untuk ADMIN_OPD
           if (convs.length > 0) {
             setActiveChat(convs[0].id);
           }
@@ -145,16 +161,66 @@ const Page = () => {
     }
   };
 
-  const handleDeleteSingleMessage = async (messageId) => {
-    if (!confirm("Hapus pesan ini?")) return;
-    try {
-      const result = await deleteMessage(messageId, dbUser.id);
-      if (result.success) {
-        setMessages((prev) =>
-          prev.filter((m) => m.id !== messageId.toString()),
-        );
-      }
-    } catch (error) {}
+  const handleDeleteSingleMessage = (messageId) => {
+    toast.custom(
+      (t) => (
+        <div
+          className={`${
+            t.visible
+              ? "animate-in fade-in zoom-in-95"
+              : "animate-out fade-out zoom-out-95"
+          } max-w-xs w-full bg-[#1a1a1e] border border-white/10 shadow-2xl rounded-2xl pointer-events-auto flex flex-col p-4 backdrop-blur-xl`}
+        >
+          <div className="flex flex-col gap-1 mb-4">
+            <p className="text-xs font-black uppercase tracking-[0.2em] text-red-500">
+              Konfirmasi Hapus
+            </p>
+            <p className="text-[11px] text-gray-400 leading-relaxed">
+              Pesan ini akan dihapus permanen dari riwayat percakapan.
+            </p>
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={async () => {
+                toast.dismiss(t.id); // Tutup toast dulu
+                try {
+                  const result = await deleteMessage(messageId, dbUser.id);
+                  if (result.success) {
+                    setMessages((prev) =>
+                      prev.filter((m) => m.id !== messageId.toString()),
+                    );
+                    toast.success("Pesan terhapus", {
+                      style: {
+                        background: "#1a1a1e",
+                        color: "#fff",
+                        fontSize: "10px",
+                        fontWeight: "bold",
+                        border: "1px solid rgba(255,255,255,0.1)",
+                      },
+                    });
+                  }
+                } catch (error) {
+                  toast.error("Gagal menghapus pesan");
+                }
+              }}
+              className="flex-1 py-2 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white text-[10px] font-black uppercase tracking-widest rounded-xl transition-all border border-red-500/20"
+            >
+              Ya, Hapus
+            </button>
+            <button
+              onClick={() => toast.dismiss(t.id)}
+              className="flex-1 py-2 bg-white/5 hover:bg-white/10 text-gray-400 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all border border-white/5"
+            >
+              Batal
+            </button>
+          </div>
+        </div>
+      ),
+      {
+        duration: 5000,
+        position: "top-center",
+      },
+    );
   };
 
   if (isLoading) return <ChatSkeleton />;
@@ -164,7 +230,7 @@ const Page = () => {
   return (
     <div className="w-full h-full flex bg-transparent text-left font-sans overflow-hidden animate-in fade-in duration-500 relative">
       {/* --- CHAT CANVAS (Full Width untuk OPD) --- */}
-      <div className="flex-1 h-full flex flex-col bg-[#1a1a1e]/10 backdrop-blur-2xl overflow-hidden relative">
+      <div className="flex-1 h-full flex flex-col bg-[#1a1a1e]/10 rounded-bl-2xl backdrop-blur-2xl overflow-hidden relative">
         {activeChat ? (
           <div className="relative z-10 flex flex-col h-full">
             {/* Header Chat */}

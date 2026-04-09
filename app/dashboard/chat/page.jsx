@@ -28,6 +28,7 @@ import {
   deleteConversation,
 } from "@/app/actions/getPercakapan";
 import AdminIndukWrapper from "@/components/admin-induk-wrapper";
+import toast from "react-hot-toast";
 
 const Page = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -194,56 +195,158 @@ const Page = () => {
     }
   };
 
-  const handleDeleteSingleMessage = async (messageId) => {
-    if (!confirm("Hapus pesan ini?")) return;
+  const handleDeleteSingleMessage = (messageId) => {
+    toast.custom(
+      (t) => (
+        <div
+          className={`${
+            t.visible
+              ? "animate-in fade-in zoom-in-95"
+              : "animate-out fade-out zoom-out-95"
+          } max-w-xs w-full bg-[#1a1a1e]/95 border border-white/10 shadow-2xl rounded-2xl pointer-events-auto flex flex-col p-4 backdrop-blur-xl`}
+        >
+          <div className="flex flex-col gap-1 mb-4">
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-red-500">
+              Konfirmasi Hapus
+            </p>
+            <p className="text-[11px] text-gray-400 leading-relaxed">
+              Hapus pesan ini dari riwayat? Panel sidebar juga akan diperbarui.
+            </p>
+          </div>
 
-    try {
-      // Panggil Server Action
-      const result = await deleteMessage(messageId, dbUser.id);
+          <div className="flex gap-2">
+            <button
+              onClick={async () => {
+                toast.dismiss(t.id);
+                try {
+                  // 1. Jalankan Server Action
+                  const result = await deleteMessage(messageId, dbUser.id);
 
-      if (result.success) {
-        // Update UI secara lokal agar pesan langsung hilang dari layar
-        setMessages((prev) =>
-          prev.filter((m) => m.id !== messageId.toString()),
-        );
+                  if (result.success) {
+                    // 2. Update State Pesan Lokal
+                    setMessages((prev) =>
+                      prev.filter((m) => m.id !== messageId.toString()),
+                    );
 
-        // Opsional: Refresh conversations untuk memperbarui lastMsg di sidebar
-        // jika pesan yang dihapus adalah pesan terakhir
-        const updatedConvs = await getConversations(dbUser.id);
-        setConversations(updatedConvs);
-      } else {
-        alert(result.error);
-      }
-    } catch (error) {
-      // console.error("Gagal menghapus pesan:", error);
-    }
+                    // 3. Refresh Sidebar (Penting untuk Admin Induk agar lastMsg update)
+                    const updatedConvs = await getConversations(dbUser.id);
+                    setConversations(updatedConvs);
+
+                    toast.success("Pesan terhapus", {
+                      style: {
+                        background: "#1a1a1e",
+                        color: "#fff",
+                        fontSize: "10px",
+                        fontWeight: "bold",
+                        border: "1px solid rgba(255,255,255,0.1)",
+                        borderRadius: "12px",
+                      },
+                    });
+                  } else {
+                    toast.error(result.error || "Gagal menghapus");
+                  }
+                } catch (error) {
+                  toast.error("Terjadi kesalahan server");
+                }
+              }}
+              className="flex-1 py-2 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white text-[10px] font-black uppercase tracking-widest rounded-xl transition-all border border-red-500/20"
+            >
+              Ya, Hapus
+            </button>
+            <button
+              onClick={() => toast.dismiss(t.id)}
+              className="flex-1 py-2 bg-white/5 hover:bg-white/10 text-gray-400 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all border border-white/5"
+            >
+              Batal
+            </button>
+          </div>
+        </div>
+      ),
+      {
+        duration: 4000,
+        position: "top-center",
+      },
+    );
   };
 
-  const handleDeleteConversation = async (chatId, e) => {
-    e.stopPropagation(); // Penting: Agar tidak memicu onClick milik parent (setActiveChat)
+  const handleDeleteConversation = (chatId, e) => {
+    e.stopPropagation(); // Biar nggak trigger klik ke chat room-nya
 
-    if (!confirm("Hapus seluruh percakapan ini secara permanen?")) return;
+    toast.custom(
+      (t) => (
+        <div
+          className={`${
+            t.visible
+              ? "animate-in fade-in zoom-in-95"
+              : "animate-out fade-out zoom-out-95"
+          } max-w-xs w-full bg-[#1a1a1e]/95 border border-white/10 shadow-2xl rounded-[1.5rem] pointer-events-auto flex flex-col p-5 backdrop-blur-2xl`}
+        >
+          <div className="flex flex-col gap-1 mb-5">
+            <div className="flex items-center gap-2">
+              <div className="h-2 w-2 rounded-full bg-red-500 animate-pulse" />
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-red-500">
+                Hapus Riwayat
+              </p>
+            </div>
+            <p className="text-[11px] text-gray-400 leading-relaxed mt-1">
+              Seluruh pesan dalam percakapan ini akan dihapus secara permanen.
+              Tindakan ini tidak dapat dibatalkan.
+            </p>
+          </div>
 
-    try {
-      const result = await deleteConversation(chatId);
+          <div className="flex gap-2">
+            <button
+              onClick={async () => {
+                toast.dismiss(t.id);
+                try {
+                  const result = await deleteConversation(chatId);
+                  if (result.success) {
+                    // Update State Lokal
+                    setConversations((prev) =>
+                      prev.filter((c) => c.id !== chatId.toString()),
+                    );
 
-      if (result.success) {
-        // Hapus dari state lokal
-        setConversations((prev) =>
-          prev.filter((c) => c.id !== chatId.toString()),
-        );
+                    // Reset jika chat sedang dibuka
+                    if (activeChat === chatId.toString()) {
+                      setActiveChat(null);
+                      setMessages([]);
+                    }
 
-        // Jika chat yang dihapus sedang aktif, reset ke null
-        if (activeChat === chatId.toString()) {
-          setActiveChat(null);
-          setMessages([]);
-        }
-      } else {
-        alert("Gagal menghapus percakapan.");
-      }
-    } catch (error) {
-      // console.error("Error:", error);
-    }
+                    toast.success("Percakapan Dihapus", {
+                      style: {
+                        background: "#1a1a1e",
+                        color: "#ef4444",
+                        fontSize: "10px",
+                        fontWeight: "bold",
+                        border: "1px solid rgba(255,255,255,0.1)",
+                        borderRadius: "12px",
+                      },
+                    });
+                  } else {
+                    toast.error("Gagal menghapus percakapan");
+                  }
+                } catch (error) {
+                  toast.error("Terjadi kesalahan server");
+                }
+              }}
+              className="flex-1 py-2.5 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white text-[10px] font-black uppercase tracking-widest rounded-xl transition-all border border-red-500/20 shadow-lg shadow-red-500/5"
+            >
+              Ya, Hapus
+            </button>
+            <button
+              onClick={() => toast.dismiss(t.id)}
+              className="flex-1 py-2.5 bg-white/5 hover:bg-white/10 text-gray-400 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all border border-white/5"
+            >
+              Batal
+            </button>
+          </div>
+        </div>
+      ),
+      {
+        duration: 6000,
+        position: "top-center",
+      },
+    );
   };
 
   if (isLoading) return <ChatSkeleton />;
@@ -288,7 +391,9 @@ const Page = () => {
             </div>
 
             <div className="flex-1 overflow-y-auto space-y-2 pr-3 custom-scrollbar">
-              {conversations
+              {Array.from(
+                new Map(conversations.map((item) => [item.id, item])).values(),
+              )
                 .filter((c) =>
                   c.nama_user.toLowerCase().includes(searchTerm.toLowerCase()),
                 )
@@ -316,7 +421,7 @@ const Page = () => {
                     <div className="flex-1 min-w-0">
                       <div className="flex justify-between items-center mb-0.5">
                         <span className="text-[11px] uppercase font-bold text-white truncate pr-8">
-                          {chat.opd?.namaOpd}
+                          {chat.opd?.namaOpd || "Personal Chat"}
                         </span>
                         <span className="text-[8px] text-gray-500 font-mono">
                           {chat.time}
