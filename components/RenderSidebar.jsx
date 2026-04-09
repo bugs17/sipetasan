@@ -4,34 +4,36 @@ import SideBarAdminInduk from "./Sidebar-admin-induk";
 import SidebarSkeleton from "./Sidebar-skeleton";
 import SideBarAdminOpd from "./Sidebar-admin-opd";
 import useUserStore from "@/app/store/useStore";
+import { getUser } from "@/app/actions/getUser";
+import { useAuth } from "@clerk/nextjs";
 
 const RenderSidebar = () => {
-  const [isClient, setIsClient] = useState(false);
-  const { userRole } = useUserStore();
+  const [isLoading, setIsLoading] = useState(true);
+  const { userId, isLoaded } = useAuth();
+  const { userRole, setUserRole } = useUserStore();
 
-  // 1. Pastikan komponen sudah "Hydrated" di client
   useEffect(() => {
-    setIsClient(true);
-  }, []);
+    const fetchUser = async () => {
+      setIsLoading(true);
+      if (isLoaded && userId) {
+        try {
+          const userData = await getUser(userId);
+          setUserRole(userData.role);
+        } catch (error) {
+        } finally {
+          setIsLoading(false);
+        }
+      }
+    };
+    fetchUser();
+  }, [userId, isLoaded]);
 
-  // 2. Tampilkan Skeleton selama masih proses loading client-side
-  if (!isClient) {
+  // 2. Tampilkan Skeleton selama masih proses loading
+  if (isLoading) {
     return <SidebarSkeleton />;
   }
 
-  // Sekarang kita bisa aman melihat log karena isClient sudah true
-
-  const allowedRoles = ["PIMPINAN", "ADMIN_INDUK", "ADMIN_OPD"];
-
-  // 3. Cek apakah role terdaftar
-  if (!allowedRoles.includes(userRole)) {
-    return (
-      <div className="p-4 text-white">Unauthorized / No Role Assigned</div>
-    );
-    // Atau return null jika ingin sidebar kosong saja
-  }
-
-  // 4. Render Sidebar sesuai Role
+  // 3. Render Sidebar sesuai Role
   if (userRole === "ADMIN_INDUK") {
     return <SideBarAdminInduk />;
   }
@@ -44,7 +46,7 @@ const RenderSidebar = () => {
     return <div>sidebar PIMPINAN</div>;
   }
 
-  return <div>Something wrong</div>;
+  return null;
 };
 
 export default RenderSidebar;

@@ -8,6 +8,9 @@ export const getUser = async (userId) => {
       where: {
         clerkUserId: userId,
       },
+      include: {
+        opd: true,
+      },
     });
 
     if (!user) {
