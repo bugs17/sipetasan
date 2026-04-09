@@ -125,6 +125,10 @@ const Page = () => {
       alert("Kolom nama tidak boleh kosong!");
       return;
     }
+    if (!formData.nip) {
+      alert("Kolom nip tidak boleh kosong!");
+      return;
+    }
     const promise = addOrUpdatePegawaiByAdminInduk(formData);
     const { operasi, obj } = await toast.promise(promise, {
       loading: "Proses...",
