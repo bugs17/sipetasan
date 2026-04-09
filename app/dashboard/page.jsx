@@ -5,7 +5,7 @@ import PetaJabatanEditor from "../../components/interactive-peta-jabatan";
 import { getUserRoleByClerkID } from "../actions/get-user-role-by-clerk-id";
 
 const Home = async () => {
-  const { userId } = auth();
+  const { userId } = await auth();
 
   let user;
   try {

@@ -107,26 +107,6 @@ model Pendidikan {
   pegawai        Pegawai[]
 }
 
-model User {
-  id          Int      @id @default(autoincrement())
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  clerkUserId String?  @unique // dari Clerk
-
-  email     String?
-  whatsapp  String?
-  nama_user String?
-
-  role String? // ADMIN_INDUK | ADMIN_OPD | PIMPINAN
-
-  opdId Int?
-  opd   Opd? @relation(fields: [opdId], references: [id])
-
-  // --- RELASI CHAT ---
-  pesanTerkirim     Pesan[]             @relation("PesanTerkirim")
-  pesertaPercakapan PesertaPercakapan[]
-}
-
 model Mutasi {
   id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
@@ -155,6 +135,26 @@ model BerkasMutasi {
   mutasi   Mutasi? @relation(fields: [mutasiId], references: [id])
 }
 
+model User {
+  id          Int      @id @default(autoincrement())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  clerkUserId String?  @unique // dari Clerk
+
+  email     String?
+  whatsapp  String?
+  nama_user String?
+
+  role String? // ADMIN_INDUK | ADMIN_OPD | PIMPINAN
+
+  opdId Int?
+  opd   Opd? @relation(fields: [opdId], references: [id])
+
+  // --- RELASI CHAT ---
+  pesanTerkirim     Pesan[]             @relation("PesanTerkirim")
+  pesertaPercakapan PesertaPercakapan[]
+}
+
 // chat 
 model RuangObrolan {
   id        Int      @id @default(autoincrement())
@@ -176,7 +176,7 @@ model PesertaPercakapan {
   user   User @relation(fields: [userId], references: [id])
 
   ruangObrolanId Int
-  ruangObrolan   RuangObrolan @relation(fields: [ruangObrolanId], references: [id])
+  ruangObrolan   RuangObrolan @relation(fields: [ruangObrolanId], references: [id], onDelete: Cascade)
 
   @@unique([userId, ruangObrolanId])
 }
@@ -191,7 +191,7 @@ model Pesan {
   pengirim   User @relation("PesanTerkirim", fields: [pengirimId], references: [id])
 
   ruangObrolanId Int
-  ruangObrolan   RuangObrolan @relation(fields: [ruangObrolanId], references: [id])
+  ruangObrolan   RuangObrolan @relation(fields: [ruangObrolanId], references: [id], onDelete: Cascade)
 }
 
 // ################ backup tabel versi lama

@@ -12,6 +12,8 @@ import { getUser } from "../actions/getUser";
 import Link from "next/link";
 import { SendHorizontal } from "lucide-react";
 import { usePathname } from "next/navigation";
+import { Toaster } from "react-hot-toast";
+import GlobalChatListener from "@/components/global-chat-listener";
 
 const AuthWrapper = dynamic(() => import("../context/AuthWraper"), {
   ssr: false,
@@ -36,6 +38,8 @@ export default function DashboardLayout({ children }) {
 
   return (
     <AuthWrapper>
+      <Toaster position="top-right" />
+      <GlobalChatListener />
       <div className="fixed bottom-4 right-4 opacity-20 ">
         <span className="text-[8px] font-mono tracking-widest uppercase">
           System Rev {process.env.NEXT_PUBLIC_APP_VERSION}
