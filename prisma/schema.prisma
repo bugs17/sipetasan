@@ -121,6 +121,10 @@ model User {
 
   opdId Int?
   opd   Opd? @relation(fields: [opdId], references: [id])
+
+  // --- RELASI CHAT ---
+  pesanTerkirim     Pesan[]             @relation("PesanTerkirim")
+  pesertaPercakapan PesertaPercakapan[]
 }
 
 model Mutasi {
@@ -149,6 +153,45 @@ model BerkasMutasi {
 
   mutasiId Int?
   mutasi   Mutasi? @relation(fields: [mutasiId], references: [id])
+}
+
+// chat 
+model RuangObrolan {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Nama instansi/OPD untuk memudahkan Admin Induk
+  nama String?
+
+  pesan   Pesan[]
+  peserta PesertaPercakapan[]
+}
+
+model PesertaPercakapan {
+  id       Int      @id @default(autoincrement())
+  joinedAt DateTime @default(now())
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
+
+  ruangObrolanId Int
+  ruangObrolan   RuangObrolan @relation(fields: [ruangObrolanId], references: [id])
+
+  @@unique([userId, ruangObrolanId])
+}
+
+model Pesan {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  isiPesan  String
+  sudahBaca Boolean  @default(false)
+
+  pengirimId Int
+  pengirim   User @relation("PesanTerkirim", fields: [pengirimId], references: [id])
+
+  ruangObrolanId Int
+  ruangObrolan   RuangObrolan @relation(fields: [ruangObrolanId], references: [id])
 }
 
 // ################ backup tabel versi lama
