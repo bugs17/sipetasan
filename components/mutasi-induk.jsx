@@ -19,6 +19,8 @@ import {
   RefreshCcw,
   Clock,
   Download,
+  Plus,
+  CheckCheck,
 } from "lucide-react";
 
 const MutasiIduk = () => {
@@ -218,6 +220,45 @@ const MutasiIduk = () => {
         </div>
 
         <div className="flex items-center gap-4">
+          <div className="flex gap-1.5 p-1.5 bg-white/[0.02] border border-white/5 rounded-2xl backdrop-blur-3xl shadow-inner">
+            <button
+              onClick={() => setActiveTab("pending")}
+              className={`px-6 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-[0.2em] transition-all duration-300 flex items-center gap-2.5 
+    ${
+      activeTab === "pending"
+        ? "bg-white/10 text-white shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)] border border-white/10 backdrop-blur-md"
+        : "text-gray-500 hover:bg-white/[0.05] hover:text-gray-300 border border-transparent"
+    }`}
+            >
+              <Clock
+                size={12}
+                strokeWidth={2.5}
+                className={
+                  activeTab === "pending" ? "text-white" : "text-gray-600"
+                }
+              />
+              <span>Perlu Review</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab("completed")}
+              className={`px-6 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-[0.2em] transition-all duration-300 flex items-center gap-2.5 
+    ${
+      activeTab === "completed"
+        ? "bg-white/10 text-white shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)] border border-white/10 backdrop-blur-md"
+        : "text-gray-500 hover:bg-white/[0.05] hover:text-gray-300 border border-transparent"
+    }`}
+            >
+              <CheckCircle2
+                size={12}
+                strokeWidth={2.5}
+                className={
+                  activeTab === "completed" ? "text-white" : "text-gray-600"
+                }
+              />
+              <span>Selesai Verifikasi</span>
+            </button>
+          </div>
           <div className="relative">
             <Search
               size={14}
@@ -237,40 +278,6 @@ const MutasiIduk = () => {
       {/* --- CONTENT AREA --- */}
       <div className="flex-1 overflow-hidden p-8 flex flex-col gap-6">
         {/* tab */}
-        <div className="flex justify-end gap-8 border-b border-white/5 shrink-0">
-          {["pending", "completed"].map((tab) => {
-            // Anggaplah 'countPending' adalah jumlah data dengan status pending dari Prisma/State
-            const showBadge = tab === "pending" && countPending > 0;
-
-            return (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`pb-4 text-[10px] font-black uppercase tracking-[0.3em] transition-all relative flex items-center gap-2 ${
-                  activeTab === tab
-                    ? "text-[#6d28d9]"
-                    : "text-gray-600 hover:text-gray-400"
-                }`}
-              >
-                <span>
-                  {tab === "pending" ? "Perlu Review" : "Selesai Verifikasi"}
-                </span>
-
-                {/* Badge Component */}
-                {showBadge && (
-                  <span className="flex h-4 min-w-[16px] items-center justify-center rounded-full bg-red-600 px-1 text-[8px] font-black text-white shadow-[0_0_10px_rgba(220,38,38,0.5)] transition-transform animate-in fade-in zoom-in leading-none">
-                    {countPending > 99 ? "99+" : countPending}
-                  </span>
-                )}
-
-                {/* Active Underline Indicator */}
-                {activeTab === tab && (
-                  <div className="absolute bottom-0 left-0 w-full h-0.5 bg-[#6d28d9] shadow-[0_0_10px_#6d28d9]" />
-                )}
-              </button>
-            );
-          })}
-        </div>
 
         <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
           {isLoading ? (
