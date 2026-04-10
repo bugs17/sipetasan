@@ -51,7 +51,6 @@ const SettingPegawaiAdminOpd = () => {
         const userDb = await getUserRoleByClerkID(userId);
         const { dataPegawai, dataPendidikan } =
           await getPegawaiDanInstansiByIdOpd(userDb.opdId);
-        console.log(dataPegawai);
         setPegawai(dataPegawai);
         setPendidikan(dataPendidikan);
       } catch (error) {
@@ -152,7 +151,7 @@ const SettingPegawaiAdminOpd = () => {
               />
               <input
                 type="text"
-                placeholder="Cari di pegawai ini..."
+                placeholder="Cari pegawai..."
                 value={searchTerm}
                 onChange={(e) => {
                   setSearchTerm(e.target.value);
@@ -303,7 +302,7 @@ const SettingPegawaiAdminOpd = () => {
               className="mx-auto text-gray-800 mb-4 opacity-20"
             />
             <p className="text-gray-500 font-black uppercase tracking-[0.3em] text-[10px]">
-              Tidak ada pegawai ditemukan di
+              Tidak ada pegawai ditemukan dengan nama {searchTerm}
             </p>
           </div>
         )}
