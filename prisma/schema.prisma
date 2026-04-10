@@ -52,7 +52,7 @@ model Jabatan {
 
   // --- RELASI OPD ---
   opdId Int? @default(1) // Tambahkan default sementara agar tidak error saat migrate
-  opd   Opd? @relation(fields: [opdId], references: [id])
+  opd   Opd? @relation(fields: [opdId], references: [id], onDelete: SetNull)
 
   pegawai Pegawai[]
   tugas   Tugas[]

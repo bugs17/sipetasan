@@ -56,6 +56,7 @@ const CustomNodeEditor = ({
 }) => {
   const style = colors[item.level] || colors[1];
   const selisih = (item.b || 0) - (item.abk || 0);
+
   return (
     <div className="inline-block p-4 relative group">
       <div
@@ -118,60 +119,69 @@ const CustomNodeEditor = ({
 
         {/* SDM List Section */}
         <div className="bg-black/30 rounded-xl p-2 border border-white/5 space-y-2">
-          {item.pegawai.map((p, idx) => (
-            <div key={idx} className="flex items-center gap-2 group/user">
-              <div
-                className={`w-1 h-1 rounded-full shrink-0 ${style.bg}`}
-              ></div>
-              {isEditMode ? (
-                <>
-                  <select
-                    value={p}
-                    onChange={(e) => {
-                      const newList = [...item.pegawai];
-                      newList[idx] = e.target.value;
-                      onUpdate(item.id, "pegawai", newList);
-                    }}
-                    className="w-full bg-transparent text-[10px] text-gray-300 font-medium outline-none cursor-pointer"
-                  >
-                    {listPegawai.map((pegawai) => (
-                      <option
-                        key={pegawai.id}
-                        value={pegawai.id}
-                        className="bg-[#151c21] text-white"
-                      >
-                        {pegawai.nama}
-                      </option>
-                    ))}
-                  </select>
-                  {item.pegawai.length > 1 && (
-                    <button
-                      onClick={() =>
-                        onUpdate(
-                          item.id,
-                          "pegawai",
-                          item.pegawai.filter((_, i) => i !== idx),
-                        )
-                      }
-                      className="text-gray-600 hover:text-red-500 transition-colors"
+          {item.pegawai.map((p, idx) => {
+            // LOGIK: Cari nama berdasarkan ID yang tersimpan di state p
+            const findPegawai = listPegawai.find((pg) => pg.id == p);
+            const labelTampil = findPegawai ? findPegawai.nama : "Belum Terisi";
+
+            return (
+              <div key={idx} className="flex items-center gap-2 group/user">
+                <div
+                  className={`w-1 h-1 rounded-full shrink-0 ${style.bg}`}
+                ></div>
+                {isEditMode ? (
+                  <>
+                    <select
+                      value={p}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        const newList = [...item.pegawai];
+                        // Simpan sebagai Int untuk database, kecuali "Belum Terisi"
+                        newList[idx] =
+                          val === "Belum Terisi" ? val : parseInt(val);
+                        onUpdate(item.id, "pegawai", newList);
+                      }}
+                      className="w-full bg-transparent text-[10px] text-gray-300 font-medium outline-none cursor-pointer"
                     >
-                      <HiOutlineX size={10} />
-                    </button>
-                  )}
-                </>
-              ) : (
-                <span className="text-[10px] text-gray-300 font-medium truncate">
-                  {p}
-                </span>
-              )}
-            </div>
-          ))}
+                      <option value="Belum Terisi">Belum Terisi</option>
+                      {listPegawai.map((pegawai) => (
+                        <option
+                          key={pegawai.id}
+                          value={pegawai.id} // SIMPAN ID (Sesuai kebutuhan DB)
+                          className="bg-[#151c21] text-white"
+                        >
+                          {pegawai.nama}
+                        </option>
+                      ))}
+                    </select>
+                    {item.pegawai.length > 1 && (
+                      <button
+                        onClick={() =>
+                          onUpdate(
+                            item.id,
+                            "pegawai",
+                            item.pegawai.filter((_, i) => i !== idx),
+                          )
+                        }
+                        className="text-gray-600 hover:text-red-500 transition-colors"
+                      >
+                        <HiOutlineX size={10} />
+                      </button>
+                    )}
+                  </>
+                ) : (
+                  <span className="text-[10px] text-gray-300 font-medium truncate">
+                    {labelTampil}
+                  </span>
+                )}
+              </div>
+            );
+          })}
         </div>
 
         {/* Stats Footer Section */}
         <div className="flex justify-between items-center mt-4 pt-3 border-t border-white/5">
           <div className="flex gap-4 text-[8px] font-bold text-gray-500 uppercase">
-            {/* Tooltip Wrapper Utility */}
             <style
               dangerouslySetInnerHTML={{
                 __html: `

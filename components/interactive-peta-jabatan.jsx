@@ -11,6 +11,8 @@ import CustomNodeEditor from "./custom-node-editor";
 import { getUser } from "@/app/actions/getUser";
 import { useUser } from "@clerk/nextjs";
 import { getListPegawaiByIdInstansi } from "@/app/actions/get-list-pegawai-by-id-instansi";
+import { getPetaJabatan } from "@/app/actions/get-data-peta-jabatan";
+import { savePetaJabatan } from "@/app/actions/add-data-peta-jabatan";
 
 const colors = {
   1: {
@@ -80,27 +82,42 @@ const PetaJabatanEditor = () => {
   const [listPegawai, setListPegawai] = useState([]);
 
   const { user, isLoaded } = useUser();
+  const [isLoading, setIsLoading] = useState(true);
+  const [userData, setUserData] = useState(null);
+
+  // Bungkus fungsi fetch agar reusable
+  const loadInitialData = useCallback(async () => {
+    if (!isLoaded || !user) return;
+
+    try {
+      setIsLoading(true);
+      const res = await getUser(user.id);
+
+      const [listPegawaiRes, treeDataRes] = await Promise.all([
+        getListPegawaiByIdInstansi(res.opdId),
+        getPetaJabatan(res.opdId),
+      ]);
+
+      setListPegawai(listPegawaiRes);
+      setDataHirarki(treeDataRes);
+      setDraftData(treeDataRes); // Sekarang ID sudah pasti angka dari DB
+    } catch (error) {
+      console.error("Gagal load data:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [isLoaded, user]);
 
   useEffect(() => {
-    const fetchUser = async () => {
-      if (isLoaded && user) {
-        try {
-          const userData = await getUser(user.id);
-          const dataListPegawai = await getListPegawaiByIdInstansi(
-            userData.opdId,
-          );
-          setListPegawai(dataListPegawai);
-        } catch (error) {}
-      }
-    };
-    fetchUser();
-  }, [user, isLoaded]);
+    loadInitialData();
+  }, [loadInitialData]);
 
   useEffect(() => {
     setHasChanges(JSON.stringify(dataHirarki) !== JSON.stringify(draftData));
   }, [draftData, dataHirarki]);
 
-  const updateNodeRecursive = useCallback((node, id, action, newData = {}) => {
+  const updateNodeRecursive = (node, id, action, newData = {}) => {
+    // 1. Jika ini node yang dicari
     if (node.id === id) {
       if (action === "ADD_CHILD") {
         const newNode = {
@@ -108,28 +125,43 @@ const PetaJabatanEditor = () => {
           jabatan: "Jabatan Baru",
           pegawai: ["Belum Terisi"],
           level: node.level + 1,
+          kJ: 0,
           b: 0,
           abk: 1,
           children: [],
         };
         return { ...node, children: [...(node.children || []), newNode] };
       }
-      if (action === "UPDATE_FIELD") return { ...node, ...newData };
+
+      if (action === "UPDATE_FIELD") {
+        // Ini akan mengupdate field apapun (jabatan, pegawai, kJ, dll)
+        return { ...node, ...newData };
+      }
     }
-    if (node.children)
+
+    // 2. Jika bukan, cari di anak-anaknya (Rekursi)
+    if (node.children && node.children.length > 0) {
       return {
         ...node,
-        children: node.children.map((c) =>
-          updateNodeRecursive(c, id, action, newData),
+        children: node.children.map((child) =>
+          updateNodeRecursive(child, id, action, newData),
         ),
       };
-    return node;
-  }, []);
+    }
 
-  const handleUpdate = (id, field, value) =>
-    setDraftData((prev) =>
-      updateNodeRecursive({ ...prev }, id, "UPDATE_FIELD", { [field]: value }),
-    );
+    return node;
+  };
+
+  // Di dalam komponen PetaJabatanEditor:
+  const handleUpdate = (id, field, value) => {
+    setDraftData((prev) => {
+      // Kita jalankan rekursi mulai dari root (prev)
+      return updateNodeRecursive({ ...prev }, id, "UPDATE_FIELD", {
+        [field]: value,
+      });
+    });
+  };
+
   const handleAddChild = (id) =>
     setDraftData((prev) => updateNodeRecursive({ ...prev }, id, "ADD_CHILD"));
 
@@ -144,10 +176,26 @@ const PetaJabatanEditor = () => {
     setDeleteModal({ show: false, id: null, title: "" });
   };
 
-  const handleSaveAll = () => {
-    console.log("=== DATA DISIMPAN ===", draftData);
-    setDataHirarki(draftData);
-    setIsEditMode(false);
+  // Update fungsi handleSaveAll
+  const handleSaveAll = async () => {
+    try {
+      const userData = await getUser(user.id);
+      const result = await savePetaJabatan(userData.opdId, draftData);
+
+      if (result.success) {
+        // TRIGER REFETCH DISINI
+        await loadInitialData();
+
+        setIsEditMode(false);
+        setHasChanges(false);
+        alert("Simpan berhasil! ID UI telah diperbarui dari Database.");
+        console.log("Simpan data berhasil");
+      } else {
+        console.log("Gagal simpan: ", result.error);
+      }
+    } catch (err) {
+      console.log("Terjadi kesalahan.");
+    }
   };
 
   // --- DOWNLOADER SAKTI (Mencegah Terpotong) ---
@@ -208,6 +256,15 @@ const PetaJabatanEditor = () => {
       {node.children && node.children.map(renderNodes)}
     </TreeNode>
   );
+
+  // Handle Loading UI
+  if (isLoading) {
+    return (
+      <div className="h-screen w-full flex items-center justify-center bg-[#151c21] text-white">
+        Loading Peta Jabatan...
+      </div>
+    );
+  }
 
   return (
     <div

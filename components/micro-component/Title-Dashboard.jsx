@@ -15,7 +15,6 @@ const TitleDashboard = () => {
       if (isLoaded && userId) {
         try {
           const userData = await getUser(userId);
-          console.log(userData);
           setUser(userData);
         } catch (error) {
         } finally {
