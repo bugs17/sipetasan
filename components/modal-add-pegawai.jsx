@@ -15,6 +15,7 @@ const ModalAddPegawai = ({
   setFormData,
   handleSubmit,
   pendidikan,
+  isAdminOpd,
 }) => {
   if (!isModalOpen) return null;
   return (
@@ -124,25 +125,27 @@ const ModalAddPegawai = ({
             </div>
 
             {/* instansi */}
-            <div className="space-y-1.5">
-              <label className="text-[9px] font-black text-gray-500 uppercase ml-1 tracking-widest flex items-center gap-2">
-                <Building2 size={10} /> Instansi
-              </label>
-              <select
-                value={formData.opdId || ""}
-                onChange={(e) =>
-                  setFormData({ ...formData, opdId: e.target.value })
-                }
-                className="w-full bg-white/[0.03] border border-white/10 rounded-2xl py-3 px-4 text-sm text-white focus:outline-none focus:border-[#6d28d9]/50 appearance-none"
-              >
-                <option value={null}>--Instansi--</option>
-                {instansi.map((i) => (
-                  <option key={i.id} value={i.id}>
-                    {i.namaOpd}
-                  </option>
-                ))}
-              </select>
-            </div>
+            {!isAdminOpd && (
+              <div className="space-y-1.5">
+                <label className="text-[9px] font-black text-gray-500 uppercase ml-1 tracking-widest flex items-center gap-2">
+                  <Building2 size={10} /> Instansi
+                </label>
+                <select
+                  value={formData.opdId || ""}
+                  onChange={(e) =>
+                    setFormData({ ...formData, opdId: e.target.value })
+                  }
+                  className="w-full bg-white/[0.03] border border-white/10 rounded-2xl py-3 px-4 text-sm text-white focus:outline-none focus:border-[#6d28d9]/50 appearance-none"
+                >
+                  <option value={null}>--Instansi--</option>
+                  {instansi.map((i) => (
+                    <option key={i.id} value={i.id}>
+                      {i.namaOpd}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
 
             {/* button */}
             <div className="flex gap-3 pt-4">

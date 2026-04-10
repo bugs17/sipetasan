@@ -97,12 +97,11 @@ const PetaJabatanEditor = () => {
         getListPegawaiByIdInstansi(res.opdId),
         getPetaJabatan(res.opdId),
       ]);
-
       setListPegawai(listPegawaiRes);
       setDataHirarki(treeDataRes);
       setDraftData(treeDataRes); // Sekarang ID sudah pasti angka dari DB
     } catch (error) {
-      console.error("Gagal load data:", error);
+      // console.error("Gagal load data:", error);
     } finally {
       setIsLoading(false);
     }
@@ -189,9 +188,8 @@ const PetaJabatanEditor = () => {
         setIsEditMode(false);
         setHasChanges(false);
         alert("Simpan berhasil! ID UI telah diperbarui dari Database.");
-        console.log("Simpan data berhasil");
       } else {
-        console.log("Gagal simpan: ", result.error);
+        // console.log("Gagal simpan: ", result.error);
       }
     } catch (err) {
       console.log("Terjadi kesalahan.");
@@ -230,31 +228,55 @@ const PetaJabatanEditor = () => {
       link.href = dataUrl;
       link.click();
     } catch (err) {
-      console.error("Download gagal:", err);
+      // console.error("Download gagal:", err);
     } finally {
       setIsDownloading(false);
     }
   };
 
-  const renderNodes = (node) => (
-    <TreeNode
-      key={node.id}
-      style={{ "--line-color": colors[node.level]?.hex || "#334155" }}
-      label={
-        <CustomNodeEditor
-          item={node}
-          onUpdate={handleUpdate}
-          onAdd={handleAddChild}
-          onDeleteConfirm={(id, t) =>
-            setDeleteModal({ show: true, id, title: t })
-          }
-          isEditMode={isEditMode}
-          listPegawai={listPegawai}
-        />
-      }
-    >
-      {node.children && node.children.map(renderNodes)}
-    </TreeNode>
+  // const renderNodes = (node) => (
+  //   <TreeNode
+  //     key={node.id}
+  //     style={{ "--line-color": colors[node.level]?.hex || "#334155" }}
+  //     label={
+  //       <CustomNodeEditor
+  //         item={node}
+  //         onUpdate={handleUpdate}
+  //         onAdd={handleAddChild}
+  //         onDeleteConfirm={(id, t) =>
+  //           setDeleteModal({ show: true, id, title: t })
+  //         }
+  //         isEditMode={isEditMode}
+  //         listPegawai={listPegawai}
+  //       />
+  //     }
+  //   >
+  //     {node.children && node.children.map(renderNodes)}
+  //   </TreeNode>
+  // );
+
+  const renderNodes = useCallback(
+    (node) => (
+      <TreeNode
+        key={node.id}
+        style={{ "--line-color": colors[node.level]?.hex || "#334155" }}
+        label={
+          <CustomNodeEditor
+            item={node}
+            onUpdate={handleUpdate}
+            onAdd={handleAddChild}
+            onDeleteConfirm={(id, t) =>
+              setDeleteModal({ show: true, id, title: t })
+            }
+            isEditMode={isEditMode}
+            listPegawai={listPegawai} // <--- SEKARANG INI AKAN UPDATE
+          />
+        }
+      >
+        {node.children && node.children.map((child) => renderNodes(child))}
+      </TreeNode>
+    ),
+    [listPegawai, isEditMode, handleUpdate, handleAddChild],
   );
 
   // Handle Loading UI
@@ -311,7 +333,7 @@ const PetaJabatanEditor = () => {
           }}
           className="inline-block p-20"
         >
-          <Tree
+          {/* <Tree
             lineWidth={"2px"}
             lineColor={"#334155"}
             lineStyle={"dashed"}
@@ -325,6 +347,25 @@ const PetaJabatanEditor = () => {
                 }
                 isEditMode={isEditMode}
                 listPegawai={listPegawai}
+              />
+            }
+          >
+            {draftData.children.map(renderNodes)}
+          </Tree> */}
+          <Tree
+            lineWidth={"2px"}
+            lineColor={"#334155"}
+            lineStyle={"dashed"}
+            label={
+              <CustomNodeEditor
+                item={draftData} // Ini untuk Root (Kepala Dinas)
+                onUpdate={handleUpdate}
+                onAdd={handleAddChild}
+                onDeleteConfirm={(id, t) =>
+                  setDeleteModal({ show: true, id, title: t })
+                }
+                isEditMode={isEditMode}
+                listPegawai={listPegawai} // <--- Pastikan ini ada!
               />
             }
           >

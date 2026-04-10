@@ -4,13 +4,13 @@ import { prisma } from "../lib/db";
 
 export const getListPegawaiByIdInstansi = async (idInstansi) => {
   if (!idInstansi) return null;
-
   try {
     const list = await prisma.pegawai.findMany({
       where: {
         opdId: parseInt(idInstansi),
       },
     });
+
     return list;
   } catch (error) {
     console.log(
