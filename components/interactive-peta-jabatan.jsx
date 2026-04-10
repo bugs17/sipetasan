@@ -234,27 +234,6 @@ const PetaJabatanEditor = () => {
     }
   };
 
-  // const renderNodes = (node) => (
-  //   <TreeNode
-  //     key={node.id}
-  //     style={{ "--line-color": colors[node.level]?.hex || "#334155" }}
-  //     label={
-  //       <CustomNodeEditor
-  //         item={node}
-  //         onUpdate={handleUpdate}
-  //         onAdd={handleAddChild}
-  //         onDeleteConfirm={(id, t) =>
-  //           setDeleteModal({ show: true, id, title: t })
-  //         }
-  //         isEditMode={isEditMode}
-  //         listPegawai={listPegawai}
-  //       />
-  //     }
-  //   >
-  //     {node.children && node.children.map(renderNodes)}
-  //   </TreeNode>
-  // );
-
   const renderNodes = useCallback(
     (node) => (
       <TreeNode
@@ -282,7 +261,7 @@ const PetaJabatanEditor = () => {
   // Handle Loading UI
   if (isLoading) {
     return (
-      <div className="h-screen w-full flex items-center justify-center bg-[#151c21] text-white">
+      <div className="h-screen w-full flex items-center justify-center opacity-20 bg-[#151c21] rounded-bl-2xl text-white">
         Loading Peta Jabatan...
       </div>
     );

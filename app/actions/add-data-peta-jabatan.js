@@ -4,18 +4,11 @@ import { prisma } from "../lib/db";
 
 export async function savePetaJabatan(opdId, treeData) {
   try {
-    // 1. Fungsi Helper untuk meratakan Tree menjadi Array Datar
+    // 1. Helper meratakan Tree (Sama seperti sebelumnya)
     const flattenNodes = (node, parentId = null) => {
       let nodes = [];
       const { children, ...currentData } = node;
-
-      // Simpan data node saat ini
-      nodes.push({
-        ...currentData,
-        parentId: parentId,
-      });
-
-      // Rekursi ke anak-anaknya
+      nodes.push({ ...currentData, parentId: parentId });
       if (children && children.length > 0) {
         children.forEach((child) => {
           nodes = nodes.concat(flattenNodes(child, node.id));
@@ -26,41 +19,50 @@ export async function savePetaJabatan(opdId, treeData) {
 
     const flatNodes = flattenNodes(treeData);
 
-    // 2. Gunakan Transaction agar jika satu gagal, semua batal (Data Integrity)
+    // Ambil semua ID yang dikirim dari UI (yang berupa angka/ID asli DB)
+    const activeIdsFromUI = flatNodes
+      .map((n) => parseInt(n.id))
+      .filter((id) => !isNaN(id));
+
     return await prisma.$transaction(
       async (tx) => {
-        // Map untuk menyimpan relasi antara ID temporary (node-xxx / root-xxx) ke ID asli DB (Int)
+        // --- TAHAP 1: DELETE JABATAN YANG SUDAH TIDAK ADA DI UI ---
+        // Kita hapus semua jabatan di OPD ini yang ID-nya TIDAK ada dalam kiriman UI
+        // Karena kita pakai onDelete: Cascade di schema (seharusnya),
+        // maka menghapus parent akan menghapus child secara otomatis.
+        // Jika tidak Cascade, kita harus hapus dari level terdalam dulu.
+        await tx.jabatan.deleteMany({
+          where: {
+            opdId: opdId,
+            id: {
+              notIn: activeIdsFromUI,
+            },
+          },
+        });
+
+        // Map untuk relasi ID temporary
         const idMap = {};
 
+        // --- TAHAP 2: UPSERT DATA (Seperti sebelumnya) ---
         for (const node of flatNodes) {
-          // Tentukan apakah ini node baru atau lama berdasarkan format ID
-          // Kita anggap baru jika ID mengandung string "node-" atau "root-" atau bukan angka murni
           const rawId = node.id.toString();
           const isNewNode =
             rawId.startsWith("node-") ||
             rawId.startsWith("root-") ||
             isNaN(parseInt(rawId));
-
-          // Pastikan ID untuk 'where' valid (gunakan -1 jika baru/invalid agar lari ke create)
           const safeIdForWhere = isNewNode ? -1 : parseInt(rawId);
 
-          // Helper untuk mendapatkan parentId yang valid dari idMap atau parse langsung
           const getSafeParentId = (pId) => {
             if (!pId) return null;
-            // Cek di map dulu (siapa tahu parent-nya baru saja di-create di loop sebelumnya)
             if (idMap[pId]) return idMap[pId];
-            // Jika tidak ada di map, coba parse (untuk node lama)
             const parsed = parseInt(pId);
             return isNaN(parsed) ? null : parsed;
           };
 
           const parentIdValue = getSafeParentId(node.parentId);
 
-          // --- PROSES JABATAN (UPSERT) ---
           const savedJabatan = await tx.jabatan.upsert({
-            where: {
-              id: safeIdForWhere,
-            },
+            where: { id: safeIdForWhere },
             update: {
               namaJabatan: node.jabatan,
               level: node.level,
@@ -80,17 +82,14 @@ export async function savePetaJabatan(opdId, treeData) {
             },
           });
 
-          // Simpan mapping ID asli dari DB agar children-nya bisa mereferensi ID ini
           idMap[node.id] = savedJabatan.id;
 
-          // --- PROSES PEGAWAI (SYNC RELASI) ---
-          // 1. Reset: Semua pegawai yang sebelumnya terdaftar di jabatan ini dilepas dulu
+          // --- PROSES PEGAWAI ---
           await tx.pegawai.updateMany({
             where: { jabatanId: savedJabatan.id },
             data: { jabatanId: null },
           });
 
-          // 2. Assign: Pasang pegawai yang baru dipilih (filter hanya yang berupa ID angka)
           const selectedPegawaiIds = node.pegawai
             .filter((p) => p !== "Belum Terisi" && !isNaN(parseInt(p)))
             .map((p) => parseInt(p));
@@ -106,7 +105,7 @@ export async function savePetaJabatan(opdId, treeData) {
         return { success: true };
       },
       {
-        timeout: 10000, // Berikan timeout 10 detik karena operasi loop mungkin berat
+        timeout: 15000, // Naikkan sedikit timeout karena ada proses delete
       },
     );
   } catch (error) {

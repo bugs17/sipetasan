@@ -47,15 +47,18 @@ model Jabatan {
 
   // --- TAMBAHAN HIRARKI ---
   parentId Int?
-  parent   Jabatan?  @relation("JabatanHierarki", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  parent   Jabatan?  @relation("JabatanHierarki", fields: [parentId], references: [id], onDelete: Cascade)
   children Jabatan[] @relation("JabatanHierarki")
 
   // --- RELASI OPD ---
   opdId Int? @default(1) // Tambahkan default sementara agar tidak error saat migrate
-  opd   Opd? @relation(fields: [opdId], references: [id], onDelete: SetNull)
+  opd   Opd? @relation(fields: [opdId], references: [id], onDelete: Cascade)
 
   pegawai Pegawai[]
   tugas   Tugas[]
+
+  @@index([opdId])
+  @@index([parentId])
 }
 
 model Pegawai {
