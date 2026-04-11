@@ -44,7 +44,7 @@ export default function UserProfileDropdown() {
     return null;
   }
 
-  const rawUsername = userDb.nama_user || "User";
+  const rawUsername = userDb?.nama_user || "User";
   const username = truncate(rawUsername);
   const role =
     userDb.role === "ADMIN_OPD" || userDb.role === "ADMIN_INDUK"

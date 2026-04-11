@@ -12,10 +12,14 @@ const ModalDeletePerubahan = ({
       <div className="bg-[#1a1a1e] border border-white/10 w-full max-w-sm rounded-[2rem] p-8 text-center animate-in zoom-in duration-200">
         <HiOutlineExclamation className="text-red-500 w-12 h-12 mx-auto mb-4" />
         <h3 className="text-white font-black uppercase italic mb-2">
-          Hapus Cabang?
+          Hapus Jabatan?
         </h3>
-        <p className="text-gray-400 text-sm mb-8 italic leading-relaxed">
+        <p className="text-gray-400 text-sm mb-4 italic leading-relaxed">
           "{deleteModal.title}"
+        </p>
+        <p className="text-white text-sm mb-8 italic leading-relaxed">
+          Seluruh data uraian tugas yang dimilik oleh "{deleteModal.title}" akan
+          ikut terhapus!
         </p>
         <div className="flex gap-3">
           <button

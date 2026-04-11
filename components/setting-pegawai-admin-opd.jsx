@@ -40,6 +40,7 @@ const SettingPegawaiAdminOpd = () => {
     tempatLahir: "",
     tanggalLahir: "",
     pendidikanId: "",
+    opdId: "",
   });
   const { userId, isLoaded } = useAuth();
 
@@ -91,6 +92,7 @@ const SettingPegawaiAdminOpd = () => {
       tempatLahir: "",
       tanggalLahir: "",
       pendidikanId: "",
+      opdId: "",
     });
   };
 
@@ -238,6 +240,7 @@ const SettingPegawaiAdminOpd = () => {
                                 pendidikanId: p.pendidikanId,
                                 tempatLahir: p.tempatLahir,
                                 tanggalLahir: p.tanggalLahir,
+                                opdId: p.opdId,
                               });
                               setIsModalOpen(true);
                             }}

@@ -112,13 +112,17 @@ const CustomNodeEditor = ({
             placeholder="NAMA JABATAN"
           />
         ) : (
-          <h4 className="text-[10px] font-black text-white uppercase italic leading-tight mb-3 h-8 line-clamp-2">
-            {item.jabatan}
-          </h4>
+          <div className="mb-4 group/title">
+            <h3 className="text-[14px] font-black text-white uppercase italic leading-tight min-h-[20px] tracking-tight decoration-indigo-500/50 group-hover/title:text-indigo-400 transition-colors">
+              {item.jabatan}
+            </h3>
+            <div
+              className={`h-1 w-12 rounded-full ${style.bg} opacity-50`}
+            ></div>
+          </div>
         )}
 
         {/* SDM List Section */}
-
         <div className="bg-black/30 rounded-xl p-3 border border-white/5 space-y-3">
           {item.pegawai.map((p, idx) => {
             // LOGIK: Cari data lengkap pegawai berdasarkan ID
@@ -199,92 +203,135 @@ const CustomNodeEditor = ({
         </div>
 
         {/* Stats Footer Section */}
-        <div className="flex justify-between items-center mt-4 pt-3 border-t border-white/5">
-          <div className="flex gap-4 text-[8px] font-bold text-gray-500 uppercase">
-            <style
-              dangerouslySetInnerHTML={{
-                __html: `
-                  .stat-tooltip { position: relative; }
-                  .stat-tooltip .tooltip-text {
-                    position: absolute; bottom: 130%; left: 50%; transform: translateX(-50%);
-                    padding: 4px 8px; border-radius: 6px; background: #1a1a1e; border: 1px solid rgba(255,255,255,0.1);
-                    color: white; font-size: 7px; white-space: nowrap; opacity: 0; pointer-events: none;
-                    transition: all 0.2s ease; z-index: 100; box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-                  }
-                  .stat-tooltip:hover .tooltip-text { opacity: 1; bottom: 150%; }
-                `,
-              }}
-            />
+        {/* Stats Footer Section */}
+        <div className="mt-6 pt-4 border-t border-white/10">
+          <style
+            dangerouslySetInnerHTML={{
+              __html: `
+      .stat-tooltip { position: relative; }
+      .stat-tooltip .tooltip-text {
+        position: absolute; 
+        /* Turunkan nilai bottom ini */
+        bottom: 110%; 
+        left: 50%; 
+        transform: translateX(-50%);
+        padding: 5px 8px; 
+        border-radius: 6px; 
+        background: #1a1a1e; 
+        border: 1px solid rgba(255,255,255,0.1);
+        color: white; 
+        font-size: 7px; 
+        white-space: nowrap; 
+        opacity: 0; 
+        pointer-events: none;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); 
+        z-index: 100; 
+        box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+      }
+      /* Posisi saat hover dibuat tidak terlalu jauh loncatnya */
+      .stat-tooltip:hover .tooltip-text { 
+        opacity: 1; 
+        bottom: 125%; 
+      }
+    `,
+            }}
+          />
 
-            {/* Field Kelas Jabatan (kJ) */}
-            <div className="flex flex-col stat-tooltip cursor-help">
-              <span className="text-[7px] opacity-60">kJ</span>
-              {isEditMode ? (
-                <input
-                  type="number"
-                  value={item.kJ || 0}
-                  onChange={(e) =>
-                    onUpdate(item.id, "kJ", parseInt(e.target.value) || 0)
-                  }
-                  className="w-7 bg-transparent text-amber-400 outline-none border-b border-transparent focus:border-white/10"
-                />
-              ) : (
-                <span className="text-amber-400">{item.kJ || 0}</span>
-              )}
+          {/* Gunakan Grid 4 Kolom agar lebarnya konsisten & tidak berantakan saat edit */}
+          <div className="grid grid-cols-4 gap-2 items-end">
+            {/* kJ Section */}
+            <div className="flex flex-col items-center stat-tooltip cursor-help">
+              <span className="text-[8px] font-black text-gray-500 mb-1 uppercase">
+                kJ
+              </span>
+              <div className="w-full bg-amber-500/10 border border-amber-500/20 py-1.5 rounded-xl flex justify-center">
+                {isEditMode ? (
+                  <input
+                    type="number"
+                    value={item.kJ || 0}
+                    onChange={(e) =>
+                      onUpdate(item.id, "kJ", parseInt(e.target.value) || 0)
+                    }
+                    className="w-full bg-transparent text-amber-400 text-[11px] font-black outline-none text-center appearance-none"
+                  />
+                ) : (
+                  <span className="text-amber-400 text-[11px] font-black">
+                    {item.kJ || 0}
+                  </span>
+                )}
+              </div>
               <div className="tooltip-text font-black italic">
                 KELAS JABATAN
               </div>
             </div>
 
-            {/* Field Bezetting (BEZ) */}
-            <div className="flex flex-col stat-tooltip cursor-help">
-              <span className="text-[7px] opacity-60">BEZ</span>
-              {isEditMode ? (
-                <input
-                  type="number"
-                  value={item.b}
-                  onChange={(e) =>
-                    onUpdate(item.id, "b", parseInt(e.target.value) || 0)
-                  }
-                  className="w-7 bg-transparent text-white outline-none border-b border-transparent focus:border-white/10"
-                />
-              ) : (
-                <span className="text-white">{item.b}</span>
-              )}
-              <div className="tooltip-text font-black italic">
-                JUMLAH PEGAWAI SAAT INI
+            {/* BEZ Section */}
+            <div className="flex flex-col items-center stat-tooltip cursor-help">
+              <span className="text-[8px] font-black text-gray-500 mb-1 uppercase">
+                BEZ
+              </span>
+              <div className="w-full bg-white/5 border border-white/10 py-1.5 rounded-xl flex justify-center">
+                {isEditMode ? (
+                  <input
+                    type="number"
+                    value={item.b}
+                    onChange={(e) =>
+                      onUpdate(item.id, "b", parseInt(e.target.value) || 0)
+                    }
+                    className="w-full bg-transparent text-white text-[11px] font-black outline-none text-center"
+                  />
+                ) : (
+                  <span className="text-white text-[11px] font-black">
+                    {item.b}
+                  </span>
+                )}
               </div>
+              <div className="tooltip-text font-black italic">BEZETTING</div>
             </div>
 
-            {/* Field ABK */}
-            <div className="flex flex-col stat-tooltip cursor-help">
-              <span className="text-[7px] opacity-60">ABK</span>
-              {isEditMode ? (
-                <input
-                  type="number"
-                  value={item.abk}
-                  onChange={(e) =>
-                    onUpdate(item.id, "abk", parseInt(e.target.value) || 0)
-                  }
-                  className="w-7 bg-transparent text-white outline-none border-b border-transparent focus:border-white/10"
-                />
-              ) : (
-                <span className="text-white">{item.abk}</span>
-              )}
+            {/* ABK Section */}
+            <div className="flex flex-col items-center stat-tooltip cursor-help">
+              <span className="text-[8px] font-black text-gray-500 mb-1 uppercase">
+                ABK
+              </span>
+              <div className="w-full bg-white/5 border border-white/10 py-1.5 rounded-xl flex justify-center">
+                {isEditMode ? (
+                  <input
+                    type="number"
+                    value={item.abk}
+                    onChange={(e) =>
+                      onUpdate(item.id, "abk", parseInt(e.target.value) || 0)
+                    }
+                    className="w-full bg-transparent text-white text-[11px] font-black outline-none text-center"
+                  />
+                ) : (
+                  <span className="text-white text-[11px] font-black">
+                    {item.abk}
+                  </span>
+                )}
+              </div>
               <div className="tooltip-text font-black italic">
                 ANALISIS BEBAN KERJA
               </div>
             </div>
-          </div>
 
-          <div className="stat-tooltip cursor-help">
-            <div
-              className={`px-3 py-1 rounded-lg text-[10px] font-black transition-colors ${selisih < 0 ? "text-red-500 bg-red-500/10" : "text-emerald-500 bg-emerald-500/10"}`}
-            >
-              {selisih}
-            </div>
-            <div className="tooltip-text font-black italic">
-              SELISIH (BEZ - ABK)
+            {/* Selisih Section */}
+            <div className="flex flex-col items-center stat-tooltip cursor-help">
+              <span className="text-[8px] font-black text-gray-500 mb-1 uppercase">
+                +/-
+              </span>
+              <div
+                className={`w-full py-1.5 rounded-xl text-[11px] font-black text-center transition-all ${
+                  selisih < 0
+                    ? "text-red-500 bg-red-500/10 border border-red-500/20"
+                    : "text-emerald-500 bg-emerald-500/10 border border-emerald-500/20"
+                }`}
+              >
+                {selisih > 0 ? `+${selisih}` : selisih}
+              </div>
+              <div className="tooltip-text font-black italic">
+                SELISIH (BEZ - ABK)
+              </div>
             </div>
           </div>
         </div>
