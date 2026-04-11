@@ -13,6 +13,8 @@ import { useUser } from "@clerk/nextjs";
 import { getListPegawaiByIdInstansi } from "@/app/actions/get-list-pegawai-by-id-instansi";
 import { getPetaJabatan } from "@/app/actions/get-data-peta-jabatan";
 import { savePetaJabatan } from "@/app/actions/add-data-peta-jabatan";
+import LoadingPetaJabatan from "./loading-peta-jabatan";
+import toast from "react-hot-toast";
 
 const colors = {
   1: {
@@ -187,7 +189,9 @@ const PetaJabatanEditor = () => {
 
         setIsEditMode(false);
         setHasChanges(false);
-        alert("Simpan berhasil! ID UI telah diperbarui dari Database.");
+        toast.success("Perubahan berhasil disimpan", {
+          duration: 2000,
+        });
       } else {
         // console.log("Gagal simpan: ", result.error);
       }
@@ -258,13 +262,8 @@ const PetaJabatanEditor = () => {
     [listPegawai, isEditMode, handleUpdate, handleAddChild],
   );
 
-  // Handle Loading UI
   if (isLoading) {
-    return (
-      <div className="h-screen w-full flex items-center justify-center opacity-20 bg-[#151c21] rounded-bl-2xl text-white">
-        Loading Peta Jabatan...
-      </div>
-    );
+    return <LoadingPetaJabatan />;
   }
 
   return (
@@ -312,25 +311,6 @@ const PetaJabatanEditor = () => {
           }}
           className="inline-block p-20"
         >
-          {/* <Tree
-            lineWidth={"2px"}
-            lineColor={"#334155"}
-            lineStyle={"dashed"}
-            label={
-              <CustomNodeEditor
-                item={draftData}
-                onUpdate={handleUpdate}
-                onAdd={handleAddChild}
-                onDeleteConfirm={(id, t) =>
-                  setDeleteModal({ show: true, id, title: t })
-                }
-                isEditMode={isEditMode}
-                listPegawai={listPegawai}
-              />
-            }
-          >
-            {draftData.children.map(renderNodes)}
-          </Tree> */}
           <Tree
             lineWidth={"2px"}
             lineColor={"#334155"}
