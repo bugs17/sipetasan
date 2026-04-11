@@ -118,61 +118,80 @@ const CustomNodeEditor = ({
         )}
 
         {/* SDM List Section */}
-        <div className="bg-black/30 rounded-xl p-2 border border-white/5 space-y-2">
+
+        <div className="bg-black/30 rounded-xl p-3 border border-white/5 space-y-3">
           {item.pegawai.map((p, idx) => {
-            // LOGIK: Cari nama berdasarkan ID yang tersimpan di state p
+            // LOGIK: Cari data lengkap pegawai berdasarkan ID
             const findPegawai = listPegawai.find((pg) => pg.id == p);
             const labelTampil = findPegawai ? findPegawai.nama : "Belum Terisi";
+            const nipTampil = findPegawai ? findPegawai.nip : "-";
 
             return (
-              <div key={idx} className="flex items-center gap-2 group/user">
+              <div key={idx} className="flex items-start gap-3 group/user">
+                {/* Dot indikator - kita buat sedikit lebih besar dan ada margin-top agar sejajar baris pertama */}
                 <div
-                  className={`w-1 h-1 rounded-full shrink-0 ${style.bg}`}
+                  className={`w-1.5 h-1.5 rounded-full shrink-0 mt-1.5 ${style.bg}`}
                 ></div>
+
                 {isEditMode ? (
-                  <>
+                  <div className="flex-1 flex flex-col gap-1">
                     <select
                       value={p}
                       onChange={(e) => {
                         const val = e.target.value;
                         const newList = [...item.pegawai];
-                        // Simpan sebagai Int untuk database, kecuali "Belum Terisi"
                         newList[idx] =
                           val === "Belum Terisi" ? val : parseInt(val);
                         onUpdate(item.id, "pegawai", newList);
                       }}
-                      className="w-full bg-transparent text-[10px] text-gray-300 font-medium outline-none cursor-pointer"
+                      className="w-full bg-transparent text-[12px] text-gray-200 font-semibold outline-none cursor-pointer"
                     >
                       <option value="Belum Terisi">Belum Terisi</option>
                       {listPegawai.map((pegawai) => (
                         <option
                           key={pegawai.id}
-                          value={pegawai.id} // SIMPAN ID (Sesuai kebutuhan DB)
+                          value={pegawai.id}
                           className="bg-[#151c21] text-white"
                         >
                           {pegawai.nama}
                         </option>
                       ))}
                     </select>
-                    {item.pegawai.length > 1 && (
-                      <button
-                        onClick={() =>
-                          onUpdate(
-                            item.id,
-                            "pegawai",
-                            item.pegawai.filter((_, i) => i !== idx),
-                          )
-                        }
-                        className="text-gray-600 hover:text-red-500 transition-colors"
-                      >
-                        <HiOutlineX size={10} />
-                      </button>
+                    {/* Tampilkan NIP kecil di bawah select saat edit untuk referensi */}
+                    {findPegawai && (
+                      <span className="text-[9px] text-gray-500 font-mono">
+                        NIP. {nipTampil}
+                      </span>
                     )}
-                  </>
+                  </div>
                 ) : (
-                  <span className="text-[10px] text-gray-300 font-medium truncate">
-                    {labelTampil}
-                  </span>
+                  <div className="flex flex-col min-w-0">
+                    {/* Nama Pegawai - Lebih besar dan Putih Terang */}
+                    <span className="text-[12px] text-white font-bold leading-tight uppercase tracking-tight break-words">
+                      {labelTampil}
+                    </span>
+                    {/* NIP - Font Mono agar terlihat formal/sistem */}
+                    {findPegawai && (
+                      <span className="text-[10px] text-gray-400 font-mono mt-0.5 tracking-wider">
+                        NIP. {nipTampil}
+                      </span>
+                    )}
+                  </div>
+                )}
+
+                {isEditMode && item.pegawai.length > 1 && (
+                  <button
+                    onClick={() =>
+                      onUpdate(
+                        item.id,
+                        "pegawai",
+                        item.pegawai.filter((_, i) => i !== idx),
+                      )
+                    }
+                    className="text-gray-600 hover:text-red-500 transition-colors shrink-0"
+                  >
+                    <HiOutlineX size={12} />
+                  </button>
                 )}
               </div>
             );
