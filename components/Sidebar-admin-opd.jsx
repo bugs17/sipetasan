@@ -35,36 +35,20 @@ const menuConfig = [
     match: (pathname) => pathname === `${BASE_PATH}/proyeksi-kebutuhan-pegawai`,
   },
   {
+    label: "Mutasi",
+    href: `${BASE_PATH}/mutasi`,
+    icon: <Shuffle size={20} />,
+    match: (pathname) =>
+      pathname === `${BASE_PATH}/mutasi` ||
+      pathname.includes(`${BASE_PATH}/mutasi`),
+  },
+  {
     label: "Uraian Tugas",
     href: `${BASE_PATH}/uraian-tugas`,
     icon: <ClipboardList size={20} />,
     match: (pathname) =>
       pathname === `${BASE_PATH}/uraian-tugas` ||
       pathname.includes(`${BASE_PATH}/tugas`),
-  },
-  {
-    label: "Master",
-    icon: <Settings size={20} />,
-    type: "group",
-    openWhen: (pathname) =>
-      pathname.startsWith(`${BASE_PATH}/setting`) ||
-      pathname.startsWith(`${BASE_PATH}/add`),
-    children: [
-      {
-        label: "Seting Pegawai",
-        href: `${BASE_PATH}/setting-pegawai`,
-        match: (pathname) =>
-          pathname === `${BASE_PATH}/setting-pegawai` ||
-          pathname === `${BASE_PATH}/add-pegawai`,
-      },
-      {
-        label: "Seting Uraian Tugas",
-        href: `${BASE_PATH}/setting-uraian-tugas`,
-        match: (pathname) =>
-          pathname === `${BASE_PATH}/setting-uraian-tugas` ||
-          pathname.includes(`${BASE_PATH}/add-tugas`),
-      },
-    ],
   },
   {
     label: "Download",
@@ -82,20 +66,36 @@ const menuConfig = [
     ],
   },
   {
-    label: "Mutasi",
-    href: `${BASE_PATH}/mutasi`,
-    icon: <Shuffle size={20} />,
-    match: (pathname) =>
-      pathname === `${BASE_PATH}/mutasi` ||
-      pathname.includes(`${BASE_PATH}/mutasi`),
-  },
-  {
     label: "Chat",
     href: `${BASE_PATH}/chat-user`,
     icon: <SendHorizontal size={20} />,
     match: (pathname) =>
       pathname === `${BASE_PATH}/chat-user` ||
       pathname.includes(`${BASE_PATH}/chat-user`),
+  },
+  {
+    label: "Master",
+    icon: <Settings size={20} />,
+    type: "group",
+    openWhen: (pathname) =>
+      pathname.startsWith(`${BASE_PATH}/setting`) ||
+      pathname.startsWith(`${BASE_PATH}/add`),
+    children: [
+      {
+        label: "Setting Pegawai",
+        href: `${BASE_PATH}/setting-pegawai`,
+        match: (pathname) =>
+          pathname === `${BASE_PATH}/setting-pegawai` ||
+          pathname === `${BASE_PATH}/add-pegawai`,
+      },
+      {
+        label: "Setting Uraian Tugas",
+        href: `${BASE_PATH}/setting-uraian-tugas`,
+        match: (pathname) =>
+          pathname === `${BASE_PATH}/setting-uraian-tugas` ||
+          pathname.includes(`${BASE_PATH}/add-tugas`),
+      },
+    ],
   },
 ];
 

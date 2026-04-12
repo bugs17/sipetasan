@@ -81,16 +81,6 @@ const menuConfig = [
       pathname === `${BASE_PATH}/chat` ||
       pathname.includes(`${BASE_PATH}/chat`),
   },
-  // Jika nanti mau download group, bisa diaktifkan
-  // {
-  //   label: 'Download',
-  //   icon: <Download size={20} />,
-  //   type: 'group',
-  //   children: [
-  //     { label: 'Peta Jabatan', href: '' },
-  //     { label: 'Proyeksi Kebutuhan', href: '' },
-  //   ],
-  // },
 ];
 
 /**
