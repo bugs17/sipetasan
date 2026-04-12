@@ -1,5 +1,10 @@
 "use client";
-import React, { useState, useMemo } from "react";
+import { getProyeksiData } from "@/app/actions/get-proyeksi";
+import { getUserRoleByClerkID } from "@/app/actions/get-user-role-by-clerk-id";
+import { cekTahunKeluar } from "@/app/utils/cek-pensiun";
+import ProyeksiSkeleton from "@/components/skeleton/proyeksi-kebutuhan-skeleton";
+import { useAuth } from "@clerk/nextjs";
+import React, { useState, useMemo, useEffect } from "react";
 import {
   HiOutlineUserAdd,
   HiOutlineOfficeBuilding,
@@ -7,113 +12,52 @@ import {
   HiOutlineCalendar,
 } from "react-icons/hi";
 
-// --- DATA DUMMY SESUAI PERMINTAAN ---
-const rawData = [
-  {
-    id: "P01",
-    nama: "Budi Santoso",
-    jabatan: "KEPALA DINAS",
-    tglLahir: "1967-05-12",
-    abk: 1,
-    statusKeluar: null,
-  },
-  {
-    id: "P02",
-    nama: "Siti Aminah",
-    jabatan: "KEPALA BAGIAN A",
-    tglLahir: "1968-01-01",
-    abk: 1,
-    statusKeluar: null,
-  },
-  {
-    id: "P03",
-    nama: "Andi Wijaya",
-    jabatan: "KEPALA BAGIAN B",
-    tglLahir: "1970-03-15",
-    abk: 1,
-    statusKeluar: null,
-  },
-  {
-    id: "P04",
-    nama: "Hendra Kusuma",
-    jabatan: "KEPALA BAGIAN C",
-    tglLahir: "1969-11-20",
-    abk: 1,
-    statusKeluar: null,
-  },
-  {
-    id: "P05",
-    nama: "Rina Permata",
-    jabatan: "SUB BAGIAN AA",
-    tglLahir: "1967-08-15",
-    abk: 1,
-    statusKeluar: null,
-  },
-  // { id: "P06", nama: "Bambang Sujatmiko", jabatan: "SUB BAGIAN AB", tglLahir: "1972-01-10", abk: 1, statusKeluar: { tahun: 2025, alasan: "MUTASI" } },
-  {
-    id: "P07",
-    nama: "Lusi Rahmawati",
-    jabatan: "SUB BAGIAN AC",
-    tglLahir: "1967-12-30",
-    abk: 1,
-    statusKeluar: null,
-  },
-  // { id: "P08", nama: "Rian Hidayat", jabatan: "ADMINISTRASI PERKANTORAN", tglLahir: "1980-01-01", abk: 12, statusKeluar: { tahun: 2026, alasan: "WAFAT" } },
-  // { id: "P09", nama: "Dewi Lestari", jabatan: "ADMINISTRASI PERKANTORAN", tglLahir: "1985-05-05", abk: 12, statusKeluar: { tahun: 2026, alasan: "MUTASI" } },
-  {
-    id: "P10",
-    nama: "Eko Prasetyo",
-    jabatan: "ADMINISTRASI PERKANTORAN",
-    tglLahir: "1968-06-12",
-    abk: 12,
-    statusKeluar: null,
-  },
-  {
-    id: "P11",
-    nama: "Siska Putri",
-    jabatan: "PENGELOLA DATA INFORMASI",
-    tglLahir: "1967-04-04",
-    abk: 10,
-    statusKeluar: null,
-  },
-  // { id: "P12", nama: "Anton Nugroho", jabatan: "PENGELOLA DATA INFORMASI", tglLahir: "1990-02-20", abk: 10, statusKeluar: { tahun: 2025, alasan: "RESIGN" } },
-  {
-    id: "P13",
-    nama: "Indah Cahyani",
-    jabatan: "PENGELOLA DATA INFORMASI",
-    tglLahir: "1967-09-15",
-    abk: 10,
-    statusKeluar: null,
-  },
-  // { id: "P14", nama: "Fajar Shidiq", jabatan: "ADMINISTRASI PERKANTORAN", tglLahir: "1975-10-10", abk: 12, statusKeluar: { tahun: 2027, alasan: "MUTASI" } },
-  {
-    id: "P15",
-    nama: "Maya Sari",
-    jabatan: "PENGELOLA DATA INFORMASI",
-    tglLahir: "1969-03-25",
-    abk: 10,
-    statusKeluar: null,
-  },
-];
-
-const USIA_PENSIUN = 58;
-
 const Page = () => {
   // State untuk kontrol tahun awal proyeksi
-  const [startYear, setStartYear] = useState(2025);
+  const { isLoaded, userId } = useAuth();
+  const [isLoading, setIsLoading] = useState(true);
+  const [dataPegawai, setDataPegawai] = useState([]);
+  const currentYear = useMemo(() => new Date().getFullYear(), []);
+  const [startYear, setStartYear] = useState(currentYear);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!isLoaded || !userId) return;
+
+      setIsLoading(true);
+      try {
+        const userDb = await getUserRoleByClerkID(userId);
+        const { success, data } = await getProyeksiData(userDb.opdId);
+        console.log("isSucces: ", success);
+        if (success) {
+          console.log("data: ", data);
+          setDataPegawai(data);
+        }
+      } catch (error) {
+        console.log("error message: ", error.message);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchData();
+  }, [isLoaded, userId]);
+
+  const optionsTahun = useMemo(() => {
+    const range = [];
+    for (let i = currentYear - 5; i <= currentYear + 4; i++) {
+      range.push(i);
+    }
+    return range;
+  }, [currentYear]);
 
   const listTahun = useMemo(
     () => Array.from({ length: 5 }, (_, i) => startYear + i),
     [startYear],
   );
 
-  const cekTahunKeluar = (p) => {
-    if (p.statusKeluar) return p.statusKeluar.tahun;
-    return new Date(p.tglLahir).getFullYear() + USIA_PENSIUN;
-  };
-
   const processedData = useMemo(() => {
-    const grouped = rawData.reduce((acc, curr) => {
+    if (!dataPegawai || dataPegawai.length === 0) return [];
+    const grouped = dataPegawai.reduce((acc, curr) => {
       if (!acc[curr.jabatan]) {
         acc[curr.jabatan] = {
           jabatan: curr.jabatan,
@@ -143,94 +87,100 @@ const Page = () => {
         return { ...item, proyeksi: perTahun, tahunKritis };
       })
       .sort((a, b) => a.tahunKritis - b.tahunKritis);
-  }, [listTahun]); // Re-calculate saat listTahun berubah
+  }, [listTahun, dataPegawai]); // Re-calculate saat listTahun berubah
+
+  if (isLoading) return <ProyeksiSkeleton />;
 
   return (
-    <div className="w-full min-h-screen text-slate-300 p-8 font-sans">
+    <div className="w-full min-h-screen text-slate-300 font-sans">
       {/* HEADER AREA - UPDATED */}
-      <div className="mb-12">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-white/5 pb-8">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-6">
-            <div>
-              <h2 className="text-xl font-black italic text-white uppercase tracking-tighter leading-none">
-                Proyeksi Kebutuhan{" "}
-                <span className="text-indigo-500">Kekosongan.</span>
-              </h2>
-              <p className="text-[9px] text-slate-500 font-bold uppercase tracking-widest mt-1">
-                Analisis otomatis pensiun & mutasi
-              </p>
-            </div>
+      <div className="sticky top-0 z-50 w-full bg-[#0d1117]/80 backdrop-blur-md border-b border-white/5 mb-12">
+        <div className="px-10 py-6">
+          {" "}
+          {/* Kontainer dalam untuk mengatur padding horizontal */}
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-6">
+              <div>
+                <h2 className="text-xl font-black italic text-white uppercase tracking-tighter leading-none">
+                  Proyeksi Kebutuhan{" "}
+                  <span className="text-indigo-500">Pegawai.</span>
+                </h2>
+                <p className="text-[9px] text-slate-500 font-bold uppercase tracking-widest mt-1">
+                  Analisis otomatis pensiun
+                </p>
+              </div>
 
-            {/* Selector Tahun Mulai */}
-            <div className="flex items-center gap-3 bg-white/5 border border-white/10 px-3 py-2 rounded-2xl group hover:border-indigo-500/50 transition-colors">
-              <HiOutlineCalendar className="text-indigo-500" size={18} />
-              <div className="flex flex-col">
-                <label className="text-[7px] font-black text-slate-500 uppercase italic">
-                  Mulai Tahun
-                </label>
-                <select
-                  value={startYear}
-                  onChange={(e) => setStartYear(parseInt(e.target.value))}
-                  className="bg-transparent text-xs font-black text-white focus:outline-none cursor-pointer uppercase"
-                >
-                  {[2023, 2024, 2025, 2026, 2027].map((y) => (
-                    <option key={y} value={y} className="bg-[#0d1117]">
-                      {y}
-                    </option>
-                  ))}
-                </select>
+              {/* Selector Tahun Mulai */}
+              <div className="flex items-center gap-3 bg-white/10 border border-white/10 px-3 py-2 rounded-2xl group hover:border-indigo-500/50 transition-colors">
+                <HiOutlineCalendar className="text-indigo-500" size={18} />
+                <div className="flex flex-col">
+                  <label className="text-[7px] font-black text-slate-500 uppercase italic">
+                    Mulai Tahun
+                  </label>
+                  <select
+                    value={startYear}
+                    onChange={(e) => setStartYear(parseInt(e.target.value))}
+                    className="bg-transparent text-xs font-black text-white focus:outline-none cursor-pointer uppercase"
+                  >
+                    {optionsTahun.map((y) => (
+                      <option key={y} value={y} className="bg-[#0d1117]">
+                        {y === currentYear ? `${y} (SEKARANG)` : y}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* Badge Informasi Ringkas Seluruh Jabatan */}
-          <div className="flex flex-wrap gap-2">
-            {listTahun.map((year) => {
-              const totalKeluarTahunIni = rawData.filter(
-                (p) => cekTahunKeluar(p) === year,
-              ).length;
-              return (
-                <div key={year} className="flex flex-col items-center">
-                  <div
-                    className={`px-3 py-1.5 rounded-xl border transition-all duration-300 ${
-                      totalKeluarTahunIni > 0
-                        ? "bg-rose-500/10 border-rose-500/20 shadow-[0_0_10px_rgba(244,63,94,0.1)]"
-                        : "bg-white/5 border-white/10"
-                    }`}
-                  >
-                    <p className="text-[8px] font-black text-slate-500 uppercase leading-none mb-1">
-                      {year}
-                    </p>
-                    <div className="flex items-center gap-1.5">
-                      <div
-                        className={`w-1.5 h-1.5 rounded-full ${totalKeluarTahunIni > 0 ? "bg-rose-500 animate-pulse" : "bg-slate-700"}`}
-                      />
-                      <span
-                        className={`text-xs font-black ${totalKeluarTahunIni > 0 ? "text-white" : "text-slate-600"}`}
-                      >
-                        {totalKeluarTahunIni}{" "}
-                        <span className="text-[9px] font-normal opacity-60">
-                          Org
-                        </span>
-                      </span>
-                    </div>
-                  </div>
-                  {totalKeluarTahunIni > 0 && (
-                    <div className="mt-1 px-2 py-0.5 bg-amber-500 rounded-full shadow-lg shadow-amber-500/20">
-                      <p className="text-[7px] font-black text-black italic">
-                        KEB {year + 1}
+            {/* Badge Informasi Ringkas Seluruh Jabatan */}
+            <div className="flex flex-wrap gap-2">
+              {listTahun.map((year) => {
+                const totalKeluarTahunIni = dataPegawai.filter(
+                  (p) => cekTahunKeluar(p) === year,
+                ).length;
+                return (
+                  <div key={year} className="flex flex-col items-center">
+                    <div
+                      className={`px-3 py-1.5 rounded-xl border transition-all duration-300 ${
+                        totalKeluarTahunIni > 0
+                          ? "bg-rose-500/10 border-rose-500/20 shadow-[0_0_10px_rgba(244,63,94,0.1)]"
+                          : "bg-white/5 border-white/10"
+                      }`}
+                    >
+                      <p className="text-[8px] font-black text-slate-500 uppercase leading-none mb-1">
+                        {year}
                       </p>
+                      <div className="flex items-center gap-1.5">
+                        <div
+                          className={`w-1.5 h-1.5 rounded-full ${totalKeluarTahunIni > 0 ? "bg-rose-500 animate-pulse" : "bg-slate-700"}`}
+                        />
+                        <span
+                          className={`text-xs font-black ${totalKeluarTahunIni > 0 ? "text-white" : "text-slate-600"}`}
+                        >
+                          {totalKeluarTahunIni}{" "}
+                          <span className="text-[9px] font-normal opacity-60">
+                            Org
+                          </span>
+                        </span>
+                      </div>
                     </div>
-                  )}
-                </div>
-              );
-            })}
+                    {totalKeluarTahunIni > 0 && (
+                      <div className="mt-1 px-2 py-0.5 bg-amber-500 rounded-full shadow-lg shadow-amber-500/20">
+                        <p className="text-[7px] font-black text-black italic">
+                          KEB {year + 1}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
       </div>
 
       {/* CONTENT AREA */}
-      <div className="space-y-12">
+      <div className="space-y-12 px-8 pb-8">
         {processedData.map((jab, idx) => (
           <div key={idx} className="relative">
             <div className="flex items-center gap-4 mb-6">
@@ -316,11 +266,12 @@ const Page = () => {
                                 <p className="text-[10px] font-bold text-slate-100 uppercase truncate">
                                   {orang.nama}
                                 </p>
+                                <p className="text-[9px] font-mono text-slate-500 tracking-tighter">
+                                  NIP. {orang.nip}
+                                </p>
                                 <p className="text-[8px] font-medium text-rose-400 uppercase italic mt-1 flex items-center gap-1 animate-pulse">
                                   <span className="w-1 h-1 bg-rose-500 rounded-full shadow-[0_0_5px_rgba(244,63,94,0.8)]" />
-                                  {orang.statusKeluar
-                                    ? orang.statusKeluar.alasan
-                                    : "PENSIUN 58 TH"}
+                                  {"PENSIUN"}
                                 </p>
                               </div>
                             ))}
