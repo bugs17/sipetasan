@@ -41,3 +41,4 @@ next-env.d.ts
 realDB/
 # clerk configuration (can include secrets)
 /.clerk/
+/file_mutasi

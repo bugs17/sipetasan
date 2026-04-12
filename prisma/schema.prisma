@@ -28,7 +28,9 @@ model Opd {
   jabatans Jabatan[]
 
   // Tambahkan ini jika Pegawai punya relasi langsung ke OPD
-  pegawai Pegawai[]
+  pegawai      Pegawai[]
+  mutasiAsal   Mutasi[]  @relation("opdAsal")
+  mutasiTujuan Mutasi[]  @relation("opdTujuan")
 }
 
 model Jabatan {
@@ -85,7 +87,7 @@ model Pegawai {
   opdId Int?
   opd   Opd? @relation(fields: [opdId], references: [id])
 
-  mutasi Mutasi?
+  mutasi Mutasi[]
 }
 
 model Tugas {
@@ -115,10 +117,14 @@ model Mutasi {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  pegawaiId Int?     @unique
+  pegawaiId Int?
   pegawai   Pegawai? @relation(fields: [pegawaiId], references: [id])
 
+  opdAsalId Int?
+  opdAsal   Opd? @relation("opdAsal", fields: [opdAsalId], references: [id])
+
   opdTujuanId Int?
+  opdTujuan   Opd? @relation("opdTujuan", fields: [opdTujuanId], references: [id])
 
   status  String? @default("pending") // aproved, revisi, rejected, pending
   catatan String?
@@ -131,8 +137,9 @@ model BerkasMutasi {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  namaBerkas String? // valid, revisi
-  urlBerkas  String?
+  status_berkas String? //valid, revisi
+  namaBerkas    String?
+  urlBerkas     String?
 
   mutasiId Int?
   mutasi   Mutasi? @relation(fields: [mutasiId], references: [id])
