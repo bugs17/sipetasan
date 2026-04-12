@@ -127,6 +127,7 @@ model Mutasi {
   opdTujuan   Opd? @relation("opdTujuan", fields: [opdTujuanId], references: [id])
 
   status  String? @default("pending") // aproved, revisi, rejected, pending
+  alasan  String?
   catatan String?
 
   berkasMutasi BerkasMutasi[]
@@ -142,7 +143,7 @@ model BerkasMutasi {
   urlBerkas     String?
 
   mutasiId Int?
-  mutasi   Mutasi? @relation(fields: [mutasiId], references: [id])
+  mutasi   Mutasi? @relation(fields: [mutasiId], references: [id], onDelete: Cascade)
 }
 
 model User {

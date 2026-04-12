@@ -44,7 +44,7 @@ const ModalStatusMutasiOpd = ({
               {selectedHistory.status}
             </h3>
             <p className="text-[10px] text-gray-500 font-bold uppercase tracking-[0.2em] mt-1">
-              ID Pengajuan: {selectedHistory.id}
+              ID Pengajuan: MTX00{selectedHistory.id}
             </p>
           </div>
           <div className="bg-white/[0.03] border border-white/5 rounded-2xl p-4 text-left space-y-3">
@@ -52,7 +52,7 @@ const ModalStatusMutasiOpd = ({
               <p className="text-[9px] font-black text-gray-500 uppercase tracking-widest">
                 Nama Pegawai
               </p>
-              <p className="text-xs text-white font-bold">
+              <p className="text-xs text-white uppercase font-bold">
                 {selectedHistory.nama}
               </p>
             </div>
