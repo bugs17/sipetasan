@@ -13,6 +13,7 @@ import {
   X,
   ChevronDown,
   Shuffle,
+  Info,
 } from "lucide-react";
 import toast from "react-hot-toast";
 import FormMutasiOpdSkeleton from "./skeleton/form-mutasi-opd-skeleton";
@@ -233,9 +234,46 @@ const MutasiOPD = () => {
     <div className="h-full w-full flex flex-col overflow-hidden animate-in fade-in duration-700 relative">
       <div className="flex flex-row items-center justify-between px-8 py-6 shrink-0 ">
         <div className="flex flex-col gap-1">
-          <h2 className="text-2xl font-black text-white uppercase tracking-tighter leading-none">
-            Mutasi Pegawai
-          </h2>
+          <div className="flex items-center gap-2 group relative">
+            <h2 className="text-2xl font-black text-white uppercase tracking-tighter leading-none">
+              Mutasi Pegawai
+            </h2>
+
+            {/* ICON INFO */}
+            <div className="cursor-help text-gray-600 hover:text-[#6d28d9] transition-colors mt-1">
+              <Info size={16} />
+            </div>
+
+            {/* TOOLTIP LUAS */}
+            <div className="absolute top-full left-0 mt-3 w-80 p-6 bg-[#1a1a1e] border border-white/10 rounded-[2.5rem] shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-[100] backdrop-blur-3xl">
+              <h5 className="text-[11px] font-black text-[#6d28d9] uppercase mb-3 tracking-widest flex items-center gap-2">
+                <FileText size={14} /> Persyaratan Dokumen
+              </h5>
+              <ul className="space-y-3">
+                <li className="text-[10px] text-gray-300 flex items-start gap-3">
+                  <div className="w-1.5 h-1.5 rounded-full bg-[#6d28d9] mt-1 shrink-0" />
+                  <span>Surat Pengantar dari Kepala OPD Asal</span>
+                </li>
+                <li className="text-[10px] text-gray-300 flex items-start gap-3">
+                  <div className="w-1.5 h-1.5 rounded-full bg-[#6d28d9] mt-1 shrink-0" />
+                  <span>Scan SK Pangkat & Jabatan Terakhir</span>
+                </li>
+                <li className="text-[10px] text-gray-300 flex items-start gap-3">
+                  <div className="w-1.5 h-1.5 rounded-full bg-[#6d28d9] mt-1 shrink-0" />
+                  <span>Surat Rekomendasi Instansi Tujuan</span>
+                </li>
+                <li className="text-[10px] text-gray-300 flex items-start gap-3">
+                  <div className="w-1.5 h-1.5 rounded-full bg-[#6d28d9] mt-1 shrink-0" />
+                  <span>Dokumen pendukung alasan perpindahan</span>
+                </li>
+              </ul>
+              <div className="mt-4 pt-4 border-t border-white/5">
+                <p className="text-[9px] text-gray-500 leading-relaxed italic uppercase font-bold">
+                  * Semua berkas wajib dalam format PDF
+                </p>
+              </div>
+            </div>
+          </div>
           <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">
             Manajemen Pengajuan Perpindahan Tugas Aparatur
           </p>
