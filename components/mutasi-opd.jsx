@@ -197,7 +197,10 @@ const MutasiOPD = () => {
 
         setActiveTab("status");
       } else {
-        toast.error(message);
+        toast.error(message, {
+          duration: 3000,
+        });
+        resetForm();
       }
     } catch (err) {
       console.error("SUBMIT_ERROR:", err);
@@ -219,15 +222,28 @@ const MutasiOPD = () => {
     });
   };
 
-  const handleDelete = async (id) => {
-    const res = await deleteMutasi(selectedMutasi.id);
+  const handleDelete = async () => {
+    // Pastikan kita pakai ID dari selectedMutasi yang sudah di-set saat klik tombol sampah
+    const idYangAkanDihapus = selectedMutasi?.id;
+
+    if (!idYangAkanDihapus) return;
+
+    const res = await deleteMutasi(idYangAkanDihapus);
+
     if (res.success) {
       toast.success(res.message);
-      setHistoryMutasi((prev) => prev.filter((item) => item.id !== id));
+
+      // PERBAIKAN DI SINI:
+      // Gunakan idYangAkanDihapus dan pastikan tipe datanya sama (pakai Number jika perlu)
+      setHistoryMutasi((prev) =>
+        prev.filter((item) => Number(item.id) !== Number(idYangAkanDihapus)),
+      );
     } else {
       toast.error(res.message);
     }
+
     setIsDeleteModalOpen(false);
+    setSelectedMutasi(null); // Bersihkan selected mutasi setelah selesai
   };
 
   return (
@@ -247,24 +263,23 @@ const MutasiOPD = () => {
             {/* TOOLTIP LUAS */}
             <div className="absolute top-full left-0 mt-3 w-80 p-6 bg-[#1a1a1e] border border-white/10 rounded-[2.5rem] shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-[100] backdrop-blur-3xl">
               <h5 className="text-[11px] font-black text-[#6d28d9] uppercase mb-3 tracking-widest flex items-center gap-2">
-                <FileText size={14} /> Persyaratan Dokumen
+                <FileText size={14} /> Dokumen Lampiran
               </h5>
               <ul className="space-y-3">
                 <li className="text-[10px] text-gray-300 flex items-start gap-3">
                   <div className="w-1.5 h-1.5 rounded-full bg-[#6d28d9] mt-1 shrink-0" />
-                  <span>Surat Pengantar dari Kepala OPD Asal</span>
+                  <span>
+                    SK pelantikan (jika ada jabatan) bagi pejabat yang mutasi
+                    karena dilantik
+                  </span>
                 </li>
                 <li className="text-[10px] text-gray-300 flex items-start gap-3">
                   <div className="w-1.5 h-1.5 rounded-full bg-[#6d28d9] mt-1 shrink-0" />
-                  <span>Scan SK Pangkat & Jabatan Terakhir</span>
+                  <span>Surat permohonan anjab dan ABK</span>
                 </li>
                 <li className="text-[10px] text-gray-300 flex items-start gap-3">
                   <div className="w-1.5 h-1.5 rounded-full bg-[#6d28d9] mt-1 shrink-0" />
-                  <span>Surat Rekomendasi Instansi Tujuan</span>
-                </li>
-                <li className="text-[10px] text-gray-300 flex items-start gap-3">
-                  <div className="w-1.5 h-1.5 rounded-full bg-[#6d28d9] mt-1 shrink-0" />
-                  <span>Dokumen pendukung alasan perpindahan</span>
+                  <span>SK pangkat terakhir</span>
                 </li>
               </ul>
               <div className="mt-4 pt-4 border-t border-white/5">

@@ -148,7 +148,8 @@ const FormPengajuanMutasi = ({
 
               <div className="col-span-2 space-y-2">
                 <label className="text-[10px] font-black text-gray-400 uppercase ml-1">
-                  Alasan Perpindahan
+                  Alasan Perpindahan{"  "}
+                  <span className="text-slate-400">(Opsional)</span>
                 </label>
                 <textarea
                   rows="5"

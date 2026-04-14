@@ -126,7 +126,7 @@ model Mutasi {
   opdTujuanId Int?
   opdTujuan   Opd? @relation("opdTujuan", fields: [opdTujuanId], references: [id])
 
-  status  String? @default("pending") // aproved, revisi, rejected, pending
+  status  String? @default("pending") // approved, revisi, ditolak, pending
   alasan  String?
   catatan String?
 

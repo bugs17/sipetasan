@@ -24,16 +24,16 @@ const ModalStatusMutasiOpd = ({
         <div className="text-center space-y-4">
           <div
             className={`mx-auto h-16 w-16 rounded-2xl flex items-center justify-center border ${
-              selectedHistory.status === "Approved"
+              selectedHistory.status === "approved"
                 ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-500"
-                : selectedHistory.status === "Ditolak"
+                : selectedHistory.status === "ditolak"
                   ? "bg-red-500/10 border-red-500/20 text-red-500"
                   : "bg-blue-500/10 border-blue-500/20 text-blue-500"
             }`}
           >
-            {selectedHistory.status === "Approved" ? (
+            {selectedHistory.status === "approved" ? (
               <CheckCircle2 size={32} />
-            ) : selectedHistory.status === "Ditolak" ? (
+            ) : selectedHistory.status === "ditolak" ? (
               <AlertCircle size={32} />
             ) : (
               <Clock size={32} />

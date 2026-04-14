@@ -34,7 +34,7 @@ const HistoryListMutasi = ({
                   className={`h-12 w-12 rounded-2xl flex items-center justify-center border ${
                     item.status === "revisi"
                       ? "bg-amber-500/10 border-amber-500/20 text-amber-500"
-                      : item.status === "Approved"
+                      : item.status === "approved"
                         ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-500"
                         : item.status === "ditolak"
                           ? "bg-red-500/10 border-red-500/20 text-red-500"
@@ -43,9 +43,9 @@ const HistoryListMutasi = ({
                 >
                   {item.status === "revisi" ? (
                     <AlertCircle size={20} />
-                  ) : item.status === "Approved" ? (
+                  ) : item.status === "approved" ? (
                     <CheckCircle2 size={20} />
-                  ) : item.status === "Ditolak" ? (
+                  ) : item.status === "ditolak" ? (
                     <X size={20} />
                   ) : (
                     <Clock size={20} />
@@ -74,7 +74,7 @@ const HistoryListMutasi = ({
 
               {/* Bagian Kanan: Status & Action */}
               <div className="flex items-center gap-8">
-                {item.catatan && (
+                {item.catatan && item.status !== "approved" && (
                   <div className="hidden lg:block max-w-[200px]">
                     <p
                       className={`text-[9px] italic leading-relaxed line-clamp-2 ${
@@ -92,9 +92,9 @@ const HistoryListMutasi = ({
                     className={`text-[10px] font-black uppercase tracking-widest ${
                       item.status === "revisi"
                         ? "text-amber-500"
-                        : item.status === "Approved"
+                        : item.status === "approved"
                           ? "text-emerald-500"
-                          : item.status === "Ditolak"
+                          : item.status === "aitolak"
                             ? "text-red-500"
                             : "text-blue-500"
                     }`}
