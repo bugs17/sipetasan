@@ -55,8 +55,44 @@ const Page = () => {
     [startYear],
   );
 
+  // const processedData = useMemo(() => {
+  //   if (!dataPegawai || dataPegawai.length === 0) return [];
+  //   const grouped = dataPegawai.reduce((acc, curr) => {
+  //     if (!acc[curr.jabatan]) {
+  //       acc[curr.jabatan] = {
+  //         jabatan: curr.jabatan,
+  //         abk: curr.abk,
+  //         pegawai: [],
+  //       };
+  //     }
+  //     acc[curr.jabatan].pegawai.push(curr);
+  //     return acc;
+  //   }, {});
+
+  //   return Object.values(grouped)
+  //     .map((item) => {
+  //       const perTahun = listTahun.map((year) => {
+  //         const listKeluar = item.pegawai.filter(
+  //           (p) => cekTahunKeluar(p) === year,
+  //         );
+  //         return {
+  //           tahun: year,
+  //           jumlahKeluar: listKeluar.length,
+  //           pegawaiKeluar: listKeluar,
+  //         };
+  //       });
+
+  //       const tahunKritis =
+  //         perTahun.find((t) => t.jumlahKeluar > 0)?.tahun || 9999;
+  //       return { ...item, proyeksi: perTahun, tahunKritis };
+  //     })
+  //     .sort((a, b) => a.tahunKritis - b.tahunKritis);
+  // }, [listTahun, dataPegawai]); // Re-calculate saat listTahun berubah
+
   const processedData = useMemo(() => {
     if (!dataPegawai || dataPegawai.length === 0) return [];
+
+    // 1. Grouping seperti biasa
     const grouped = dataPegawai.reduce((acc, curr) => {
       if (!acc[curr.jabatan]) {
         acc[curr.jabatan] = {
@@ -72,13 +108,26 @@ const Page = () => {
     return Object.values(grouped)
       .map((item) => {
         const perTahun = listTahun.map((year) => {
-          const listKeluar = item.pegawai.filter(
-            (p) => cekTahunKeluar(p) === year,
-          );
+          const listKeluar = item.pegawai.filter((p) => {
+            // LOGIKA BARU:
+            // A. Cek apakah ada input manual (Mutasi, Pensiun Dini, Meninggal)
+            if (p.statusKeluar && p.tahunKeluar === year) {
+              return true;
+            }
+
+            // B. Jika tidak ada input manual, cek pensiun normal
+            // Kita hanya hitung pensiun normal jika dia belum keluar karena sebab lain
+            return !p.statusKeluar && cekTahunKeluar(p) === year;
+          });
+
           return {
             tahun: year,
             jumlahKeluar: listKeluar.length,
-            pegawaiKeluar: listKeluar,
+            pegawaiKeluar: listKeluar.map((p) => ({
+              ...p,
+              // Tambahkan label alasan keluar untuk UI
+              alasan: p.statusKeluar || "PENSIUN",
+            })),
           };
         });
 
@@ -87,7 +136,7 @@ const Page = () => {
         return { ...item, proyeksi: perTahun, tahunKritis };
       })
       .sort((a, b) => a.tahunKritis - b.tahunKritis);
-  }, [listTahun, dataPegawai]); // Re-calculate saat listTahun berubah
+  }, [listTahun, dataPegawai]);
 
   if (isLoading) return <ProyeksiSkeleton />;
 
@@ -258,23 +307,49 @@ const Page = () => {
 
                           {/* List Orang - Clean & Simple */}
                           <div className="pt-3 space-y-2 border-t border-white/10">
-                            {p.pegawaiKeluar.map((orang, oIdx) => (
-                              <div
-                                key={oIdx}
-                                className="bg-black/30 p-2.5 rounded-xl border border-white/5 group hover:border-rose-500/30 transition-colors"
-                              >
-                                <p className="text-[10px] font-bold text-slate-100 uppercase truncate">
-                                  {orang.nama}
-                                </p>
-                                <p className="text-[9px] font-mono text-slate-500 tracking-tighter">
-                                  NIP. {orang.nip}
-                                </p>
-                                <p className="text-[8px] font-medium text-rose-400 uppercase italic mt-1 flex items-center gap-1 animate-pulse">
-                                  <span className="w-1 h-1 bg-rose-500 rounded-full shadow-[0_0_5px_rgba(244,63,94,0.8)]" />
-                                  {"PENSIUN"}
-                                </p>
-                              </div>
-                            ))}
+                            {p.pegawaiKeluar.map((orang, oIdx) => {
+                              // Gunakan .toLowerCase() saat pengecekan agar lebih aman terhadap perbedaan input di DB
+                              const alasanLabel = (
+                                orang.alasan || "pensiun"
+                              ).toLowerCase();
+
+                              const isPensiun =
+                                alasanLabel === "pensiun" ||
+                                alasanLabel === "meninggal";
+
+                              return (
+                                <div
+                                  key={oIdx}
+                                  className="bg-black/30 p-2.5 rounded-xl border border-white/5 group hover:border-rose-500/30 transition-colors"
+                                >
+                                  <p className="text-[10px] font-bold text-slate-100 uppercase truncate">
+                                    {orang.nama}
+                                  </p>
+                                  <p className="text-[9px] font-mono text-slate-500 tracking-tighter">
+                                    NIP. {orang.nip}
+                                  </p>
+
+                                  {/* LABEL ALASAN DINAMIS */}
+                                  <p
+                                    className={`text-[8px] font-black uppercase italic mt-1.5 flex items-center gap-1.5 ${
+                                      isPensiun
+                                        ? "text-rose-400"
+                                        : "text-amber-500"
+                                    }`}
+                                  >
+                                    <span
+                                      className={`w-1.5 h-1.5 rounded-full shadow-sm ${
+                                        isPensiun
+                                          ? "bg-rose-500 shadow-[0_0_5px_rgba(244,63,94,0.8)] animate-pulse"
+                                          : "bg-amber-500 shadow-[0_0_5px_rgba(245,158,11,0.8)]"
+                                      }`}
+                                    />
+                                    {/* Render tetap uppercase agar estetik di UI */}
+                                    {alasanLabel}
+                                  </p>
+                                </div>
+                              );
+                            })}
                           </div>
                         </div>
                       ) : (

@@ -56,6 +56,36 @@ const ReportProyeksiMatrix = () => {
     fetchData();
   }, [isLoaded, userId]);
 
+  // const matrixData = useMemo(() => {
+  //   if (!dataPegawai.length) return [];
+
+  //   const grouped = dataPegawai.reduce((acc, curr) => {
+  //     if (!acc[curr.jabatan]) {
+  //       acc[curr.jabatan] = {
+  //         jabatan: curr.jabatan,
+  //         pensiunPerTahun: {},
+  //         kebutuhanPerTahun: {},
+  //       };
+  //     }
+
+  //     if (!curr.isEmpty) {
+  //       const thnKeluar = cekTahunKeluar(curr);
+  //       // Cek apakah tahun pensiun masuk dalam range listTahun yang dipilih
+  //       if (listTahun.includes(thnKeluar)) {
+  //         acc[curr.jabatan].pensiunPerTahun[thnKeluar] =
+  //           (acc[curr.jabatan].pensiunPerTahun[thnKeluar] || 0) + 1;
+
+  //         const thnButuh = thnKeluar + 1;
+  //         acc[curr.jabatan].kebutuhanPerTahun[thnButuh] =
+  //           (acc[curr.jabatan].kebutuhanPerTahun[thnButuh] || 0) + 1;
+  //       }
+  //     }
+  //     return acc;
+  //   }, {});
+
+  //   return Object.values(grouped);
+  // }, [dataPegawai, listTahun]);
+
   const matrixData = useMemo(() => {
     if (!dataPegawai.length) return [];
 
@@ -65,15 +95,29 @@ const ReportProyeksiMatrix = () => {
           jabatan: curr.jabatan,
           pensiunPerTahun: {},
           kebutuhanPerTahun: {},
+          details: {}, // Tambahkan objek ini
         };
       }
 
       if (!curr.isEmpty) {
-        const thnKeluar = cekTahunKeluar(curr);
-        // Cek apakah tahun pensiun masuk dalam range listTahun yang dipilih
+        // Ambil status alasan (Pensiun otomatis vs Manual)
+        const thnKeluar =
+          curr.statusKeluar && curr.tahunKeluar
+            ? curr.tahunKeluar
+            : cekTahunKeluar(curr);
+
+        const alasan = curr.statusKeluar
+          ? curr.statusKeluar.toUpperCase()
+          : "PENSIUN";
+
         if (listTahun.includes(thnKeluar)) {
           acc[curr.jabatan].pensiunPerTahun[thnKeluar] =
             (acc[curr.jabatan].pensiunPerTahun[thnKeluar] || 0) + 1;
+
+          // Masukkan nama dan alasan ke dalam details per tahun
+          if (!acc[curr.jabatan].details[thnKeluar])
+            acc[curr.jabatan].details[thnKeluar] = [];
+          acc[curr.jabatan].details[thnKeluar].push(`${curr.nama} (${alasan})`);
 
           const thnButuh = thnKeluar + 1;
           acc[curr.jabatan].kebutuhanPerTahun[thnButuh] =

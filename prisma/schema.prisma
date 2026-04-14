@@ -28,9 +28,10 @@ model Opd {
   jabatans Jabatan[]
 
   // Tambahkan ini jika Pegawai punya relasi langsung ke OPD
-  pegawai      Pegawai[]
-  mutasiAsal   Mutasi[]  @relation("opdAsal")
-  mutasiTujuan Mutasi[]  @relation("opdTujuan")
+  pegawai         Pegawai[]
+  mutasiAsal      Mutasi[]         @relation("opdAsal")
+  mutasiTujuan    Mutasi[]         @relation("opdTujuan")
+  proyeksiKeluars ProyeksiKeluar[]
 }
 
 model Jabatan {
@@ -56,8 +57,9 @@ model Jabatan {
   opdId Int? @default(1) // Tambahkan default sementara agar tidak error saat migrate
   opd   Opd? @relation(fields: [opdId], references: [id], onDelete: Cascade)
 
-  pegawai Pegawai[]
-  tugas   Tugas[]
+  pegawai        Pegawai[]
+  tugas          Tugas[]
+  proyeksiKeluar ProyeksiKeluar[]
 
   @@index([opdId])
   @@index([parentId])
@@ -80,6 +82,9 @@ model Pegawai {
   jabatanId Int?
   jabatan   Jabatan? @relation(fields: [jabatanId], references: [id], onDelete: SetNull)
 
+  statusKeluar String? // "mutasi", "dini", "meninggal"
+  tahunKeluar  Int? // Tahun rencana keluar (misal mutasi tahun 2027)
+
   // HAPUS bagian atasanId dan bawahanId di sini
 
   // Relasi OPD biasanya cukup lewat Jabatan saja, 
@@ -87,7 +92,8 @@ model Pegawai {
   opdId Int?
   opd   Opd? @relation(fields: [opdId], references: [id])
 
-  mutasi Mutasi[]
+  mutasi         Mutasi[]
+  proyeksiKeluar ProyeksiKeluar[]
 }
 
 model Tugas {
@@ -144,6 +150,19 @@ model BerkasMutasi {
 
   mutasiId Int?
   mutasi   Mutasi? @relation(fields: [mutasiId], references: [id], onDelete: Cascade)
+}
+
+model ProyeksiKeluar {
+  id            Int       @id @default(autoincrement())
+  pegawaiId     Int?
+  pegawai       Pegawai?  @relation(fields: [pegawaiId], references: [id], onDelete: Cascade)
+  jabatanId     Int? // Simpan ID Jabatan saat dia keluar
+  jabatan       Jabatan?  @relation(fields: [jabatanId], references: [id], onDelete: Cascade)
+  opdId         Int? // Simpan ID OPD asal
+  opd           Opd?      @relation(fields: [opdId], references: [id], onDelete: Cascade)
+  alasan        String? // "mutasi", "meninggal", "dini"
+  tanggalKeluar DateTime? // Tanggal efektif dia berhenti menjabat
+  tahun         Int? // Helper untuk query (2026, 2027, dsb)
 }
 
 model User {

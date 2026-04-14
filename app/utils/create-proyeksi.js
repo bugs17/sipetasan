@@ -9,15 +9,13 @@ export const exportToExcel = async (
   const workbook = new ExcelJS.Workbook();
   const worksheet = workbook.addWorksheet("Laporan Proyeksi");
 
-  // 1. KOP INSTANSI & JUDUL
-  // Baris 1: Nama Instansi
+  // --- 1. KOP INSTANSI & JUDUL ---
   const rowInstansi = worksheet.addRow([namaInstansi.toUpperCase()]);
   worksheet.mergeCells("A1:K1");
   const cellInstansi = worksheet.getCell("A1");
   cellInstansi.font = { name: "Arial", size: 14, bold: true };
   cellInstansi.alignment = { horizontal: "center" };
 
-  // Baris 2: Nama Laporan
   const rowJudul = worksheet.addRow([
     "LAPORAN ANALISIS PROYEKSI KEBUTUHAN PEGAWAI (5 TAHUN)",
   ]);
@@ -26,41 +24,23 @@ export const exportToExcel = async (
   cellJudul.font = { name: "Arial", size: 12, bold: true };
   cellJudul.alignment = { horizontal: "center" };
 
-  // Baris 3: Spacer (Kosongkan satu baris agar tidak terlalu rapat)
-  worksheet.addRow([]);
+  worksheet.addRow([]); // Spacer
 
-  // 2. SETUP HEADER TABEL (Geser ke baris 4 & 5)
-  // Header Row 1: Grouping
-  const rowHeaderGroup = [
-    "NAMA JABATAN",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-  ];
-  worksheet.addRow(rowHeaderGroup);
+  // --- 2. SETUP HEADER TABEL ---
+  worksheet.addRow(["NAMA JABATAN", "", "", "", "", "", "", "", "", "", ""]);
+  worksheet.mergeCells("A4:A5");
+  worksheet.mergeCells("B4:F4");
+  worksheet.mergeCells("G4:K4");
 
-  // Karena sekarang mulai di baris 4, kita sesuaikan koordinat merge-nya
-  worksheet.mergeCells("A4:A5"); // Jabatan
-  worksheet.mergeCells("B4:F4"); // Group Pensiun
-  worksheet.mergeCells("G4:K4"); // Group Kebutuhan
-
-  worksheet.getCell("B4").value = "PROYEKSI PENSIUN";
+  worksheet.getCell("B4").value = "PROYEKSI KEKOSONGAN (PENSIUN/MUTASI/DLL)";
   worksheet.getCell("G4").value = "KEBUTUHAN FORMASI (H+1)";
 
-  // Header Row 2: Tahun
   const rowTahun = [""];
   listTahun.forEach((y) => rowTahun.push(y));
   listTahun.forEach((y) => rowTahun.push(y));
   worksheet.addRow(rowTahun);
 
-  // Styling Header Tabel (Baris 4 & 5)
+  // Styling Header
   ["A4", "B4", "G4"].forEach((cellRef) => {
     const cell = worksheet.getCell(cellRef);
     cell.font = { bold: true, color: { argb: "FFFFFF" } };
@@ -75,7 +55,7 @@ export const exportToExcel = async (
     cell.alignment = { vertical: "middle", horizontal: "center" };
   });
 
-  // 3. INSERT DATA
+  // --- 3. INSERT DATA & NOTES ---
   matrixData.forEach((jab) => {
     const rowData = [jab.jabatan];
     listTahun.forEach((y) => rowData.push(jab.pensiunPerTahun[y] || 0));
@@ -86,24 +66,47 @@ export const exportToExcel = async (
     row.eachCell((cell, colNumber) => {
       if (colNumber > 1) {
         const value = cell.value;
+        const isPensiunZone = colNumber >= 2 && colNumber <= 6;
+
         if (value > 0) {
-          const isPensiunZone = colNumber >= 2 && colNumber <= 6;
           cell.font = { bold: true, color: { argb: "FFFFFF" } };
           cell.fill = {
             type: "pattern",
             pattern: "solid",
             fgColor: { argb: isPensiunZone ? "E11D48" : "D97706" },
           };
+
+          if (isPensiunZone) {
+            const currentYear = listTahun[colNumber - 2];
+            const detailOrang = jab.details?.[currentYear];
+            if (detailOrang && detailOrang.length > 0) {
+              cell.note = {
+                texts: [
+                  {
+                    font: { bold: true, size: 9, name: "Arial" },
+                    text: `DAFTAR PEGAWAI KELUAR (${currentYear}):\n`,
+                  },
+                  {
+                    font: { size: 9, name: "Arial" },
+                    text: detailOrang.join("\n"),
+                  },
+                ],
+                margins: { inset: [0.25, 0.25, 0.25, 0.25] },
+              };
+            }
+          }
         } else {
-          cell.font = { color: { argb: "94A3B8" } }; // Angka 0 jadi abu-abu
+          cell.font = { color: { argb: "94A3B8" } };
         }
       }
     });
   });
 
-  // 4. BORDER & ALIGNMENT (Mulai dari Baris 4 ke bawah)
+  // --- 4. BORDER & BRANDING FOOTER ---
+  const lastDataRow = worksheet.lastRow.number;
+
   worksheet.eachRow({ includeEmpty: false }, (row, rowNumber) => {
-    if (rowNumber >= 4) {
+    if (rowNumber >= 4 && rowNumber <= lastDataRow) {
       row.eachCell((cell) => {
         cell.border = {
           top: { style: "thin" },
@@ -116,14 +119,54 @@ export const exportToExcel = async (
     }
   });
 
+  worksheet.addRow([]); // Spacer
+  const footerRow = worksheet.addRow([
+    `Dokumen ini dibuat otomatis oleh SI-PETASN pada ${new Date().toLocaleString("id-ID")}`,
+  ]);
+  worksheet.mergeCells(`A${footerRow.number}:K${footerRow.number}`);
+  footerRow.getCell(1).font = {
+    size: 9,
+    italic: true,
+    color: { argb: "64748B" },
+  };
+
+  const brandRow = worksheet.addRow([
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "sipetasn.com",
+  ]);
+  brandRow.getCell(11).font = {
+    size: 8,
+    bold: true,
+    color: { argb: "94A3B8" },
+  };
+  brandRow.getCell(11).alignment = { horizontal: "right" };
+
+  // --- 5. FINAL SETUP & DOWNLOAD ---
+  worksheet.getColumn(1).width = 45;
   worksheet.getColumn(1).alignment = {
     horizontal: "left",
     vertical: "middle",
     wrapText: true,
   };
-  worksheet.getColumn(1).width = 40;
 
-  // 5. DOWNLOAD
+  // Print Setup (A4 Landscape)
+  worksheet.pageSetup = {
+    paperSize: 9,
+    orientation: "landscape",
+    fitToPage: true,
+    fitToWidth: 1,
+    fitToHeight: 0,
+  };
+
   const buffer = await workbook.xlsx.writeBuffer();
   saveAs(
     new Blob([buffer]),
