@@ -56,13 +56,16 @@ const menuConfig = [
     type: "group",
     children: [
       {
-        label: "Peta Jabatan",
-        href: "#",
-      },
-      {
         label: "Proyeksi Kebutuhan",
-        href: "#",
+        href: `${BASE_PATH}/reports/proyeksi-kebutuhan`,
+        match: (pathname) =>
+          pathname === `${BASE_PATH}/reports/proyeksi-kebutuhan` ||
+          pathname === `${BASE_PATH}/reports/proyeksi-kebutuhan`,
       },
+      // {
+      //   label: "Proyeksi Kebutuhan",
+      //   href: "#",
+      // },
     ],
   },
   {
