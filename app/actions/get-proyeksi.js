@@ -15,8 +15,6 @@ export async function getProyeksiData(opdId) {
             nama: true,
             nip: true,
             tanggalLahir: true,
-            statusKeluar: true,
-            tahunKeluar: true,
           },
         },
         proyeksiKeluar: {
@@ -45,8 +43,8 @@ export async function getProyeksiData(opdId) {
           : null,
         abk: jab.aBK || 0,
         isEmpty: false,
-        statusKeluar: p.statusKeluar, // Dari field manual di tabel Pegawai
-        tahunKeluar: p.tahunKeluar,
+        statusKeluar: null,
+        tahunKeluar: null,
       }));
 
       // 2. Ambil Riwayat Pengosongan (Mutasi/Meninggal/Dini)

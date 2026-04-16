@@ -13,7 +13,6 @@ export const getPegawaiDanInstansiByIdOpd = async (id) => {
         opd: true,
       },
     });
-    console.log(dataPegawai);
 
     const dataPendidikan = await prisma.pendidikan.findMany();
 

@@ -55,40 +55,6 @@ const Page = () => {
     [startYear],
   );
 
-  // const processedData = useMemo(() => {
-  //   if (!dataPegawai || dataPegawai.length === 0) return [];
-  //   const grouped = dataPegawai.reduce((acc, curr) => {
-  //     if (!acc[curr.jabatan]) {
-  //       acc[curr.jabatan] = {
-  //         jabatan: curr.jabatan,
-  //         abk: curr.abk,
-  //         pegawai: [],
-  //       };
-  //     }
-  //     acc[curr.jabatan].pegawai.push(curr);
-  //     return acc;
-  //   }, {});
-
-  //   return Object.values(grouped)
-  //     .map((item) => {
-  //       const perTahun = listTahun.map((year) => {
-  //         const listKeluar = item.pegawai.filter(
-  //           (p) => cekTahunKeluar(p) === year,
-  //         );
-  //         return {
-  //           tahun: year,
-  //           jumlahKeluar: listKeluar.length,
-  //           pegawaiKeluar: listKeluar,
-  //         };
-  //       });
-
-  //       const tahunKritis =
-  //         perTahun.find((t) => t.jumlahKeluar > 0)?.tahun || 9999;
-  //       return { ...item, proyeksi: perTahun, tahunKritis };
-  //     })
-  //     .sort((a, b) => a.tahunKritis - b.tahunKritis);
-  // }, [listTahun, dataPegawai]); // Re-calculate saat listTahun berubah
-
   const processedData = useMemo(() => {
     if (!dataPegawai || dataPegawai.length === 0) return [];
 
@@ -184,9 +150,16 @@ const Page = () => {
             {/* Badge Informasi Ringkas Seluruh Jabatan */}
             <div className="flex flex-wrap gap-2">
               {listTahun.map((year) => {
-                const totalKeluarTahunIni = dataPegawai.filter(
-                  (p) => cekTahunKeluar(p) === year,
-                ).length;
+                const totalKeluarTahunIni = dataPegawai.filter((p) => {
+                  // 1. Jika ini data riwayat (Meninggal, Dini, Pecat, Mutasi)
+                  if (p.statusKeluar && p.tahunKeluar === year) {
+                    return true;
+                  }
+
+                  // 2. Jika ini pegawai aktif, cek apakah dia pensiun otomatis di tahun ini
+                  // (Pastikan statusKeluar null agar tidak dihitung double)
+                  return !p.statusKeluar && cekTahunKeluar(p) === year;
+                }).length;
                 return (
                   <div key={year} className="flex flex-col items-center">
                     <div

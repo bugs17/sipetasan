@@ -3,6 +3,7 @@ import {
   Building2,
   Calendar,
   GraduationCap,
+  IdCard,
   MapPin,
   User,
 } from "lucide-react";
@@ -89,8 +90,8 @@ const ModalAddPegawai = ({
 
             {/* nip */}
             <div className="space-y-1.5">
-              <label className="text-[9px] font-black text-gray-500 uppercase ml-1 tracking-widest">
-                NIP
+              <label className="text-[9px] font-black text-gray-500 uppercase ml-1 tracking-widest flex items-center gap-2">
+                <IdCard size={10} /> NIP
               </label>
               <input
                 type="text"

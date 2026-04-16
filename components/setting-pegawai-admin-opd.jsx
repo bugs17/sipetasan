@@ -12,6 +12,7 @@ import {
   MoreHorizontal,
   ChevronDown,
   Building2,
+  UserMinus,
 } from "lucide-react";
 import ModalAddPegawai from "@/components/modal-add-pegawai";
 import { getColorFromId } from "@/app/utils/generate-color";
@@ -22,12 +23,15 @@ import SettingSkeleton from "@/components/skeleton/setting-skeleton";
 import { useAuth } from "@clerk/nextjs";
 import { getUserRoleByClerkID } from "@/app/actions/get-user-role-by-clerk-id";
 import { getPegawaiDanInstansiByIdOpd } from "@/app/getListPegawaiDansInstansiByIdOpd";
+import ModalSetStatusPegawai from "./modal-set-status-pegawai";
+import { setStatusKeluarPegawai } from "@/app/actions/set-status-keluar-pegawai";
 
 const SettingPegawaiAdminOpd = () => {
   // state
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalStatusOpen, setIsModalStatusOpen] = useState(false);
   const [selectedPegawai, setSelectedPegawai] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [isUiReady, setIsUiReady] = useState(false);
@@ -41,6 +45,15 @@ const SettingPegawaiAdminOpd = () => {
     tanggalLahir: "",
     pendidikanId: "",
     opdId: "",
+  });
+  const [formDataKeluar, setFormDataKeluar] = useState({
+    id: "",
+    status: "",
+    tanggalKeluar: "",
+    nama: "",
+    nip: "",
+    opdId: "",
+    jabatanId: "",
   });
   const { userId, isLoaded } = useAuth();
 
@@ -100,11 +113,13 @@ const SettingPegawaiAdminOpd = () => {
   const handleSubmit = async () => {
     setIsLoading(true);
     if (!formData.nama) {
-      alert("Kolom nama tidak boleh kosong!");
+      toast.error("Kolom nama tidak boleh kosong!");
+      setIsLoading(false);
       return;
     }
     if (!formData.nip) {
-      alert("Kolom nip tidak boleh kosong!");
+      toast.error("Kolom nip tidak boleh kosong!");
+      setIsLoading(false);
       return;
     }
     const promise = addOrUpdatePegawaiByAdminInduk(formData);
@@ -125,6 +140,28 @@ const SettingPegawaiAdminOpd = () => {
     }
     setIsLoading(false);
     setIsModalOpen(false);
+  };
+
+  // function handle perubahan status pegawai
+  const handleSubmitStatusPegawai = async () => {
+    if (!formDataKeluar.status) {
+      toast.error("Mohon memilih status!");
+      return;
+    }
+    if (!formDataKeluar.tanggalKeluar) {
+      toast.error("Mohon set tanggal keluar!");
+      return;
+    }
+
+    const res = await setStatusKeluarPegawai(formDataKeluar);
+    if (res.success) {
+      toast.success("Pegawai telah dikeluarkan!");
+      setPegawai((prev) => prev.filter((p) => p.id !== formDataKeluar.id));
+      setIsModalStatusOpen(false);
+    } else {
+      toast.error("Error: Terjadi masalah system!");
+      return;
+    }
   };
 
   // skeleton
@@ -231,6 +268,25 @@ const SettingPegawaiAdminOpd = () => {
                           <MoreHorizontal size={18} />
                         </div>
                         <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                          {/* Tombol Status Keluar */}
+                          <button
+                            onClick={() => {
+                              setFormDataKeluar({
+                                id: p.id,
+                                nama: p.nama,
+                                nip: p.nip,
+                                opdId: p.opdId,
+                                status: "",
+                                tanggalKeluar: "",
+                                jabatanId: p.jabatanId,
+                              });
+                              setIsModalStatusOpen(true);
+                            }}
+                            className="p-2 bg-white/5 hover:bg-rose-500/20 hover:text-rose-500 rounded-lg text-gray-400 border border-white/5 transition-all"
+                            title="Set Status Keluar"
+                          >
+                            <UserMinus size={14} />
+                          </button>
                           <button
                             onClick={() => {
                               setFormData({
@@ -311,6 +367,25 @@ const SettingPegawaiAdminOpd = () => {
         )}
       </div>
 
+      <ModalSetStatusPegawai
+        closeModal={() => {
+          setFormDataKeluar({
+            id: "",
+            opdId: "",
+            status: "",
+            tanggalKeluar: "",
+            nama: "",
+            nip: "",
+            jabatanId: "",
+          });
+          setIsModalStatusOpen(false);
+        }}
+        formData={formDataKeluar}
+        setFormData={setFormDataKeluar}
+        handleSubmit={handleSubmitStatusPegawai}
+        isModalOpen={isModalStatusOpen}
+      />
+
       <ModalAddPegawai
         isModalOpen={isModalOpen}
         closeModal={closeModal}
@@ -320,6 +395,7 @@ const SettingPegawaiAdminOpd = () => {
         handleSubmit={handleSubmit}
         isAdminOpd={true}
       />
+
       <Toaster
         position="top-right"
         toastOptions={{ style: { zIndex: 10001 } }}
