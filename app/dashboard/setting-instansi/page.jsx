@@ -82,7 +82,7 @@ const Page = () => {
   const handleSubmit = async (e) => {
     setIsLoading(true);
     if (!formData.namaOpd) {
-      alert("Mohon lengkapi semua form!");
+      toast.error("Nama instansinya diisi dulu ya!");
       return;
     }
     const promise = addOrUpdateInstansi(formData);
