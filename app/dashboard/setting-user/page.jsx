@@ -141,14 +141,7 @@ const Page = () => {
         error: "gagal! ",
       },
     );
-    // console.log(
-    //   "status: ",
-    //   isSukses,
-    //   "obj: ",
-    //   dataObj,
-    //   "perform: ",
-    //   performOperation,
-    // );
+
     if (isSukses) {
       if (performOperation === "create") {
         setUserList((prev) => [...prev, dataObj]);
