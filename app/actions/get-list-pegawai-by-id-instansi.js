@@ -11,7 +11,13 @@ export const getListPegawaiByIdInstansi = async (idInstansi) => {
       },
     });
 
-    return list;
+    const opd = await prisma.opd.findFirst({
+      where: {
+        id: Number(idInstansi),
+      },
+    });
+
+    return { list: list, opd: opd };
   } catch (error) {
     console.log(
       `Terjadi error saat mencoba mengambil list pegawa dengan ID instansi: ${idInstansi}, errorMsg: `,
