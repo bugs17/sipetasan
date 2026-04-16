@@ -195,11 +195,8 @@ const Page = () => {
                             <Building2 size={18} />
                           </div>
                           <div>
-                            <p className="text-sm font-bold text-white leading-none mb-1">
+                            <p className="text-sm uppercase font-bold text-white leading-none mb-1">
                               {item.namaOpd}
-                            </p>
-                            <p className="text-[10px] text-gray-500 uppercase font-black tracking-widest">
-                              Government Branch
                             </p>
                           </div>
                         </div>
