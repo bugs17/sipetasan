@@ -351,7 +351,7 @@ const LandingPage = () => {
             <SignedIn>
               <Link href="/dashboard">
                 <button className="px-8 py-3.5 rounded-xl bg-white text-[#212126] text-sm font-bold tracking-wide transition-all duration-300 hover:bg-gray-100 hover:shadow-[0_0_30px_rgba(255,255,255,0.2)] border border-white shadow-lg inline-flex items-center gap-3 group">
-                  Go to Dashboard
+                  Masuk Ke Dashboard
                   <svg
                     className="w-4 h-4 transition-transform group-hover:translate-x-1"
                     fill="none"

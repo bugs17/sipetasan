@@ -74,7 +74,7 @@ const MutasiOPD = () => {
         ]);
 
         setDaftarInstansi(listInstansi);
-        setDaftarPegawai(listPegawai);
+        setDaftarPegawai(listPegawai.list);
         setFormData((prev) => ({
           ...prev,
           idInstansiAsal: userData.opdId,

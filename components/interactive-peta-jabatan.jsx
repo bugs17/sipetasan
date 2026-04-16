@@ -99,7 +99,7 @@ const PetaJabatanEditor = () => {
         getListPegawaiByIdInstansi(res.opdId),
         getPetaJabatan(res.opdId),
       ]);
-      setListPegawai(listPegawaiRes);
+      setListPegawai(listPegawaiRes.list);
       setDataHirarki(treeDataRes);
       setDraftData(treeDataRes); // Sekarang ID sudah pasti angka dari DB
     } catch (error) {
