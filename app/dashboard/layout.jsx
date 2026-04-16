@@ -9,15 +9,14 @@ import { useAuth } from "@clerk/nextjs";
 import useUserStore from "../store/useStore";
 import { useEffect } from "react";
 import { getUser } from "../actions/getUser";
-import Link from "next/link";
-import { SendHorizontal } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { Toaster } from "react-hot-toast";
 import GlobalChatListener from "@/components/global-chat-listener";
+import AuthWrapper from "../context/AuthWraper";
 
-const AuthWrapper = dynamic(() => import("../context/AuthWraper"), {
-  ssr: false,
-});
+// const AuthWrapper = dynamic(() => import("../context/AuthWraper"), {
+//   ssr: false,
+// });
 
 export default function DashboardLayout({ children }) {
   const pathname = usePathname();

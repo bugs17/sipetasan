@@ -37,6 +37,23 @@ const menuConfig = [
     match: (pathname) => pathname.startsWith(`${BASE_PATH}/proyeksi-kebutuhan`),
   },
   {
+    label: "Mutasi",
+    href: `${BASE_PATH}/mutasi`,
+    icon: <Shuffle size={20} />,
+    match: (pathname) =>
+      pathname === `${BASE_PATH}/mutasi` ||
+      pathname.includes(`${BASE_PATH}/mutasi`),
+  },
+  {
+    label: "Chat",
+    href: `${BASE_PATH}/chat`,
+    icon: <SendHorizontal size={20} />,
+    match: (pathname) =>
+      pathname === `${BASE_PATH}/chat` ||
+      pathname.includes(`${BASE_PATH}/chat`),
+  },
+  // Master ditaruh paling bawah karena fungsinya administratif/setup
+  {
     label: "Master",
     icon: <Settings size={20} />,
     type: "group",
@@ -64,22 +81,6 @@ const menuConfig = [
           pathname.includes(`${BASE_PATH}/setting-user`),
       },
     ],
-  },
-  {
-    label: "Mutasi",
-    href: `${BASE_PATH}/mutasi`,
-    icon: <Shuffle size={20} />,
-    match: (pathname) =>
-      pathname === `${BASE_PATH}/mutasi` ||
-      pathname.includes(`${BASE_PATH}/mutasi`),
-  },
-  {
-    label: "Chat",
-    href: `${BASE_PATH}/chat`,
-    icon: <SendHorizontal size={20} />,
-    match: (pathname) =>
-      pathname === `${BASE_PATH}/chat` ||
-      pathname.includes(`${BASE_PATH}/chat`),
   },
 ];
 
