@@ -122,11 +122,11 @@ const SettingPegawaiAdminInduk = () => {
   const handleSubmit = async () => {
     setIsLoading(true);
     if (!formData.nama) {
-      alert("Kolom nama tidak boleh kosong!");
+      toast.error("Kolom nama tidak boleh kosong!");
       return;
     }
     if (!formData.nip) {
-      alert("Kolom nip tidak boleh kosong!");
+      toast.error("Kolom nip tidak boleh kosong!");
       return;
     }
     const promise = addOrUpdatePegawaiByAdminInduk(formData);
@@ -271,7 +271,7 @@ const SettingPegawaiAdminInduk = () => {
                             {p.nama.substring(0, 2).toUpperCase()}
                           </div>
                           <div>
-                            <p className="text-sm font-bold text-white leading-none mb-1">
+                            <p className="text-sm uppercase font-bold text-white leading-none mb-1">
                               {p.nama}
                             </p>
                             <p className="text-[10px] font-mono text-gray-500 tracking-tighter">
