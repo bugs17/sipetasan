@@ -2,19 +2,12 @@
 
 import { prisma } from "../lib/db";
 
-export const getInstansiBySlug = async (slug) => {
-  if (!slug) return null;
+export const getInstansiById = async (id) => {
+  if (!id) return null;
   try {
     const instansi = await prisma.opd.findFirst({
       where: {
-        slug: slug,
-      },
-      include: {
-        jabatans: {
-          include: {
-            pegawai: true,
-          },
-        },
+        id: Number(id),
       },
     });
 

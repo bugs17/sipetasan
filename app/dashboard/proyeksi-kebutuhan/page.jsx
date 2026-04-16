@@ -6,6 +6,7 @@ import AdminIndukWrapper from "@/components/admin-induk-wrapper";
 import { getColorFromId } from "@/app/utils/generate-color";
 import { getListInstansi } from "@/app/actions/getListInstansi";
 import SkeletonProyeksiKebutuhanListInstansi from "@/components/skeleton/list-proyeksi-kebutuhan-pegawai-admin-skeleton";
+import Link from "next/link";
 
 const Page = () => {
   const router = useRouter();
@@ -82,57 +83,57 @@ const Page = () => {
         </div>
 
         {/* Grid - Menggunakan data yang sudah difilter */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {filteredInstansi.length > 0 ? (
             filteredInstansi.map((item) => (
-              <button
+              <Link
                 key={item.id}
-                onClick={() =>
-                  router.push(`/dashboard/proyeksi-kebutuhan/${item.slug}`)
-                }
-                className="group relative bg-white/5 backdrop-blur-xl border border-white/5 rounded-[2rem] p-8 text-left transition-all duration-500 hover:border-blue-500/30 hover:bg-white/10 overflow-hidden"
+                href={`/dashboard/proyeksi-kebutuhan/${item.id}`}
+                // Padding dikurangi dari p-8 ke p-6 agar pas di grid yang lebih kecil
+                className="group relative bg-white/5 backdrop-blur-xl border border-white/5 rounded-[2rem] p-6 text-left transition-all duration-500 hover:border-blue-500/30 hover:bg-white/10 overflow-hidden"
               >
                 <div
-                  className="absolute -right-10 -bottom-10 w-40 h-40 opacity-5 group-hover:opacity-20 transition-opacity duration-700 pointer-events-none rounded-full"
+                  className="absolute -right-10 -bottom-10 w-32 h-32 opacity-5 group-hover:opacity-20 transition-opacity duration-700 pointer-events-none rounded-full"
                   style={{
                     backgroundColor: getColorFromId(item.id),
-                    filter: "blur(50px)",
+                    filter: "blur(40px)",
                   }}
                 />
 
-                <div className="flex justify-between items-start mb-8">
+                <div className="flex justify-between items-start mb-6">
                   <div
-                    className="p-4 rounded-2xl bg-[#212126] border border-white/5 transition-all duration-500 group-hover:scale-110"
+                    className="p-3.5 rounded-2xl bg-[#212126] border border-white/5 transition-all duration-500 group-hover:scale-110"
                     style={{ color: getColorFromId(item.id) }}
                   >
-                    <Building2 size={28} strokeWidth={1.5} />
+                    {/* Icon dikecilkan sedikit dari 28 ke 24 */}
+                    <Building2 size={24} strokeWidth={1.5} />
                   </div>
-                  <div className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[9px] font-bold text-gray-500 group-hover:text-white">
+                  <div className="px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-[8px] font-bold text-gray-500 group-hover:text-white">
                     AKTIF
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <h3 className="text-lg font-bold text-white tracking-tight group-hover:text-blue-400 transition-colors">
+                <div className="space-y-1.5">
+                  {/* Text size disesuaikan agar tidak wrap terlalu banyak baris */}
+                  <h3 className="text-sm uppercase font-bold text-white tracking-tight group-hover:text-blue-400 transition-colors line-clamp-2 min-h-[40px]">
                     {item.namaOpd}
                   </h3>
-                  <p className="text-xs text-gray-500 font-medium leading-relaxed">
+                  <p className="text-[10px] text-gray-500 font-medium leading-relaxed line-clamp-2">
                     Klik untuk melihat detail proyeksi kebutuhan pegawai.
                   </p>
                 </div>
 
-                <div className="mt-8 pt-6 border-t border-white/5 flex items-center justify-between">
-                  <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">
-                    Lihat Analisis
+                <div className="mt-6 pt-5 border-t border-white/5 flex items-center justify-between">
+                  <span className="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em]">
+                    Analisis
                   </span>
-                  <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-blue-500 transition-all duration-500">
-                    <ArrowUpRight size={16} className="text-white" />
+                  <div className="w-7 h-7 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-blue-500 transition-all duration-500">
+                    <ArrowUpRight size={14} className="text-white" />
                   </div>
                 </div>
-              </button>
+              </Link>
             ))
           ) : (
-            /* State jika pencarian tidak ditemukan */
             <div className="col-span-full py-20 text-center">
               <p className="text-gray-500 italic">
                 Instansi "{searchTerm}" tidak ditemukan...

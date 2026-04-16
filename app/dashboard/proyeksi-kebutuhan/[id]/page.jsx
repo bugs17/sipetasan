@@ -1,9 +1,10 @@
 "use client";
+import { getInstansiById } from "@/app/actions/get-instansi-by-id";
 import { getProyeksiData } from "@/app/actions/get-proyeksi";
-import { getUserRoleByClerkID } from "@/app/actions/get-user-role-by-clerk-id";
 import { cekTahunKeluar } from "@/app/utils/cek-pensiun";
 import ProyeksiSkeleton from "@/components/skeleton/proyeksi-kebutuhan-skeleton";
-import { useAuth } from "@clerk/nextjs";
+import { ArrowLeft } from "lucide-react";
+import { useParams, useRouter } from "next/navigation";
 import React, { useState, useMemo, useEffect } from "react";
 import {
   HiOutlineUserAdd,
@@ -14,30 +15,32 @@ import {
 
 const Page = () => {
   // State untuk kontrol tahun awal proyeksi
-  const { isLoaded, userId } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
   const [dataPegawai, setDataPegawai] = useState([]);
   const currentYear = useMemo(() => new Date().getFullYear(), []);
   const [startYear, setStartYear] = useState(currentYear);
+  const [namaInstansi, setNamaInstansi] = useState("");
+  const router = useRouter();
+  const params = useParams();
+  const id = params.id;
 
   useEffect(() => {
     const fetchData = async () => {
-      if (!isLoaded || !userId) return;
-
       setIsLoading(true);
       try {
-        const userDb = await getUserRoleByClerkID(userId);
-        const { success, data } = await getProyeksiData(userDb.opdId);
+        const { success, data } = await getProyeksiData(Number(id));
         if (success) {
           setDataPegawai(data);
         }
+        const instansi = await getInstansiById(Number(id));
+        setNamaInstansi(instansi.namaOpd || "");
       } catch (error) {
       } finally {
         setIsLoading(false);
       }
     };
     fetchData();
-  }, [isLoaded, userId]);
+  }, []);
 
   const optionsTahun = useMemo(() => {
     const range = [];
@@ -103,23 +106,92 @@ const Page = () => {
 
   if (isLoading) return <ProyeksiSkeleton />;
 
+  if (processedData.length <= 0) {
+    return (
+      <div className="relative w-full h-full flex flex-col items-center justify-center  overflow-hidden">
+        {/* Background Grid yang sama agar konsisten */}
+        <div className="absolute inset-0 pointer-events-none opacity-[0.03] z-0 bg-[radial-gradient(#ffffff_1px,transparent_1px)] bg-[size:40px_40px]"></div>
+
+        {/* Back Button tetap ada agar user tidak terjebak */}
+        <div className="absolute z-50 top-5 left-5">
+          <button
+            onClick={() => router.back()}
+            className="group flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl backdrop-blur-md transition-all duration-300"
+          >
+            <ArrowLeft
+              size={18}
+              className="text-gray-400 group-hover:text-white"
+            />
+            <span className="text-[10px] font-black uppercase tracking-widest text-gray-500 group-hover:text-white">
+              Kembali
+            </span>
+          </button>
+        </div>
+
+        <div className="relative z-10 text-center space-y-6 max-w-md px-6">
+          <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-rose-500/10 border border-rose-500/20 mb-4">
+            <span className="text-rose-500 text-3xl font-black">!</span>
+          </div>
+
+          <div className="space-y-2">
+            <h2 className="text-xl font-black text-white uppercase tracking-tighter italic">
+              Proyeksi Belum Tersedia
+              <span className="text-rose-500">.</span>
+            </h2>
+            <p className="text-sm text-gray-500 leading-relaxed">
+              <span className="text-white font-bold uppercase">
+                {namaInstansi}
+              </span>{" "}
+              belum melakukan input ke dalam sistem.
+            </p>
+          </div>
+
+          <div className="p-4 bg-[#1a1a1e]/40 border border-white/10 rounded-3xl">
+            <p className="text-[10px] font-black text-[#6d28d9] uppercase tracking-widest mb-1">
+              Tindakan Diperlukan
+            </p>
+            <p className="text-[11px] text-gray-400">
+              Silahkan hubungi{" "}
+              <span className="text-white italic">Admin Instansi</span> terkait
+              untuk melakukan konfigurasi.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="w-full min-h-screen text-slate-300 font-sans">
       {/* HEADER AREA - UPDATED */}
       <div className="sticky top-0 z-50 w-full bg-[#0d1117]/80 backdrop-blur-md border-b border-white/5 mb-12">
         <div className="px-10 py-6">
-          {" "}
-          {/* Kontainer dalam untuk mengatur padding horizontal */}
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div className="flex flex-col sm:flex-row sm:items-center gap-6">
-              <div>
-                <h2 className="text-xl font-black italic text-white uppercase tracking-tighter leading-none">
-                  Proyeksi Kebutuhan{" "}
-                  <span className="text-indigo-500">Pegawai.</span>
-                </h2>
-                <p className="text-[9px] text-slate-500 font-bold uppercase tracking-widest mt-1">
-                  Analisis otomatis pensiun
-                </p>
+              {/* Tombol Back & Judul */}
+              <div className="flex items-start gap-4">
+                <button
+                  onClick={() => router.back()}
+                  className="mt-1 flex items-center justify-center w-8 h-8 rounded-full bg-white/5 border border-white/10 text-slate-400 hover:text-white hover:bg-white/10 hover:border-indigo-500/50 transition-all duration-300 active:scale-90"
+                  title="Kembali"
+                >
+                  <ArrowLeft size={16} />
+                </button>
+
+                <div>
+                  <h2 className="text-xl font-black italic text-white uppercase tracking-tighter leading-none">
+                    Proyeksi Kebutuhan{" "}
+                    <span className="text-indigo-500">Pegawai.</span>
+                  </h2>
+
+                  {/* Nama Instansi - Premium Label Style */}
+                  <div className="mt-2 inline-flex items-center gap-2 py-1.5">
+                    <div className="w-0.5 h-3 bg-indigo-500 rounded-full" />
+                    <span className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.15em]">
+                      {namaInstansi || "Pilih Instansi"}
+                    </span>
+                  </div>
+                </div>
               </div>
 
               {/* Selector Tahun Mulai */}
@@ -144,19 +216,14 @@ const Page = () => {
               </div>
             </div>
 
-            {/* Badge Informasi Ringkas Seluruh Jabatan */}
+            {/* Badge Informasi Ringkas Seluruh Jabatan (Tetap Sama) */}
             <div className="flex flex-wrap gap-2">
               {listTahun.map((year) => {
                 const totalKeluarTahunIni = dataPegawai.filter((p) => {
-                  // 1. Jika ini data riwayat (Meninggal, Dini, Pecat, Mutasi)
-                  if (p.statusKeluar && p.tahunKeluar === year) {
-                    return true;
-                  }
-
-                  // 2. Jika ini pegawai aktif, cek apakah dia pensiun otomatis di tahun ini
-                  // (Pastikan statusKeluar null agar tidak dihitung double)
+                  if (p.statusKeluar && p.tahunKeluar === year) return true;
                   return !p.statusKeluar && cekTahunKeluar(p) === year;
                 }).length;
+
                 return (
                   <div key={year} className="flex flex-col items-center">
                     <div
