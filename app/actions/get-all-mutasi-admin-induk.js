@@ -23,6 +23,7 @@ export const getAllMutasi = async () => {
           ? new Date(mutasi.createdAt).toLocaleDateString("id-ID")
           : "-",
         status: mutasi?.status,
+        catatan: mutasi.catatan,
         dokumen: mutasi?.berkasMutasi.map((file) => {
           return {
             id: file.id,

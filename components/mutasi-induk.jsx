@@ -1,30 +1,23 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   CheckCircle2,
   Search,
   X,
   FileText,
-  Check,
-  RotateCcw,
   Calendar,
   User,
   ArrowRight,
   Eye,
-  ShieldCheck,
-  Ban,
-  Loader2,
-  Maximize2,
   XCircle,
   RefreshCcw,
   Clock,
-  Download,
-  Plus,
-  CheckCheck,
 } from "lucide-react";
 import ListMutasiAdminIndukSkeleton from "./skeleton/list-mutasi-admin-induk-skeleton";
 import ModalReviewMutasi from "./modal-review-mutasi";
 import { getAllMutasi } from "@/app/actions/get-all-mutasi-admin-induk";
+import toast from "react-hot-toast";
+import { tolakMutasi } from "@/app/actions/tolak-mutasi";
 
 const MutasiIduk = () => {
   const [activeTab, setActiveTab] = useState("pending");
@@ -38,21 +31,20 @@ const MutasiIduk = () => {
   const [allData, setAllData] = useState([]);
   const [pdfUrl, setPdfUrl] = useState("");
 
-  // const pdfUrl = "/test.pdf";
+  const fetchAllMutasi = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const response = await getAllMutasi();
+      setAllData(response);
+    } catch (error) {
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    const fetchData = async () => {
-      setIsLoading(true);
-      try {
-        const response = await getAllMutasi();
-        setAllData(response);
-      } catch (error) {
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchData();
-  }, []);
+    fetchAllMutasi();
+  }, [fetchAllMutasi]);
 
   const filteredData = allData.filter((item) => {
     const matchTab =
@@ -85,15 +77,28 @@ const MutasiIduk = () => {
   );
   const allDocsApproved =
     selectedRequest &&
-    selectedRequest.dokumen.every(
-      (doc) => documentStatus[doc.id] === "approved",
-    );
+    selectedRequest.dokumen.every((doc) => documentStatus[doc.id] === "valid");
 
   const anyDocRevised =
     selectedRequest &&
     selectedRequest.dokumen.some((doc) => documentStatus[doc.id] === "revisi");
 
-  const countPending = 1;
+  const handleTolak = async () => {
+    if (!adminNote) {
+      toast.error(
+        "Tambahkan alasan penolakan terlebih dahulu pada kolom catatan!",
+      );
+      return;
+    }
+
+    const response = await tolakMutasi(selectedRequest.id, adminNote);
+    if (response.success) {
+      toast.success("Mutasi berhasil ditolak!");
+      fetchAllMutasi();
+      setSelectedRequest(null);
+      return;
+    }
+  };
 
   return (
     <div className="h-full w-full flex flex-col overflow-hidden text-white font-sans">
@@ -208,6 +213,7 @@ const MutasiIduk = () => {
         setIsLoaded={setIsLoaded}
         setSelectedRequest={setSelectedRequest}
         toggleDocStatus={toggleDocStatus}
+        handleTolak={handleTolak}
       />
 
       <style jsx>{`

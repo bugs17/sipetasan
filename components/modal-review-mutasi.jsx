@@ -11,6 +11,7 @@ import {
   ShieldCheck,
   X,
 } from "lucide-react";
+import { useEffect } from "react";
 
 const ModalReviewMutasi = ({
   selectedRequest,
@@ -29,8 +30,16 @@ const ModalReviewMutasi = ({
   setPdfUrl,
   isLoading,
   setIsLoaded,
+  handleTolak,
 }) => {
   if (!selectedRequest) return null;
+
+  useEffect(() => {
+    setPdfUrl(`/api/mutasi/docs/${selectedRequest?.dokumen[0].file}`);
+    console.log(selectedRequest);
+    setAdminNote(selectedRequest.catatan || "");
+  }, [selectedRequest, setPdfUrl]);
+
   return (
     <div className="fixed inset-0 z-[100] flex flex-col bg-[#0f0f11] animate-in fade-in zoom-in-95 duration-300">
       {/* Header Modal Full Width */}
@@ -81,6 +90,7 @@ const ModalReviewMutasi = ({
                 key={doc.id}
                 onClick={() => {
                   setActiveDocId(doc.id);
+                  setIsLoaded(true);
                   setPdfUrl(`/api/mutasi/docs/${doc.file}`);
                 }}
                 className={`p-5 rounded-[1.8rem] border transition-all cursor-pointer relative group ${
@@ -121,13 +131,13 @@ const ModalReviewMutasi = ({
                   <div className="grid grid-cols-2 gap-2 mt-2">
                     <button
                       onClick={(e) => toggleDocStatus(e, doc.id, "valid")}
-                      className={`py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest flex items-center justify-center gap-2 transition-all ${documentStatus[doc.id] === "approved" ? "bg-emerald-500 text-white shadow-lg shadow-emerald-500/30" : "bg-white/5 text-gray-500 hover:text-emerald-400 border border-white/5"}`}
+                      className={`py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest flex items-center justify-center gap-2 transition-all ${documentStatus[doc.id] === "valid" ? "bg-emerald-500 text-white shadow-lg shadow-emerald-500/30" : "bg-white/5 text-gray-500 hover:text-emerald-400 border border-white/5"}`}
                     >
                       <Check size={12} /> Valid
                     </button>
                     <button
                       onClick={(e) => toggleDocStatus(e, doc.id, "revisi")}
-                      className={`py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest flex items-center justify-center gap-2 transition-all ${documentStatus[doc.id] === "revised" ? "bg-amber-500 text-white shadow-lg shadow-amber-500/30" : "bg-white/5 text-gray-500 hover:text-amber-400 border border-white/5"}`}
+                      className={`py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest flex items-center justify-center gap-2 transition-all ${documentStatus[doc.id] === "revisi" ? "bg-amber-500 text-white shadow-lg shadow-amber-500/30" : "bg-white/5 text-gray-500 hover:text-amber-400 border border-white/5"}`}
                     >
                       <RotateCcw size={12} /> Revisi
                     </button>
@@ -154,7 +164,10 @@ const ModalReviewMutasi = ({
           {selectedRequest.status === "pending" && (
             <div className="p-6 bg-black/40 border-t border-white/5 flex flex-col gap-3">
               <div className="flex gap-3">
-                <button className="flex-1 py-4 rounded-2xl bg-red-600 hover:bg-red-700 text-white text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 shadow-xl shadow-red-600/10">
+                <button
+                  onClick={handleTolak}
+                  className="flex-1 py-4 rounded-2xl bg-red-600 hover:bg-red-700 text-white text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 shadow-xl shadow-red-600/10"
+                >
                   <Ban size={14} /> Tolak
                 </button>
                 <button
@@ -191,10 +204,8 @@ const ModalReviewMutasi = ({
                   </div>
                 </div>
 
-                {/* Tombol Download Baru */}
                 <a
-                  href={`/api/mutasi/download/${activeDocData.file}`} // Pastikan path file sesuai dengan di folder public
-                  // download={activeDocData.file}
+                  href={`/api/mutasi/download/${activeDocData.file}`}
                   className="flex items-center gap-2 pl-4 text-[9px] font-black uppercase text-gray-400 tracking-widest hover:text-[#6d28d9] transition-colors group/btn"
                 >
                   Download Dokumen
@@ -207,10 +218,8 @@ const ModalReviewMutasi = ({
                 </a>
               </div>
 
-              <div className="flex-1 p-8 pt-24 overflow-hidden flex flex-col items-center ">
-                {/* Simulated PDF Paper */}
+              <div className="flex-1 p-8 pt-24 overflow-hidden flex flex-col items-center">
                 <div className="w-full max-w-4xl h-[80vh] bg-[#1a1a1e] rounded-t-3xl border-x border-t border-white/10 shadow-[0_0_100px_rgba(0,0,0,0.5)] flex flex-col items-center justify-center relative overflow-hidden group">
-                  {/* 1. Loading State (Tampil hanya saat isLoading true) */}
                   {isLoaded && (
                     <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-[#1a1a1e]">
                       <div className="absolute inset-0 bg-gradient-to-b from-white/[0.02] to-transparent pointer-events-none" />
@@ -221,22 +230,16 @@ const ModalReviewMutasi = ({
                       <p className="text-[11px] font-black uppercase tracking-[0.4em] text-gray-600 relative z-10">
                         Decrypting Document...
                       </p>
-                      <div className="mt-8 px-8 py-3 bg-white/5 rounded-xl border border-white/5 text-[9px] font-bold text-gray-500 uppercase tracking-widest relative z-10">
-                        Secure Content — Internal Government Use Only
-                      </div>
                     </div>
                   )}
 
-                  {/* 2. PDF Viewer (Iframe) */}
                   <iframe
+                    key={pdfUrl} // OBAT ERROR STATIC FLAG
                     src={`${pdfUrl}#toolbar=0&navpanes=0&scrollbar=0`}
-                    className={`w-full h-full border-none transition-opacity duration-1000 ${
-                      isLoading ? "opacity-0" : "opacity-100"
-                    }`}
+                    className={`w-full h-full border-none transition-opacity duration-1000 ${isLoaded ? "opacity-0" : "opacity-100"}`}
                     onLoad={() => setIsLoaded(false)}
                   />
 
-                  {/* 3. Decorative Overlay (Optional, agar tetap terlihat premium) */}
                   {!isLoaded && (
                     <div className="absolute inset-0 pointer-events-none border-t border-white/5 z-10 shadow-[inset_0_40px_80px_-20px_rgba(0,0,0,0.5)]" />
                   )}
