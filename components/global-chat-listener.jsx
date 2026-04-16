@@ -39,7 +39,7 @@ export default function GlobalChatListener() {
 
         // 3. PLAY SOUND (Ini dia yang tadi ketinggalan)
         notificationSound.play().catch((err) => {
-          console.warn("Autoplay suara diblokir browser:", err);
+          console.warn("Autoplay sound diblokir browser:", err);
         });
 
         // 4. Custom React Hot Toast
@@ -50,7 +50,7 @@ export default function GlobalChatListener() {
                 t.visible
                   ? "animate-in fade-in slide-in-from-top-2"
                   : "animate-out fade-out zoom-out-95"
-              } max-w-sm w-full bg-[#1a1a1e]/90 border border-white/10 shadow-2xl rounded-[1.5rem] pointer-events-auto flex items-center p-4 backdrop-blur-xl`}
+              } max-w-sm w-full bg-white/90 border border-white/10 shadow-2xl rounded-[1.5rem] pointer-events-auto flex items-center p-4 backdrop-blur-xl`}
             >
               <div className="flex-shrink-0 flex items-center justify-center h-10 w-10 rounded-xl bg-[#6d28d9]/20 text-[#6d28d9] border border-[#6d28d9]/30 font-bold">
                 💬
@@ -59,7 +59,7 @@ export default function GlobalChatListener() {
                 <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#6d28d9] mb-0.5">
                   Pesan Baru
                 </p>
-                <p className="text-xs font-bold text-white leading-tight">
+                <p className="text-xs font-bold text-[#1a1a1e] leading-tight">
                   {data.namaPengirim}
                 </p>
                 <p className="text-[11px] text-gray-400 truncate mt-1">
@@ -68,7 +68,7 @@ export default function GlobalChatListener() {
               </div>
               <button
                 onClick={() => toast.dismiss(t.id)}
-                className="ml-4 p-2 text-gray-600 hover:text-white transition-colors"
+                className="ml-4 p-2 text-gray-600 "
               >
                 <svg
                   className="h-4 w-4"
