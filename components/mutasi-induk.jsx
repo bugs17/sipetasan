@@ -18,6 +18,7 @@ import ModalReviewMutasi from "./modal-review-mutasi";
 import { getAllMutasi } from "@/app/actions/get-all-mutasi-admin-induk";
 import toast from "react-hot-toast";
 import { tolakMutasi } from "@/app/actions/tolak-mutasi";
+import { setRevisiMutasi } from "@/app/actions/set-revisi-mutasi";
 
 const MutasiIduk = () => {
   const [activeTab, setActiveTab] = useState("pending");
@@ -30,6 +31,16 @@ const MutasiIduk = () => {
   const [isLoaded, setIsLoaded] = useState(true);
   const [allData, setAllData] = useState([]);
   const [pdfUrl, setPdfUrl] = useState("");
+  const [formDataRevisis, setFormDataRevisi] = useState({
+    id: "",
+    catatan: "",
+    dokumen: [
+      {
+        id: "",
+        status: "",
+      },
+    ],
+  });
 
   const fetchAllMutasi = useCallback(async () => {
     setIsLoading(true);
@@ -98,6 +109,41 @@ const MutasiIduk = () => {
       setSelectedRequest(null);
       return;
     }
+  };
+
+  const handleRevisi = async () => {
+    if (!adminNote) {
+      toast.error(
+        "Tambahkan alasan revisi terlebih dahulu pada kolom catatan!",
+      );
+      return;
+    }
+
+    if (!selectedRequest) {
+      toast.error("terjadi kesalahan!");
+      return;
+    }
+    try {
+      const data = {
+        id: selectedRequest.id,
+        catatan: adminNote,
+        status: "revisi",
+        dokumen: Object.entries(documentStatus).map(([id, status]) => ({
+          id: id,
+          status: status,
+        })),
+      };
+
+      const response = await setRevisiMutasi(data);
+      if (response.success) {
+        toast.success("Revisi telah dikirim ke instansi terkait!");
+        fetchAllMutasi();
+        setSelectedRequest(null);
+        return;
+      } else {
+        toast.error("Terjadi kesalahant!");
+      }
+    } catch (error) {}
   };
 
   return (
@@ -214,6 +260,7 @@ const MutasiIduk = () => {
         setSelectedRequest={setSelectedRequest}
         toggleDocStatus={toggleDocStatus}
         handleTolak={handleTolak}
+        handleRevisi={handleRevisi}
       />
 
       <style jsx>{`

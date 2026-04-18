@@ -31,6 +31,7 @@ const ModalReviewMutasi = ({
   isLoading,
   setIsLoaded,
   handleTolak,
+  handleRevisi,
 }) => {
   if (!selectedRequest) return null;
 
@@ -172,6 +173,7 @@ const ModalReviewMutasi = ({
                 </button>
                 <button
                   disabled={!anyDocRevised}
+                  onClick={handleRevisi}
                   className={`flex-1 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 ${anyDocRevised ? "bg-amber-600 text-white shadow-xl shadow-amber-600/20" : "bg-white/5 text-gray-700 cursor-not-allowed border border-white/5"}`}
                 >
                   <RotateCcw size={14} /> Revisi
