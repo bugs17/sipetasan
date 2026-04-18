@@ -19,6 +19,7 @@ import { getAllMutasi } from "@/app/actions/get-all-mutasi-admin-induk";
 import toast from "react-hot-toast";
 import { tolakMutasi } from "@/app/actions/tolak-mutasi";
 import { setRevisiMutasi } from "@/app/actions/set-revisi-mutasi";
+import { setApproved } from "@/app/actions/set-approved-mutasi";
 
 const MutasiIduk = () => {
   const [activeTab, setActiveTab] = useState("pending");
@@ -31,16 +32,6 @@ const MutasiIduk = () => {
   const [isLoaded, setIsLoaded] = useState(true);
   const [allData, setAllData] = useState([]);
   const [pdfUrl, setPdfUrl] = useState("");
-  const [formDataRevisis, setFormDataRevisi] = useState({
-    id: "",
-    catatan: "",
-    dokumen: [
-      {
-        id: "",
-        status: "",
-      },
-    ],
-  });
 
   const fetchAllMutasi = useCallback(async () => {
     setIsLoading(true);
@@ -124,19 +115,48 @@ const MutasiIduk = () => {
       return;
     }
     try {
+      const hasDocuments =
+        documentStatus && Object.keys(documentStatus).length > 0;
       const data = {
         id: selectedRequest.id,
         catatan: adminNote,
-        status: "revisi",
-        dokumen: Object.entries(documentStatus).map(([id, status]) => ({
-          id: id,
-          status: status,
-        })),
+        dokumen: hasDocuments
+          ? Object.entries(documentStatus).map(([id, status]) => ({
+              id: id,
+              status: status,
+            }))
+          : [],
       };
 
       const response = await setRevisiMutasi(data);
       if (response.success) {
         toast.success("Revisi telah dikirim ke instansi terkait!");
+        fetchAllMutasi();
+        setSelectedRequest(null);
+        return;
+      } else {
+        toast.error("Terjadi kesalahant!");
+      }
+    } catch (error) {}
+  };
+
+  const handleApproved = async () => {
+    const hasDocuments =
+      documentStatus && Object.keys(documentStatus).length > 0;
+    const data = {
+      id: selectedRequest.id,
+      catatan: adminNote || null,
+      dokumen: hasDocuments
+        ? Object.entries(documentStatus).map(([id, status]) => ({
+            id: id,
+            status: status,
+          }))
+        : [],
+    };
+    try {
+      const response = await setApproved(data);
+      if (response.success) {
+        toast.success("Mutasi telah di Approved!");
         fetchAllMutasi();
         setSelectedRequest(null);
         return;
@@ -261,6 +281,7 @@ const MutasiIduk = () => {
         toggleDocStatus={toggleDocStatus}
         handleTolak={handleTolak}
         handleRevisi={handleRevisi}
+        handleApproved={handleApproved}
       />
 
       <style jsx>{`

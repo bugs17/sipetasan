@@ -32,6 +32,7 @@ const ModalReviewMutasi = ({
   setIsLoaded,
   handleTolak,
   handleRevisi,
+  handleApproved,
 }) => {
   if (!selectedRequest) return null;
 
@@ -181,6 +182,7 @@ const ModalReviewMutasi = ({
               </div>
               <button
                 disabled={!allDocsApproved}
+                onClick={handleApproved}
                 className={`w-full py-5 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] transition-all flex items-center justify-center gap-3 ${allDocsApproved ? "bg-[#6d28d9] text-white shadow-[0_0_30px_rgba(109,40,217,0.3)]" : "bg-white/5 text-gray-700 cursor-not-allowed border border-white/5"}`}
               >
                 <CheckCircle2 size={16} /> Approve Mutasi

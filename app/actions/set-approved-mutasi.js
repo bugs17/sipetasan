@@ -2,20 +2,22 @@
 
 import { prisma } from "../lib/db";
 
-export const setRevisiMutasi = async (data) => {
-  // 1. Validasi awal: data harus ada dan dokumen harus berupa Array
+export const setApproved = async (data) => {
   if (!data || !data.id || !Array.isArray(data.dokumen)) {
     return { success: false, error: "Data tidak lengkap atau format salah" };
   }
-
   try {
+    const now = new Date();
     await prisma.$transaction(async (tx) => {
       // 2. Update status utama mutasi
-      await tx.mutasi.update({
+      const mtx = await tx.mutasi.update({
         where: { id: Number(data.id) },
         data: {
-          status: "revisi",
+          status: "approved",
           catatan: data.catatan,
+        },
+        include: {
+          pegawai: true,
         },
       });
 
@@ -31,6 +33,27 @@ export const setRevisiMutasi = async (data) => {
           ),
         );
       }
+
+      await tx.proyeksiKeluar.create({
+        data: {
+          alasan: "mutasi",
+          jabatanId: Number(mtx.pegawai.jabatanId),
+          pegawaiId: Number(mtx.pegawaiId),
+          opdId: Number(mtx.pegawai.opdId),
+          tanggalKeluar: now,
+          tahun: now.getFullYear(),
+        },
+      });
+
+      await tx.pegawai.update({
+        where: {
+          id: Number(mtx.pegawai.id),
+        },
+        data: {
+          opdId: Number(mtx.opdTujuanId),
+          jabatanId: null,
+        },
+      });
     });
 
     return { success: true };
