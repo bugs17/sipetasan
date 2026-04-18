@@ -12,6 +12,7 @@ import {
   Shuffle,
   SendHorizontal,
 } from "lucide-react";
+import { generateLaporanHirarkiJabatan } from "@/app/actions/generate-excel-peta-jabatan";
 
 /**
  * Base path dashboard
@@ -59,13 +60,27 @@ const menuConfig = [
         label: "Proyeksi Kebutuhan",
         href: `${BASE_PATH}/reports/proyeksi-kebutuhan`,
         match: (pathname) =>
-          pathname === `${BASE_PATH}/reports/proyeksi-kebutuhan` ||
           pathname === `${BASE_PATH}/reports/proyeksi-kebutuhan`,
       },
-      // {
-      //   label: "Proyeksi Kebutuhan",
-      //   href: "#",
-      // },
+      {
+        label: "Peta Jabatan",
+        // Kita tambahkan properti onClick
+        onClick: async () => {
+          try {
+            const result = await generateLaporanHirarkiJabatan(10);
+            if (result.success) {
+              const link = document.createElement("a");
+              link.href = `data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,${result.data}`;
+              link.download = result.filename;
+              link.click();
+            } else {
+              alert("Gagal mendownload laporan: " + result.error);
+            }
+          } catch (error) {
+            console.error(error);
+          }
+        },
+      },
     ],
   },
   {
@@ -141,6 +156,21 @@ const SideBarAdminOpd = () => {
                 {item.children.map((child, idx) => {
                   const isActive = child.match?.(pathname);
 
+                  // Jika ada onClick, render sebagai <a> tanpa href atau button
+                  if (child.onClick) {
+                    return (
+                      <li key={idx}>
+                        <a
+                          onClick={child.onClick}
+                          className="hover:text-violet-500 cursor-pointer"
+                        >
+                          {child.label}
+                        </a>
+                      </li>
+                    );
+                  }
+
+                  // Jika tidak ada onClick, render Link normal
                   return (
                     <li key={idx}>
                       <Link

@@ -78,7 +78,7 @@ const HistoryListMutasi = ({
                   <div className="hidden lg:block max-w-[200px]">
                     <p
                       className={`text-[9px] italic leading-relaxed line-clamp-2 ${
-                        item.status === "Ditolak"
+                        item.status === "ditolak"
                           ? "text-red-400/80"
                           : "text-amber-500/80"
                       }`}
@@ -94,7 +94,7 @@ const HistoryListMutasi = ({
                         ? "text-amber-500"
                         : item.status === "approved"
                           ? "text-emerald-500"
-                          : item.status === "aitolak"
+                          : item.status === "ditolak"
                             ? "text-red-500"
                             : "text-blue-500"
                     }`}

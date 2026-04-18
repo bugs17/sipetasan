@@ -80,10 +80,6 @@ model Pegawai {
   jabatanId Int?
   jabatan   Jabatan? @relation(fields: [jabatanId], references: [id], onDelete: SetNull)
 
-  // kedua kolom ini sudah tidak di gunakan. karena di pindahkan ke Tabel ProyeksiKeluar
-  // statusKeluar String? // "mutasi", "dini", "meninggal"
-  // tahunKeluar  Int? // Tahun rencana keluar (misal mutasi tahun 2027)
-
   // Relasi OPD biasanya cukup lewat Jabatan saja, 
   // tapi jika ingin tetap ada relasi langsung:
   opdId Int?
