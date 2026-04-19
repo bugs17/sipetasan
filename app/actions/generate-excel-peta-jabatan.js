@@ -9,6 +9,7 @@ export const generateLaporanHirarkiJabatan = async (opdId, namaOpd) => {
       where: { opdId: Number(opdId) },
       include: {
         pegawai: true,
+        tugas: true,
       },
     });
 
@@ -86,14 +87,16 @@ export const generateLaporanHirarkiJabatan = async (opdId, namaOpd) => {
                 .map((p) => `${p.nama} - ${p.nip || "NIP Kosong"}`)
                 .join("\n")
             : "-";
-
+        const totalABK = node.tugas.reduce((acc, current) => {
+          return acc + (current.KebutuhanPegawai || 0);
+        }, 0);
         row.values = {
           nama: `${"    ".repeat(level)}🏛️ ${node.namaJabatan.toUpperCase()}`,
           pegawai: daftarPegawai,
           kj: node.kJ,
-          b: node.b,
-          abk: node.aBK,
-          selisih: node.kurangLebih,
+          b: node.pegawai.length,
+          abk: totalABK,
+          selisih: Math.floor(node.pegawai.length) - Math.floor(totalABK),
         };
 
         row.alignment = { vertical: "middle", wrapText: true };
