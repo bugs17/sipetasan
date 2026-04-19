@@ -58,18 +58,19 @@ const menuConfig = [
     type: "group",
     children: [
       {
+        label: "Peta Jabatan",
+        href: `${BASE_PATH}/reports/peta-jabatan-induk`,
+        match: (pathname) =>
+          pathname === `${BASE_PATH}/reports/peta-jabatan-induk` ||
+          pathname.includes(`${BASE_PATH}/reports/peta-jabatan-induk`),
+      },
+      {
         label: "Proyeksi Kebutuhan",
         href: `${BASE_PATH}/reports/proyeksi-kebutuhan-induk`,
         match: (pathname) =>
           pathname === `${BASE_PATH}/reports/proyeksi-kebutuhan-induk` ||
           pathname.includes(`${BASE_PATH}/reports/proyeksi-kebutuhan-induk`),
       },
-      // {
-      //   label: "Proyeksi Kebutuhan",
-      //   href: `${BASE_PATH}/reports/proyeksi-kebutuhan`,
-      //   match: (pathname) =>
-      //     pathname === `${BASE_PATH}/reports/proyeksi-kebutuhan`,
-      // },
     ],
   },
   // Master ditaruh paling bawah karena fungsinya administratif/setup
