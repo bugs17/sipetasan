@@ -85,7 +85,7 @@ const PetaJabatanEditor = () => {
 
   const { user, isLoaded } = useUser();
   const [isLoading, setIsLoading] = useState(true);
-  const [userData, setUserData] = useState(null);
+  // const [userData, setUserData] = useState(null);
 
   // Bungkus fungsi fetch agar reusable
   const loadInitialData = useCallback(async () => {

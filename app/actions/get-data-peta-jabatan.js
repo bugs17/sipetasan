@@ -13,6 +13,7 @@ export async function getPetaJabatan(opdId) {
             nama: true,
           },
         },
+        tugas: true,
       },
       orderBy: { level: "asc" }, // Opsional: agar urutan lebih teratur
     });
@@ -33,22 +34,26 @@ export async function getPetaJabatan(opdId) {
     const buildTree = (parentId = null) => {
       return allJabatans
         .filter((j) => j.parentId === parentId)
-        .map((j) => ({
-          id: j.id.toString(),
-          jabatan: j.namaJabatan,
-          // PERBAIKAN DI SINI:
-          // Kita kirim array ID pegawai, bukan nama.
-          // UI akan melakukan lookup nama menggunakan listPegawai
-          pegawai:
-            j.pegawai.length > 0
-              ? j.pegawai.map((p) => p.id) // Ambil ID (integer)
-              : ["Belum Terisi"],
-          level: j.level,
-          kJ: j.kJ,
-          b: j.b,
-          abk: j.aBK,
-          children: buildTree(j.id),
-        }));
+        .map((j) => {
+          // 1. Hitung total KebutuhanPegawai dari array tugas
+          const totalABK = j.tugas.reduce((acc, current) => {
+            return acc + (current.KebutuhanPegawai || 0);
+          }, 0);
+
+          return {
+            id: j.id.toString(),
+            jabatan: j.namaJabatan,
+            pegawai:
+              j.pegawai.length > 0
+                ? j.pegawai.map((p) => p.id) // Ambil ID (integer)
+                : ["Belum Terisi"],
+            level: j.level,
+            kJ: j.kJ,
+            b: j.pegawai.length,
+            abk: totalABK,
+            children: buildTree(j.id),
+          };
+        });
     };
 
     const tree = buildTree(null);
