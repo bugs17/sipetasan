@@ -52,6 +52,26 @@ const menuConfig = [
       pathname === `${BASE_PATH}/chat` ||
       pathname.includes(`${BASE_PATH}/chat`),
   },
+  {
+    label: "Download",
+    icon: <Download size={20} />,
+    type: "group",
+    children: [
+      {
+        label: "Proyeksi Kebutuhan",
+        href: `${BASE_PATH}/reports/proyeksi-kebutuhan-induk`,
+        match: (pathname) =>
+          pathname === `${BASE_PATH}/reports/proyeksi-kebutuhan-induk` ||
+          pathname.includes(`${BASE_PATH}/reports/proyeksi-kebutuhan-induk`),
+      },
+      // {
+      //   label: "Proyeksi Kebutuhan",
+      //   href: `${BASE_PATH}/reports/proyeksi-kebutuhan`,
+      //   match: (pathname) =>
+      //     pathname === `${BASE_PATH}/reports/proyeksi-kebutuhan`,
+      // },
+    ],
+  },
   // Master ditaruh paling bawah karena fungsinya administratif/setup
   {
     label: "Master",

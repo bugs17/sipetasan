@@ -3,7 +3,7 @@
 import { prisma } from "../lib/db";
 import ExcelJS from "exceljs";
 
-export const generateLaporanHirarkiJabatan = async (opdId = 10) => {
+export const generateLaporanHirarkiJabatan = async (opdId, namaOpd) => {
   try {
     const allJabatans = await prisma.jabatan.findMany({
       where: { opdId: Number(opdId) },
@@ -28,7 +28,8 @@ export const generateLaporanHirarkiJabatan = async (opdId = 10) => {
     // --- 1. HEADER DOKUMEN (KOP) ---
     worksheet.mergeCells("A1:F1");
     const titleCell = worksheet.getCell("A1");
-    titleCell.value = "PETA JABATAN DINAS 10";
+    const namaDinas = namaOpd?.toUpperCase();
+    titleCell.value = `PETA JABATAN ${namaDinas}`;
     titleCell.font = { name: "Arial", size: 14, bold: true };
     titleCell.alignment = { horizontal: "center" };
 
@@ -158,10 +159,11 @@ export const generateLaporanHirarkiJabatan = async (opdId = 10) => {
     };
 
     const buffer = await workbook.xlsx.writeBuffer();
+    const namaOpdNoSpasi = namaOpd.replaceAll(" ", "_");
     return {
       success: true,
       data: buffer.toString("base64"),
-      filename: `Peta_Jabatan_OPD_10.xlsx`,
+      filename: `Peta_Jabatan_${namaOpdNoSpasi}.xlsx`,
     };
   } catch (error) {
     console.error("Gagal cetak excel:", error);

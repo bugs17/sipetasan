@@ -6,19 +6,23 @@ import {
   Calendar,
   FileSpreadsheet,
   Printer,
+  ChevronLeft,
 } from "lucide-react";
-import { useAuth } from "@clerk/nextjs";
-import { getUserRoleByClerkID } from "@/app/actions/get-user-role-by-clerk-id";
 import { getProyeksiData } from "@/app/actions/get-proyeksi";
 import { cekTahunKeluar } from "@/app/utils/cek-pensiun";
 import SettingSkeleton from "@/components/skeleton/setting-skeleton";
 import { exportToExcel } from "@/app/utils/create-proyeksi";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 
 const ReportProyeksiMatrix = () => {
-  const { isLoaded, userId } = useAuth();
+  const params = useParams();
+  const searchParams = useSearchParams();
+  const instansiName = searchParams.get("namaOpd");
+  const opdId = params.id;
+  const router = useRouter();
+
   const [isLoading, setIsLoading] = useState(true);
   const [dataPegawai, setDataPegawai] = useState([]);
-  const [instansiName, setInstansiName] = useState("");
 
   // State untuk kontrol tahun mulai
   const currentYear = new Date().getFullYear();
@@ -41,20 +45,17 @@ const ReportProyeksiMatrix = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      if (!isLoaded || !userId) return;
       try {
-        const userDb = await getUserRoleByClerkID(userId);
-        setInstansiName(userDb.opd?.namaOpd || "INSTANSI PEMERINTAH");
-        const { success, data } = await getProyeksiData(userDb.opdId);
+        const { success, data } = await getProyeksiData(opdId);
         if (success) setDataPegawai(data);
       } catch (error) {
-        console.error(error);
+        // console.error(error);
       } finally {
         setIsLoading(false);
       }
     };
     fetchData();
-  }, [isLoaded, userId]);
+  }, []);
 
   const matrixData = useMemo(() => {
     if (!dataPegawai.length) return [];
@@ -107,19 +108,34 @@ const ReportProyeksiMatrix = () => {
       <div className="max-w-[1600px] mx-auto space-y-8">
         {/* HEADER AREA */}
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 bg-[#0f0f12]/40 p-8 rounded-[2.5rem] border border-white/5 backdrop-blur-md sticky top-0 z-30">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2 mb-1">
-              <Database size={14} className="text-indigo-500" />
-              <span className="text-[9px] font-black text-white uppercase tracking-[0.3em]">
-                Reporting Analysis
-              </span>
+          <div className="space-y-3">
+            {" "}
+            <button
+              onClick={() => router.back()}
+              className="flex items-center gap-2 text-[9px] font-black text-gray-500 hover:text-indigo-400 transition-colors uppercase tracking-widest group"
+            >
+              <ChevronLeft
+                size={14}
+                className="group-hover:-translate-x-1 transition-transform"
+              />
+              <span>Kembali</span>
+            </button>
+            <div className="space-y-1">
+              <h2 className="text-xl font-black uppercase tracking-tighter italic leading-none">
+                Matrix Proyeksi{" "}
+                <span className="text-indigo-500 uppercase">
+                  {startYear}-{startYear + 4}
+                </span>
+              </h2>
+
+              {/* Menampilkan Nama Instansi */}
+              <div className="flex flex-row gap-1 items-center justify-start">
+                <Database size={10} className="text-indigo-500" />{" "}
+                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest italic">
+                  {instansiName || ""}
+                </p>
+              </div>
             </div>
-            <h2 className="text-xl font-black uppercase tracking-tighter italic">
-              Matrix Proyeksi{" "}
-              <span className="text-indigo-500 uppercase">
-                {startYear}-{startYear + 4}
-              </span>
-            </h2>
           </div>
 
           <div className="flex flex-wrap items-center gap-4">
