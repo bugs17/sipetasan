@@ -1,15 +1,37 @@
-version: '3.8'
+version: "3.8"
 
 services:
-  app:
+  sipetasn_db:
+    image: postgres:16-alpine
+    container_name: sipetasn_db
+    restart: always
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${DB_USER} -d $${DB_NAME}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  sipetasn_app:
     build:
       context: .
       dockerfile: Dockerfile
+    container_name: sipetasn_app
     ports:
-      - '3020:3000'
-      - '5520:5555'
+      - "3020:3000"
+      - "5520:5555"
     volumes:
-      - ./realDB:/app/realDB
+      - ./file_mutasi:/app/file_mutasi
       - ./public:/app/public
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
     command: "npm run start"
     restart: always
+    depends_on:
+      sipetasn_db:
+        condition: service_healthy

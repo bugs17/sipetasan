@@ -42,3 +42,7 @@ realDB/
 # clerk configuration (can include secrets)
 /.clerk/
 /file_mutasi
+
+
+
+postgres_data/
