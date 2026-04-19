@@ -1,16 +1,18 @@
 "use client";
 
-import React, { useState } from "react";
-import { SignedIn, SignedOut, UserButton, SignInButton } from "@clerk/nextjs";
+import React, { useEffect, useState } from "react";
+import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 import Link from "next/link";
 import {
-  HiOutlineSearch,
   HiOutlineX,
   HiOutlineArrowRight,
   HiOutlineStatusOnline,
 } from "react-icons/hi";
 import { Search } from "lucide-react";
 import LoginModal from "@/components/LoginModal";
+import { getMutasiByNip } from "./actions/get-mutasi-by-nip";
+import toast, { Toaster } from "react-hot-toast";
+import { getDataDisplay } from "./actions/get-data-display";
 
 const LandingPage = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -20,23 +22,69 @@ const LandingPage = () => {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const handleCheckStatus = () => {
+  const [dataDisplay, setDataDisplay] = useState({
+    pegawai: 0,
+    instansi: 0,
+    mutasi: 0,
+  });
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const res = await getDataDisplay();
+        setDataDisplay(res);
+      } catch (error) {
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
+
+  const cekMutasi = async () => {
+    if (!nip) {
+      toast.error("Masukan Nip dulu ya!");
+      return;
+    }
+    if (isNaN(nip)) {
+      toast.error("Nip tidak valid!");
+      return;
+    }
     setLoading(true);
-    // Simulasi Fetching Data
-    setTimeout(() => {
-      setStatusResult({
-        nama: "Yulianus Wandik",
-        status: "DIPROSES",
-        posisi: "Admin Induk (Biro Organisasi)",
-        update: "11 Feb 2026",
-        note: "Sedang dalam tahap verifikasi dokumen pendukung.",
-      });
+    try {
+      const { success, dataMutasi } = await getMutasiByNip(nip);
+      if (success) {
+        setStatusResult({
+          nama: dataMutasi.nama,
+          status: dataMutasi.mutasi[0].status,
+          posisi:
+            dataMutasi.mutasi[0].status === "revisi" ||
+            dataMutasi.mutasi[0].status === "ditolak"
+              ? "Admin Induk (Biro Organisasi)"
+              : "Admin INSTANSI anda",
+          update: new Intl.DateTimeFormat("id-ID", {
+            dateStyle: "medium",
+            timeStyle: "short",
+          }).format(new Date(dataMutasi.mutasi[0].updatedAt)),
+          note: dataMutasi.mutasi[0].catatan || "-",
+        });
+      }
+    } catch (error) {
+    } finally {
       setLoading(false);
-    }, 1500);
+    }
+  };
+
+  const onReset = () => {
+    setStatusResult(null);
+    setNip("");
+    setIsDrawerOpen(false);
   };
 
   return (
     <div className="min-h-screen bg-[#212126] text-white selection:bg-[#6d28d9]/30 flex items-center justify-center p-6 overflow-hidden relative">
+      <Toaster position="top-right" />
       {/* --- ELEGANT FLOATING BUTTON --- */}
       <div className="fixed left-8 bottom-8 z-[100]">
         <button
@@ -55,13 +103,10 @@ const LandingPage = () => {
 
           {/* Text Label */}
           <div className="flex flex-col items-start">
-            <span className="text-[9px] font-black text-gray-500 uppercase tracking-[0.2em] leading-none mb-1 group-hover:text-[#6d28d9] transition-colors">
-              Layanan Publik
-            </span>
             <span className="text-sm font-bold text-white tracking-tight">
-              Tracking{" "}
+              Cek{" "}
               <span className="text-gray-400 font-medium italic mx-0.5">
-                Status
+                Status Mutasi
               </span>
             </span>
           </div>
@@ -72,133 +117,16 @@ const LandingPage = () => {
       </div>
 
       {/* --- LEFT DRAWER COMPONENT --- */}
-      <div
-        className={`fixed inset-0 z-[110] transition-visibility ${isDrawerOpen ? "visible" : "invisible"}`}
-      >
-        {/* Backdrop */}
-        <div
-          className={`absolute inset-0 bg-black/80 transition-opacity duration-500 ${isDrawerOpen ? "opacity-100" : "opacity-0"}`}
-          onClick={() => setIsDrawerOpen(false)}
-        />
-
-        {/* Drawer Content */}
-        <div
-          className={`absolute top-0 left-0 h-full w-full max-w-md bg-[#1a1a1e] border-r border-white/10 shadow-2xl transition-transform duration-500 transform ${isDrawerOpen ? "translate-x-0" : "-translate-x-full"}`}
-        >
-          <div className="p-8 flex flex-col h-full relative overflow-hidden">
-            {/* Grainy effect for Drawer */}
-            <div
-              className="absolute inset-0 opacity-[0.02] pointer-events-none"
-              style={{
-                backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
-              }}
-            ></div>
-
-            {/* Close Button */}
-            <button
-              onClick={() => setIsDrawerOpen(false)}
-              className="absolute top-6 right-6 p-2 hover:bg-white/5 rounded-full transition-colors"
-            >
-              <HiOutlineX size={24} className="text-gray-500" />
-            </button>
-
-            <div className="relative z-10 mt-10">
-              <h2 className="text-3xl font-black italic tracking-tighter">
-                TRACKING <span className="text-[#6d28d9]">STATUS.</span>
-              </h2>
-              <p className="text-gray-500 text-xs font-bold uppercase tracking-[0.2em] mt-2">
-                Monitoring Usulan ASN
-              </p>
-            </div>
-
-            {/* Input Section */}
-            <div className="relative z-10 mt-12 space-y-4">
-              <div className="space-y-2">
-                <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">
-                  Nomor Induk Pegawai (NIP)
-                </label>
-                <div className="relative">
-                  <input
-                    type="text"
-                    placeholder="19xxxxxxxxxxxxxx"
-                    value={nip}
-                    onChange={(e) => setNip(e.target.value)}
-                    className="w-full bg-white/[0.03] border border-white/10 rounded-2xl py-4 px-6 text-sm font-mono focus:outline-none focus:border-[#6d28d9] focus:bg-white/[0.05] transition-all"
-                  />
-                </div>
-              </div>
-              <button
-                onClick={handleCheckStatus}
-                disabled={!nip || loading}
-                className="w-full bg-white text-[#1a1a1e] py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-gray-200 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
-              >
-                {loading ? "Processing..." : "Proses Data"}
-                {!loading && <HiOutlineArrowRight size={16} />}
-              </button>
-            </div>
-
-            {/* Result Section */}
-            <div className="relative z-10 mt-12 flex-1 overflow-y-auto">
-              {statusResult ? (
-                <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                  <div className="p-6 rounded-3xl bg-white/[0.03] border border-white/10 space-y-4">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <p className="text-[10px] font-black text-[#6d28d9] uppercase tracking-widest">
-                          Nama Pegawai
-                        </p>
-                        <h4 className="text-sm font-bold mt-1 uppercase">
-                          {statusResult.nama}
-                        </h4>
-                      </div>
-                      <div className="px-2 py-1 rounded-md bg-[#6d28d9]/20 border border-[#6d28d9]/30">
-                        <span className="text-[10px] font-black text-[#6d28d9]">
-                          {statusResult.status}
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="space-y-3 pt-4 border-t border-white/5">
-                      <div className="flex gap-4">
-                        <div className="flex flex-col items-center">
-                          <div className="w-2 h-2 rounded-full bg-[#6d28d9]" />
-                          <div className="w-[1px] h-10 bg-gradient-to-b from-[#6d28d9] to-transparent" />
-                        </div>
-                        <div>
-                          <p className="text-[10px] font-black text-gray-500 uppercase">
-                            Posisi Terakhir
-                          </p>
-                          <p className="text-[11px] font-medium text-gray-300">
-                            {statusResult.posisi}
-                          </p>
-                          <p className="text-[9px] text-gray-600 mt-1">
-                            {statusResult.update}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="p-4 rounded-xl bg-white/5 border border-white/5">
-                      <p className="text-[10px] font-bold text-gray-400 italic">
-                        "{statusResult.note}"
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <div className="h-full flex flex-col items-center justify-center opacity-20 grayscale">
-                  <HiOutlineStatusOnline size={64} />
-                  <p className="text-[10px] font-black uppercase tracking-widest mt-4 text-center">
-                    Belum ada data
-                    <br />
-                    yang diperiksa
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
+      <LeftDrawer
+        handleCheckStatus={cekMutasi}
+        isDrawerOpen={isDrawerOpen}
+        loading={loading}
+        nip={nip}
+        setIsDrawerOpen={setIsDrawerOpen}
+        setNip={setNip}
+        statusResult={statusResult}
+        handleReset={onReset}
+      />
 
       {/* Header / Nav Section */}
       <header className="absolute top-0 w-full p-6 md:p-10 flex justify-between items-center z-20">
@@ -294,9 +222,13 @@ const LandingPage = () => {
             <div className="flex flex-row items-center justify-start gap-4 md:gap-8 pt-4 py-4 border-y border-white/5 md:border-none">
               <div className="group flex flex-col">
                 <div className="flex items-baseline gap-0.5 transition-transform group-hover:scale-105 duration-300">
-                  <span className="text-xl md:text-3xl font-black text-white tracking-tighter">
-                    12.402
-                  </span>
+                  {loading ? (
+                    <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#6d28d9] border-t-transparent"></div>
+                  ) : (
+                    <span className="text-xl md:text-3xl font-black text-white tracking-tighter">
+                      {dataDisplay.pegawai}
+                    </span>
+                  )}
                   <span className="text-[#6d28d9] font-bold text-lg">+</span>
                 </div>
                 <span className="text-[8px] md:text-[9px] text-gray-500 uppercase tracking-widest font-black">
@@ -308,9 +240,13 @@ const LandingPage = () => {
 
               <div className="group flex flex-col">
                 <div className="flex items-baseline gap-0.5 transition-transform group-hover:scale-105 duration-300">
-                  <span className="text-xl md:text-3xl font-black text-white tracking-tighter">
-                    48
-                  </span>
+                  {loading ? (
+                    <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#6d28d9] border-t-transparent"></div>
+                  ) : (
+                    <span className="text-xl md:text-3xl font-black text-white tracking-tighter">
+                      {dataDisplay.instansi}
+                    </span>
+                  )}
                   <span className="text-[#6d28d9] font-bold text-lg">+</span>
                 </div>
                 <span className="text-[8px] md:text-[9px] text-gray-500 uppercase tracking-widest font-black">
@@ -322,9 +258,13 @@ const LandingPage = () => {
 
               <div className="group flex flex-col">
                 <div className="flex items-baseline gap-0.5 transition-transform group-hover:scale-105 duration-300">
-                  <span className="text-xl md:text-3xl font-black text-[#6d28d9] tracking-tighter">
-                    0
-                  </span>
+                  {loading ? (
+                    <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#6d28d9] border-t-transparent"></div>
+                  ) : (
+                    <span className="text-xl md:text-3xl font-black text-[#6d28d9] tracking-tighter">
+                      {dataDisplay.mutasi}
+                    </span>
+                  )}
                   <span className="text-white/50 font-bold text-lg">+</span>
                 </div>
                 <span className="text-[8px] md:text-[9px] text-gray-500 uppercase tracking-widest font-black">
@@ -391,21 +331,6 @@ const LandingPage = () => {
                   </span>
                 </div>
               </div>
-              <div className="flex items-center gap-2 grayscale hover:grayscale-0 transition-all duration-500">
-                <img
-                  src="/logo-komdigi.svg"
-                  alt="Logo Komdigi"
-                  className="h-7 w-auto"
-                />
-                <div className="flex flex-col">
-                  <span className="text-[10px] font-bold leading-none">
-                    DISKOMINFO
-                  </span>
-                  <span className="text-[8px] text-gray-500 font-medium">
-                    PROV. PAPUA
-                  </span>
-                </div>
-              </div>
             </div>
           </div>
         </div>
@@ -438,3 +363,144 @@ const LandingPage = () => {
 };
 
 export default LandingPage;
+
+const LeftDrawer = ({
+  isDrawerOpen,
+  setIsDrawerOpen,
+  setNip,
+  handleCheckStatus,
+  loading,
+  nip,
+  statusResult,
+  handleReset,
+}) => {
+  return (
+    <div
+      className={`fixed inset-0 z-[110] transition-visibility ${isDrawerOpen ? "visible" : "invisible"}`}
+    >
+      {/* Backdrop */}
+      <div
+        className={`absolute inset-0 bg-black/80 transition-opacity duration-500 ${isDrawerOpen ? "opacity-100" : "opacity-0"}`}
+        onClick={handleReset}
+      />
+
+      {/* Drawer Content */}
+      <div
+        className={`absolute top-0 left-0 h-full w-full max-w-md bg-[#1a1a1e] border-r border-white/10 shadow-2xl transition-transform duration-500 transform ${isDrawerOpen ? "translate-x-0" : "-translate-x-full"}`}
+      >
+        <div className="p-8 flex flex-col h-full relative overflow-hidden">
+          {/* Grainy effect for Drawer */}
+          <div
+            className="absolute inset-0 opacity-[0.02] pointer-events-none"
+            style={{
+              backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+            }}
+          ></div>
+
+          {/* Close Button */}
+          <button
+            onClick={handleReset}
+            className="absolute top-6 right-6 p-2 hover:bg-white/5 rounded-full transition-colors"
+          >
+            <HiOutlineX size={24} className="text-gray-500" />
+          </button>
+
+          <div className="relative z-10 mt-10">
+            <h2 className="text-3xl font-black italic tracking-tighter">
+              TRACKING <span className="text-[#6d28d9]">STATUS.</span>
+            </h2>
+            <p className="text-gray-500 text-xs font-bold uppercase tracking-[0.2em] mt-2">
+              Monitoring Status Mutasi
+            </p>
+          </div>
+
+          {/* Input Section */}
+          <div className="relative z-10 mt-12 space-y-4">
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">
+                Nomor Induk Pegawai (NIP)
+              </label>
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="19xxxxxxxxxxxxxx"
+                  value={nip}
+                  onChange={(e) => setNip(e.target.value)}
+                  className="w-full bg-white/[0.03] border border-white/10 rounded-2xl py-4 px-6 text-sm font-mono focus:outline-none focus:border-[#6d28d9] focus:bg-white/[0.05] transition-all"
+                />
+              </div>
+            </div>
+            <button
+              onClick={handleCheckStatus}
+              disabled={!nip || loading}
+              className="w-full bg-white text-[#1a1a1e] py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-gray-200 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+            >
+              {loading ? "Processing..." : "Proses Data"}
+              {!loading && <HiOutlineArrowRight size={16} />}
+            </button>
+          </div>
+
+          {/* Result Section */}
+          <div className="relative z-10 mt-12 flex-1 overflow-y-auto">
+            {statusResult ? (
+              <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <div className="p-6 rounded-3xl bg-white/[0.03] border border-white/10 space-y-4">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <p className="text-[10px] font-black text-[#6d28d9] uppercase tracking-widest">
+                        Nama Pegawai
+                      </p>
+                      <h4 className="text-sm font-bold mt-1 uppercase">
+                        {statusResult.nama}
+                      </h4>
+                    </div>
+                    <div className="px-2 py-1 rounded-md bg-[#6d28d9]/20 border border-[#6d28d9]/30">
+                      <span className="text-[10px] font-black text-[#6d28d9]">
+                        {statusResult.status}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3 pt-4 border-t border-white/5">
+                    <div className="flex gap-4">
+                      <div className="flex flex-col items-center">
+                        <div className="w-2 h-2 rounded-full bg-[#6d28d9]" />
+                        <div className="w-[1px] h-10 bg-gradient-to-b from-[#6d28d9] to-transparent" />
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-black text-gray-500 uppercase">
+                          Posisi Terakhir
+                        </p>
+                        <p className="text-[11px] font-medium text-gray-300">
+                          {statusResult.posisi}
+                        </p>
+                        <p className="text-[9px] text-gray-600 mt-1">
+                          {statusResult.update}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="p-4 rounded-xl bg-white/5 border border-white/5">
+                    <p className="text-[10px] font-bold text-gray-400 italic">
+                      "{statusResult.note}"
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="h-full flex flex-col items-center justify-center opacity-20 grayscale">
+                <HiOutlineStatusOnline size={64} />
+                <p className="text-[10px] font-black uppercase tracking-widest mt-4 text-center">
+                  Belum ada data
+                  <br />
+                  yang diperiksa
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
