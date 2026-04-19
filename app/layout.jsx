@@ -21,7 +21,22 @@ const geistMono = localFont({
 
 export const metadata = {
   title: "SI-PETASN",
-  description: "Sistem Informasi",
+  description: "Sistem Informasi Peta ASN",
+  openGraph: {
+    title: "Sipetasan App",
+    description: "Sistem Informasi Peta ASN",
+    url: "https://sipetasn.bugsmen.xyz",
+    siteName: "Sipetasn",
+    images: [
+      {
+        url: "https://sipetasn.bugsmen.xyz/logo-provinsi.png", // Link foto yang bakal muncul
+        width: 1200,
+        height: 630,
+      },
+    ],
+    locale: "id_ID",
+    type: "website",
+  },
 };
 
 export default function RootLayout({ children }) {
