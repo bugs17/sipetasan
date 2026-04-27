@@ -1,5 +1,4 @@
 "use client";
-import dynamic from "next/dynamic";
 
 import SidebarLogo from "@/components/SidebarLogo";
 import TitleDashboard from "@/components/micro-component/Title-Dashboard";
@@ -13,13 +12,11 @@ import { usePathname } from "next/navigation";
 import { Toaster } from "react-hot-toast";
 import GlobalChatListener from "@/components/global-chat-listener";
 import AuthWrapper from "../context/AuthWraper";
-
-// const AuthWrapper = dynamic(() => import("../context/AuthWraper"), {
-//   ssr: false,
-// });
+import { cn } from "../lib/cd";
 
 export default function DashboardLayout({ children }) {
   const pathname = usePathname();
+  console.log(pathname);
   const { userId, isLoaded } = useAuth();
   const { userRole, setUserRole } = useUserStore();
 
@@ -64,7 +61,14 @@ export default function DashboardLayout({ children }) {
             <TitleDashboard />
           </div>
 
-          <div className="w-full flex-1 overflow-auto bg-[radial-gradient(rgba(229,231,235,0.1)_1px,transparent_1px)] [background-size:16px_16px]">
+          <div
+            className={cn(
+              "w-full flex-1 overflow-auto ",
+              pathname === "/dashboard"
+                ? "bg-white"
+                : "bg-[radial-gradient(rgba(229,231,235,0.1)_1px,transparent_1px)] [background-size:16px_16px]",
+            )}
+          >
             {children}
           </div>
         </div>
