@@ -61,54 +61,72 @@ const CustomNodeEditor = ({
 
   return (
     <div className="inline-block p-4 relative group">
-      <div
-        className={`min-w-[400px] h-auto  bg-white border-[#000] border-2 flex flex-col text-left shadow-2xl transition-all`}
-      >
-        {/* header */}
-        <div className="border-b justify-between  border-black flex flex-row">
-          {/* jabatan */}
-          <div className="flex items-center justify-center border-r-2 px-8 py-4 border-black ">
-            <span className="text-black font-bold">Kepala Biro Hukum</span>
+
+      <div className="min-w-[400px] bg-white border-2 border-black flex text-left shadow-2xl">
+
+      {isEditMode && (
+          <div className="absolute -top-1 -right-1 flex gap-2 z-30 opacity-0 group-hover:opacity-100 transition-opacity">
+            {item.id !== "root-1" && (
+              <button
+                onClick={() => onDeleteConfirm(item.id, item.jabatan)}
+                className="p-2 rounded-full bg-red-500 text-white shadow-lg hover:bg-red-600 transition-all shadow-red-500/20"
+              >
+                <HiOutlineTrash size={12} />
+              </button>
+            )}
+            <button
+              onClick={() => onAdd(item.id)}
+              className="p-2 rounded-full bg-emerald-500 text-white shadow-lg hover:bg-emerald-600 transition-all shadow-emerald-500/20"
+            >
+              <HiOutlinePlus size={12} />
+            </button>
           </div>
-          {/* KJ */}
-          <div className="flex items-center justify-center border-r-2 px-4  border-black">
-            <span className="text-black font-bold">KJ</span>
+        )}
+
+        {/* LEFT */}
+        <div className="flex flex-col w-1/2 border-r-2 border-black">
+          {/* TOP */}
+          <div className="flex justify-center items-center p-4 border-b-2 border-black">
+            <span className="font-bold text-black">Kepala Biro Hukum</span>
           </div>
-          {/* B */}
-          <div className="flex items-center justify-center border-r-2 px-4  border-black">
-            <span className="text-black font-bold">B</span>
-          </div>
-          {/* ABK */}
-          <div className="flex items-center justify-center border-r-2 px-4  border-black">
-            <span className="text-black font-bold">ABK</span>
-          </div>
-          {/* -/+ */}
-          <div className="flex items-center justify-center border-r-2 px-4 ">
-            <span className="text-black font-bold">-/+</span>
+
+          {/* BOTTOM (flex-grow biar ngikut tinggi kanan) */}
+          <div className="flex flex-col p-4 gap-2 flex-grow">
+            <span className="text-black">John Doe Olise SH</span>
+            <span className="text-black">John Doe Olise SH</span>
+            <span className="text-black">John Doe Olise SH</span>
           </div>
         </div>
 
-        {/* body */}
-        <div className="border-b justify-between  border-black flex flex-row">
-          {/* SDM */}
-          <div className="flex items-center justify-center border-r-2 px-8 py-4 border-black ">
-            <span className="text-black font-bold">Kepala Biro Hukum</span>
+        {/* RIGHT */}
+        <div className="flex flex-col w-1/2">
+          {/* HEADER */}
+          <div className="grid grid-cols-4">
+            {["KJ", "B", "ABK", "-/+"].map((item, i) => (
+              <div
+                key={i}
+                className={`flex justify-center items-center p-4 font-bold border-b-2 border-black text-black ${
+                  i !== 3 ? "border-r-2 border-black " : ""
+                }`}
+              >
+                {item}
+              </div>
+
+            ))}
           </div>
-          {/* KJ Value */}
-          <div className="flex items-center justify-center border-r-2 px-4  border-black">
-            <span className="text-black font-bold">12</span>
-          </div>
-          {/* B Value */}
-          <div className="flex items-center justify-center border-r-2 px-4  border-black">
-            <span className="text-black font-bold">0</span>
-          </div>
-          {/* ABK Value */}
-          <div className="flex items-center justify-center border-r-2 px-4  border-black">
-            <span className="text-black font-bold">0</span>
-          </div>
-          {/* -/+ Value */}
-          <div className="flex items-center justify-center border-r-2 px-4 ">
-            <span className="text-black font-bold">+1</span>
+
+          {/* VALUE (flex-grow biar selalu stretch) */}
+          <div className="grid grid-cols-4 flex-grow">
+            {[0, 0, 0, 0].map((item, i) => (
+              <div
+                key={i}
+                className={`flex justify-center items-center p-4 text-black ${
+                  i !== 3 ? "border-r-2 border-black " : ""
+                }`}
+              >
+                {item}
+              </div>
+            ))}
           </div>
         </div>
       </div>
