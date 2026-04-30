@@ -62,7 +62,7 @@ const CustomNodeEditor = ({
   return (
     <div className="inline-block p-4 relative group">
 
-      <div className="min-w-[400px] bg-white border-2 border-black flex text-left shadow-2xl">
+      <div className="min-w-[400px] bg-white border-2 border-black flex text-left shadow-2xl rounded-lg">
 
       {isEditMode && (
           <div className="absolute -top-1 -right-1 flex gap-2 z-30 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -84,22 +84,108 @@ const CustomNodeEditor = ({
         )}
 
         {/* LEFT */}
-        <div className="flex flex-col w-1/2 border-r-2 border-black">
+        <div className="flex flex-col w-1/2 border-r-2 border-black min-w-0">
           {/* TOP */}
           <div className="flex justify-center items-center p-4 border-b-2 border-black">
-            <span className="font-bold text-black">Kepala Biro Hukum</span>
+            {isEditMode ? (
+              <input
+                type="text"
+                value={item.jabatan}
+                onChange={(e) => onUpdate(item.id, "jabatan", e.target.value)}
+                className="min-w-0 bg-transparent font-bold text-center text-black uppercase leading-tight outline-none overflow-hidden text-ellipsis"
+                placeholder="NAMA JABATAN"
+              />
+            ) : (
+              <span className="font-bold text-black">{item.jabatan}</span>
+            )}
           </div>
-
+            {isEditMode && (
+              <button
+                onClick={() =>
+                  onUpdate(item.id, "pegawai", [
+                    ...item.pegawai,
+                    "Belum Terisi",
+                  ])
+                }
+                className="text-[9px] font-black text-emerald-400 hover:text-emerald-600 self-end mt-2 mr-2 transition-colors flex items-center gap-1"
+              >
+                <HiOutlineUserAdd size={12} /> ADD SDM
+              </button>
+            )}
           {/* BOTTOM (flex-grow biar ngikut tinggi kanan) */}
           <div className="flex flex-col p-4 gap-2 flex-grow">
-            <span className="text-black">John Doe Olise SH</span>
-            <span className="text-black">John Doe Olise SH</span>
-            <span className="text-black">John Doe Olise SH</span>
+            {item.pegawai.map((p, idx) => {
+              const findPegawai = listPegawai.find((pg) => pg.id == p);
+              const labelTampil = findPegawai
+                ? findPegawai.nama
+                : "Belum Terisi";
+              const nipTampil = findPegawai ? findPegawai.nip : "-";
+
+              return (
+                <div
+                  key={idx}
+                  className="flex items-start gap-4 border-b border-black/5 last:border-0 pb-4 last:pb-0 group/user"
+                >
+                  
+                  <div className="flex-1 min-w-0">
+                    {isEditMode ? (
+                      <div className="flex items-center gap-2">
+                        <select
+                          value={p}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            const newList = [...item.pegawai];
+                            newList[idx] =
+                              val === "Belum Terisi" ? val : parseInt(val);
+                            onUpdate(item.id, "pegawai", newList);
+                          }}
+                          className="flex-1 bg-transparent text-[12px] text-black font-bold outline-none cursor-pointer"
+                        >
+                          <option value="Belum Terisi">Belum Terisi</option>
+                          {listPegawai.map((pegawai) => (
+                            <option
+                              key={pegawai.id}
+                              value={pegawai.id}
+                              className="bg-white text-black"
+                            >
+                              {pegawai.nama}
+                            </option>
+                          ))}
+                        </select>
+                        {item.pegawai.length > 1 && (
+                          <button
+                            onClick={() =>
+                              onUpdate(
+                                item.id,
+                                "pegawai",
+                                item.pegawai.filter((_, i) => i !== idx),
+                              )
+                            }
+                            className="text-gray-600 hover:text-red-500 transition-colors"
+                          >
+                            <HiOutlineX size={14} />
+                          </button>
+                        )}
+                      </div>
+                    ) : (
+                      <span className="text-[13px] text-black font-bold leading-tight uppercase block">
+                        {labelTampil}
+                      </span>
+                    )}
+                    {findPegawai && (
+                      <span className="text-[10px] text-black font-mono block mt-1 uppercase tracking-tighter opacity-60">
+                        NIP. {nipTampil}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
 
         {/* RIGHT */}
-        <div className="flex flex-col w-1/2">
+        <div className="flex flex-col w-1/2 ">
           {/* HEADER */}
           <div className="grid grid-cols-4">
             {["KJ", "B", "ABK", "-/+"].map((item, i) => (
@@ -117,14 +203,46 @@ const CustomNodeEditor = ({
 
           {/* VALUE (flex-grow biar selalu stretch) */}
           <div className="grid grid-cols-4 flex-grow">
-            {[0, 0, 0, 0].map((item, i) => (
+            {[
+              {
+                label: "kJ",
+                val: item.kJ,
+                edit: true,
+              },
+              {
+                label: "B",
+                val: displayB,
+                edit: false,
+              },
+              {
+                label: "ABK",
+                val: displayABK,
+                edit: false,
+              },
+              {
+                label: "Selisih",
+                val: selisih,
+                edit: false,
+              },
+            ].map((stat, i) => (
               <div
                 key={i}
                 className={`flex justify-center items-center p-4 text-black ${
                   i !== 3 ? "border-r-2 border-black " : ""
                 }`}
               >
-                {item}
+                {isEditMode && stat.edit ? (
+                    <input
+                      type="number"
+                      value={stat.val || 0}
+                      onChange={(e) =>
+                        onUpdate(item.id, "kJ", parseInt(e.target.value) || 0)
+                      }
+                      className="w-full min-w-0 bg-transparent text-black font-black text-center outline-none appearance-none"
+                    />
+                  ) : (
+                      stat.val || 0
+                  )}
               </div>
             ))}
           </div>

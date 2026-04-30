@@ -108,7 +108,7 @@ const ControllPanel = ({
       </motion.div>
 
       {/* VIEWPORT DOCK */}
-      <div className="flex items-center gap-2 p-2 rounded-[1.5rem] bg-[#1a1a1e]/80 backdrop-blur-2xl border border-white/10 shadow-2xl transition-all opacity-60 hover:opacity-100 group/dock">
+      <div className="flex items-center gap-2 p-2 rounded-[1.5rem] bg-[#1a1a1e]/80 backdrop-blur-2xl border border-white/10 shadow-2xl transition-all opacity-100 group/dock">
         <div className="tooltip-trigger">
           <button
             onClick={() => setScale((s) => Math.min(s + 0.1, 2))}
