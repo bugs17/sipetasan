@@ -42,11 +42,15 @@ model Jabatan {
   namaJabatan String
   level       Int    @default(1)
 
-  // --- KOLOM LAMA JANGAN DIHAPUS ---
-  kJ          Int   @default(0) // Kelas Jabatan tetap di sini!
-  b           Int   @default(0) // BEZ
-  aBK         Float @default(0.00) // ABK
-  kurangLebih Int   @default(0)
+  kJ          Int   @default(0)
+
+  // Jika diisi, maka jabatan ini punya sifat Manajerial/Struktural
+  eselonId   Int?
+  eselon     RefEselon? @relation(fields: [eselonId], references: [id])
+
+  // Jika diisi, maka jabatan ini punya sifat Fungsional
+  fungsionalId Int?
+  fungsional   RefFungsional? @relation(fields: [fungsionalId], references: [id])
 
   // --- TAMBAHAN HIRARKI ---
   parentId Int?
@@ -63,6 +67,18 @@ model Jabatan {
 
   @@index([opdId])
   @@index([parentId])
+}
+
+model RefEselon {
+  id           Int       @id @default(autoincrement())
+  namaEselon   String    // Contoh: "II", "III", "IV"
+  jabatan      Jabatan[]
+}
+
+model RefFungsional {
+  id              Int       @id @default(autoincrement())
+  namaJenjang     String    // Contoh: "Ahli Utama", "Ahli Madya"
+  jabatan         Jabatan[]
 }
 
 model Pegawai {
