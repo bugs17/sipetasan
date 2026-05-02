@@ -54,6 +54,16 @@ const CustomNodeEditor = ({
   isEditMode,
   listPegawai,
 }) => {
+
+  // List manual sementara, nanti bisa dikirim via props dari DB
+  const listEselon = [
+    { id: null, nama: "NON-ESELON / STAFF" },
+    { id: 1, nama: "ESELON I" },
+    { id: 2, nama: "ESELON II" },
+    { id: 3, nama: "ESELON III" },
+    { id: 4, nama: "ESELON IV" },
+  ];
+
   const style = colors[item.level] || colors[1];
   const displayB = Math.floor(item.b || 0);
   const displayABK = Math.floor(item.abk || 0);
@@ -88,6 +98,7 @@ const CustomNodeEditor = ({
           {/* TOP */}
           <div className="flex justify-center items-center p-4 border-b-2 border-black">
             {isEditMode ? (
+              <div className="flex flex-col">
               <input
                 type="text"
                 value={item.jabatan}
@@ -95,6 +106,21 @@ const CustomNodeEditor = ({
                 className="min-w-0 bg-transparent font-bold text-center text-black uppercase leading-tight outline-none overflow-hidden text-ellipsis"
                 placeholder="NAMA JABATAN"
               />
+              <select
+              value={item.eselonId || ""}
+              onChange={(e) => {
+                const val = e.target.value === "" ? null : parseInt(e.target.value);
+                onUpdate(item.id, "eselonId", val);
+              }}
+              className="mt-2 bg-white border text-black border-black text-[10px] font-bold py-1 px-2 rounded uppercase outline-none cursor-pointer"
+            >
+              {listEselon.map((es) => (
+                <option key={es.id ?? 'staff'} value={es.id ?? ""}>
+                  {es.nama}
+                </option>
+              ))}
+            </select>
+              </div>
             ) : (
               <span className="font-bold text-black">{item.jabatan}</span>
             )}
