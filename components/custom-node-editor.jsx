@@ -76,11 +76,13 @@ const CustomNodeEditor = ({
   if (item.jenisJabatan === "struktural") {
     return (
       <select
-        value={item.eselonId || ""}
+        value={item.eselonId}
         onChange={(e) => {
           const val = e.target.value === "" ? null : parseInt(e.target.value);
           onUpdate(item.id, "eselonId", val);
           onUpdate(item.id, "fungsionalId", null);
+          onUpdate(item.id, "pelaksanaId", null);
+
         }}
         className="w-full mt-2 bg-white border text-black border-black text-[10px] font-bold py-1 px-2 rounded uppercase outline-none cursor-pointer"
       >
@@ -98,11 +100,13 @@ const CustomNodeEditor = ({
   if (item.jenisJabatan === "fungsional") {
     return (
       <select
-        value={item.fungsionalId || ""}
+        value={item.fungsionalId}
         onChange={(e) => {
           const val = e.target.value === "" ? null : parseInt(e.target.value);
           onUpdate(item.id, "fungsionalId", val);
           onUpdate(item.id, "eselonId", null);
+          onUpdate(item.id, "pelaksanaId", null);
+
         }}
         className="w-full mt-2 bg-white border text-black border-black text-[10px] font-bold py-1 px-2 rounded uppercase outline-none cursor-pointer"
       >
@@ -119,10 +123,12 @@ const CustomNodeEditor = ({
   if (item.jenisJabatan === "pelaksana") {
     return (
       <select
-        value={item.eselonId || ""} 
+        value={item.pelaksanaId} 
         onChange={(e) => {
+           const val = e.target.value === "" ? null : parseInt(e.target.value);
           onUpdate(item.id, "fungsionalId", null);
           onUpdate(item.id, "eselonId", null);
+          onUpdate(item.id, "pelaksanaId", val);
         }}
         className="w-full mt-2 bg-white border text-black border-black text-[10px] font-bold py-1 px-2 rounded uppercase outline-none cursor-pointer"
       >

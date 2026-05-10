@@ -61,24 +61,33 @@ export async function savePetaJabatan(opdId, treeData) {
 
           const parentIdValue = getSafeParentId(node.parentId);
 
+          const dynamicFields = {
+            namaJabatan: node.jabatan,
+            level: node.level,
+            kJ: node.kJ || 0,
+            jenisJabatan: node.jenisJabatan,
+            parentId: parentIdValue,
+            // Set semua ke null dulu sebagai reset
+            eselonId: null,
+            fungsionalId: null,
+            pelaksanaId: null,
+          };
+
+          // 2. Isi field sesuai logika jenisJabatan
+          if (node.jenisJabatan === "struktural" && node.eselonId) {
+            dynamicFields.eselonId = Number(node.eselonId);
+          } else if (node.jenisJabatan === "fungsional" && node.fungsionalId) {
+            dynamicFields.fungsionalId = Number(node.fungsionalId);
+          } else if (node.jenisJabatan === "pelaksana" && node.pelaksanaId) {
+            dynamicFields.pelaksanaId = Number(node.pelaksanaId);
+          }
+
           const savedJabatan = await tx.jabatan.upsert({
             where: { id: safeIdForWhere },
-            update: {
-              namaJabatan: node.jabatan,
-              level: node.level,
-              kJ: node.kJ || 0,
-              b: node.b || 0,
-              aBK: node.abk || 0,
-              parentId: parentIdValue,
-            },
+            update: dynamicFields,
             create: {
-              namaJabatan: node.jabatan,
-              level: node.level,
-              kJ: node.kJ || 0,
-              b: node.b || 0,
-              aBK: node.abk || 0,
+              ...dynamicFields,
               opdId: opdId,
-              parentId: parentIdValue,
             },
           });
 
