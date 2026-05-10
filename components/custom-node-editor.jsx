@@ -1,5 +1,8 @@
 "use client";
 
+import { cn } from "@/app/lib/cd";
+import { ArrowLeftRight } from "lucide-react";
+import { useState } from "react";
 import {
   HiOutlinePlus,
   HiOutlineTrash,
@@ -57,22 +60,125 @@ const CustomNodeEditor = ({
 
   // List manual sementara, nanti bisa dikirim via props dari DB
   const listEselon = [
-    { id: null, nama: "NON-ESELON / STAFF" },
     { id: 1, nama: "ESELON I" },
     { id: 2, nama: "ESELON II" },
     { id: 3, nama: "ESELON III" },
     { id: 4, nama: "ESELON IV" },
   ];
 
+  const listFungsional = [
+   { id: 1, nama: "AHLI PERTAMA" },
+    { id: 2, nama: "AHLI MUDA" },
+    { id: 3, nama: "AHLI MADYA" },
+    { id: 4, nama: "AHLI UTAMA" },
+    { id: 5, nama: "PENYELIA" },
+    { id: 6, nama: "MAHIR" },
+    { id: 7, nama: "TERAMPIL" },
+    { id: 8, nama: "PEMULA" },
+  ]
+  
+  const listPelaksana = [
+    { id: 0, nama: "PELAKSANA / STAFF" },
+  ]
+
+  const listKJ = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17]
+  
+
   const style = colors[item.level] || colors[1];
   const displayB = Math.floor(item.b || 0);
   const displayABK = Math.floor(item.abk || 0);
   const selisih = displayB - displayABK;
 
+  const types = ["struktural", "fungsional", "pelaksana"];
+
+  const renderSelectionJenjangJabatan = () => {
+    if (item.jenisJabatan === "struktural") {
+      return (
+        <select
+            value={item.eselonId || ""}
+            onChange={(e) => {
+              const val = e.target.value === "" ? null : parseInt(e.target.value);
+              onUpdate(item.id, "eselonId", val);
+              onUpdate(item.id, "fungsionalId", null);
+            }}
+            className="mt-2 bg-white border text-black border-black text-[10px] font-bold py-1 px-2 rounded uppercase outline-none cursor-pointer"
+          >
+            {listEselon.map((es) => (
+              <option key={es.id ?? 'staff'} value={es.id ?? ""}>
+                {es.nama}
+              </option>
+            ))}
+          </select>
+      )
+    }
+
+    if (item.jenisJabatan === "fungsional") {
+      return(
+        <select
+            value={item.fungsionalId || ""}
+            onChange={(e) => {
+              const val = e.target.value === "" ? null : parseInt(e.target.value);
+              onUpdate(item.id, "fungsionalId", val);
+              onUpdate(item.id, "eselonId", null);
+            }}
+            className="mt-2 bg-white border text-black border-black text-[10px] font-bold py-1 px-2 rounded uppercase outline-none cursor-pointer"
+          >
+            {listFungsional.map((fun) => (
+              <option key={fun.id ?? 'staff'} value={fun.id ?? ""}>
+                {fun.nama}
+              </option>
+            ))}
+        </select>
+      )
+    }
+
+    if (item.jenisJabatan === "pelaksana") {
+      return(
+        <select
+            value={listPelaksana[0]}
+            onChange={(e) => {
+              const val = e.target.value === "" ? null : parseInt(e.target.value);
+              onUpdate(item.id, "fungsionalId", null);
+              onUpdate(item.id, "eselonId", null);
+            }}
+            className="mt-2 bg-white border text-black border-black text-[10px] font-bold py-1 px-2 rounded uppercase outline-none cursor-pointer"
+          >
+            {listPelaksana.map((pel) => (
+              <option key={pel.id ?? 'staff'} value={pel.id ?? ""}>
+                {pel.nama}
+              </option>
+            ))}
+          </select>
+      )
+    }
+
+    return (
+      <select
+            value={item.eselonId || ""}
+            onChange={(e) => {
+              const val = e.target.value === "" ? null : parseInt(e.target.value);
+              onUpdate(item.id, "eselonId", val);
+              onUpdate(item.id, "fungsionalId", null);
+            }}
+            className="mt-2 bg-white border text-black border-black text-[10px] font-bold py-1 px-2 rounded uppercase outline-none cursor-pointer"
+          >
+            {listEselon.map((es) => (
+              <option key={es.id ?? 'staff'} value={es.id ?? ""}>
+                {es.nama}
+              </option>
+            ))}
+          </select>
+    )
+  }
+
   return (
     <div className="inline-block p-4 relative group">
 
-      <div className="min-w-[400px] bg-white border-2 border-black flex text-left shadow-2xl rounded-lg">
+      <div className={cn(
+        "min-w-[400px] border-2 border-black flex text-left shadow-2xl rounded-lg bg-white", // Base
+        item.jenisJabatan === "fungsional" && "bg-orange-200", // Override jika fungsional
+        item.jenisJabatan === "pelaksana" && "bg-blue-200"  // Override jika pelaksana
+      )}>
 
       {isEditMode && (
           <div className="absolute -top-1 -right-1 flex gap-2 z-30 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -93,6 +199,8 @@ const CustomNodeEditor = ({
           </div>
         )}
 
+      
+
         {/* LEFT */}
         <div className="flex flex-col w-1/2 border-r-2 border-black min-w-0">
           {/* TOP */}
@@ -106,20 +214,26 @@ const CustomNodeEditor = ({
                 className="min-w-0 bg-transparent font-bold text-center text-black uppercase leading-tight outline-none overflow-hidden text-ellipsis"
                 placeholder="NAMA JABATAN"
               />
-              <select
-              value={item.eselonId || ""}
-              onChange={(e) => {
-                const val = e.target.value === "" ? null : parseInt(e.target.value);
-                onUpdate(item.id, "eselonId", val);
-              }}
-              className="mt-2 bg-white border text-black border-black text-[10px] font-bold py-1 px-2 rounded uppercase outline-none cursor-pointer"
-            >
-              {listEselon.map((es) => (
-                <option key={es.id ?? 'staff'} value={es.id ?? ""}>
-                  {es.nama}
-                </option>
-              ))}
-            </select>
+              <div className="flex flex-row gap-2 justify-center w-full">
+                <select
+                value={item.jenisJabatan}
+                onChange={(e) => {
+                  const newVal = e.target.value;
+                  onUpdate(item.id, "jenisJabatan", newVal);
+                }}
+                className="mt-2 bg-white border text-black border-black text-[10px] font-bold py-1 px-2 rounded uppercase outline-none cursor-pointer"
+              >
+                {types.map((t) => (
+                  <option key={t} value={t}>
+                    {t.toLowerCase()}
+                  </option>
+                ))}
+              </select>
+
+
+                {renderSelectionJenjangJabatan()}
+
+              </div>
               </div>
             ) : (
               <span className="font-bold text-black">{item.jabatan}</span>
@@ -258,16 +372,29 @@ const CustomNodeEditor = ({
                 }`}
               >
                 {isEditMode && stat.edit ? (
-                    <input
-                      type="number"
-                      value={stat.val || 0}
-                      onChange={(e) =>
-                        onUpdate(item.id, "kJ", parseInt(e.target.value) || 0)
-                      }
-                      className="w-full min-w-0 bg-transparent text-black font-black text-center outline-none appearance-none"
-                    />
+                    // <input
+                    //   type="number"
+                    //   value={stat.val || 0}
+                    //   onChange={(e) =>
+                    //     onUpdate(item.id, "kJ", parseInt(e.target.value) || 0)
+                    //   }
+                    //   className="w-full min-w-0 bg-transparent text-black font-black text-center outline-none appearance-none"
+                    // />
+                    <select
+                      value={stat.val || 1}
+                      onChange={(e) => {
+                        onUpdate(item.id, "kJ", parseInt(e.target.value) || 1);
+                      }}
+                      className="mt-2 bg-white border text-black border-black text-[10px] font-bold py-1 px-2 rounded uppercase outline-none cursor-pointer"
+                    >
+                      {listKJ.map((kj,idx) => (
+                        <option key={idx} value={kj}>
+                          {kj}
+                        </option>
+                      ))}
+                    </select>
                   ) : (
-                      stat.val || 0
+                      stat.val || 1
                   )}
               </div>
             ))}

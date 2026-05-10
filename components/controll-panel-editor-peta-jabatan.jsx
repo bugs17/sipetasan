@@ -1,7 +1,5 @@
 "use client";
-import useTabsStore from "@/app/store/tabsStore";
 import { motion, AnimatePresence } from "framer-motion";
-import { useEffect } from "react";
 import { BiLoaderAlt } from "react-icons/bi";
 import {
   HiOutlineBan,
@@ -24,11 +22,7 @@ const ControllPanel = ({
   handleDownloadImage,
   isDownloading
 }) => {
-    const {activeTab, setActiveTab, setDisabledAll} = useTabsStore();
-
-    useEffect(() => {
-      setDisabledAll(isEditMode)
-    },[isEditMode])
+    
   
   return (
     <div className="fixed right-6 bottom-6 z-[40] flex flex-row items-center gap-4 transition-all duration-300">

@@ -44,13 +44,13 @@ model Jabatan {
 
   kJ          Int   @default(0)
 
-  // Jika diisi, maka jabatan ini punya sifat Manajerial/Struktural
   eselonId   Int?
   eselon     RefEselon? @relation(fields: [eselonId], references: [id])
 
-  // Jika diisi, maka jabatan ini punya sifat Fungsional
   fungsionalId Int?
   fungsional   RefFungsional? @relation(fields: [fungsionalId], references: [id])
+
+  jenisJabatan String @default("struktural") // struktural, fungsional atau pelaksana
 
   // --- TAMBAHAN HIRARKI ---
   parentId Int?
