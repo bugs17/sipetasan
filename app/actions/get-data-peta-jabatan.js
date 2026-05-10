@@ -27,6 +27,7 @@ export async function getPetaJabatan(opdId) {
         id: "root-1",
         jabatan: "Kepala Instansi (Default)",
         pegawai: ["Belum Terisi"],
+        jenisJabatan: "struktural",
         level: 1,
         kJ: 0,
         b: 0,

@@ -16,6 +16,7 @@ import { savePetaJabatan } from "@/app/actions/add-data-peta-jabatan";
 import LoadingPetaJabatan from "./loading-peta-jabatan";
 import toast from "react-hot-toast";
 import useTabsStore from "@/app/store/tabsStore";
+import { getListRef } from "@/app/actions/get-list-ref";
 
 const colors = {
   1: {
@@ -63,6 +64,7 @@ const PetaJabatanEditor = () => {
     id: "root-1",
     jabatan: "Kepala Dinas",
     pegawai: ["Drs. H. Ahmad Fauzi, M.Si"],
+    jenisJabatan: "struktural",
     level: 1,
     b: 1,
     abk: 1,
@@ -84,7 +86,8 @@ const PetaJabatanEditor = () => {
   const [cancelModal, setCancelModal] = useState(false);
   const [listPegawai, setListPegawai] = useState([]);
   const [listEselon, setListEselon] = useState([]);
-  const {activeTab, setActiveTab, setDisabledAll} = useTabsStore();
+  const [listFungsional, setListFungsional] = useState([]);
+  const [listPelaksana, setListPelaksana] = useState([]);
 
 
   const { user, isLoaded } = useUser();
@@ -99,10 +102,15 @@ const PetaJabatanEditor = () => {
       setIsLoading(true);
       const res = await getUser(user.id);
 
-      const [listPegawaiRes, treeDataRes] = await Promise.all([
+      const [listPegawaiRes, treeDataRes, refData] = await Promise.all([
         getListPegawaiByIdInstansi(res.opdId),
         getPetaJabatan(res.opdId),
+        getListRef()
       ]);
+      const {listRefEselon, listRefFungsional, listRefPelaksana} = refData
+      setListEselon(listRefEselon)
+      setListFungsional(listRefFungsional)
+      setListPelaksana(listRefPelaksana)
       setListPegawai(listPegawaiRes.list);
       setDataHirarki(treeDataRes);
       setDraftData(treeDataRes); // Sekarang ID sudah pasti angka dari DB
@@ -132,6 +140,7 @@ const PetaJabatanEditor = () => {
           jabatan: "Jabatan Baru",
           pegawai: ["Belum Terisi"],
           level: node.level + 1,
+          jenisJabatan: "struktural",
           kJ: 0,
           b: 0,
           abk: 1,
@@ -259,13 +268,16 @@ const PetaJabatanEditor = () => {
             }
             isEditMode={isEditMode}
             listPegawai={listPegawai} // <--- SEKARANG INI AKAN UPDATE
+            listEselon={listEselon}
+            listFungsional={listFungsional}
+            listPelaksana={listPelaksana}
           />
         }
       >
         {node.children && node.children.map((child) => renderNodes(child))}
       </TreeNode>
     ),
-    [listPegawai, isEditMode, handleUpdate, handleAddChild],
+    [listEselon, listFungsional, listPelaksana, listPegawai, isEditMode, handleUpdate, handleAddChild],
   );
 
   if (isLoading) {
@@ -331,6 +343,9 @@ const PetaJabatanEditor = () => {
                 }
                 isEditMode={isEditMode}
                 listPegawai={listPegawai} // <--- Pastikan ini ada!
+                listEselon={listEselon}
+                listFungsional={listFungsional}
+                listPelaksana={listPelaksana}
               />
             }
           >

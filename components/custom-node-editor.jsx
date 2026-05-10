@@ -56,30 +56,10 @@ const CustomNodeEditor = ({
   onDeleteConfirm,
   isEditMode,
   listPegawai,
+  listEselon,
+  listFungsional,
+  listPelaksana
 }) => {
-
-  // List manual sementara, nanti bisa dikirim via props dari DB
-  const listEselon = [
-    { id: 1, nama: "ESELON I" },
-    { id: 2, nama: "ESELON II" },
-    { id: 3, nama: "ESELON III" },
-    { id: 4, nama: "ESELON IV" },
-  ];
-
-  const listFungsional = [
-   { id: 1, nama: "AHLI PERTAMA" },
-    { id: 2, nama: "AHLI MUDA" },
-    { id: 3, nama: "AHLI MADYA" },
-    { id: 4, nama: "AHLI UTAMA" },
-    { id: 5, nama: "PENYELIA" },
-    { id: 6, nama: "MAHIR" },
-    { id: 7, nama: "TERAMPIL" },
-    { id: 8, nama: "PEMULA" },
-  ]
-  
-  const listPelaksana = [
-    { id: 0, nama: "PELAKSANA / STAFF" },
-  ]
 
   const listKJ = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17]
   
@@ -92,84 +72,72 @@ const CustomNodeEditor = ({
   const types = ["struktural", "fungsional", "pelaksana"];
 
   const renderSelectionJenjangJabatan = () => {
-    if (item.jenisJabatan === "struktural") {
-      return (
-        <select
-            value={item.eselonId || ""}
-            onChange={(e) => {
-              const val = e.target.value === "" ? null : parseInt(e.target.value);
-              onUpdate(item.id, "eselonId", val);
-              onUpdate(item.id, "fungsionalId", null);
-            }}
-            className="mt-2 bg-white border text-black border-black text-[10px] font-bold py-1 px-2 rounded uppercase outline-none cursor-pointer"
-          >
-            {listEselon.map((es) => (
-              <option key={es.id ?? 'staff'} value={es.id ?? ""}>
-                {es.nama}
-              </option>
-            ))}
-          </select>
-      )
-    }
-
-    if (item.jenisJabatan === "fungsional") {
-      return(
-        <select
-            value={item.fungsionalId || ""}
-            onChange={(e) => {
-              const val = e.target.value === "" ? null : parseInt(e.target.value);
-              onUpdate(item.id, "fungsionalId", val);
-              onUpdate(item.id, "eselonId", null);
-            }}
-            className="mt-2 bg-white border text-black border-black text-[10px] font-bold py-1 px-2 rounded uppercase outline-none cursor-pointer"
-          >
-            {listFungsional.map((fun) => (
-              <option key={fun.id ?? 'staff'} value={fun.id ?? ""}>
-                {fun.nama}
-              </option>
-            ))}
-        </select>
-      )
-    }
-
-    if (item.jenisJabatan === "pelaksana") {
-      return(
-        <select
-            value={listPelaksana[0]}
-            onChange={(e) => {
-              const val = e.target.value === "" ? null : parseInt(e.target.value);
-              onUpdate(item.id, "fungsionalId", null);
-              onUpdate(item.id, "eselonId", null);
-            }}
-            className="mt-2 bg-white border text-black border-black text-[10px] font-bold py-1 px-2 rounded uppercase outline-none cursor-pointer"
-          >
-            {listPelaksana.map((pel) => (
-              <option key={pel.id ?? 'staff'} value={pel.id ?? ""}>
-                {pel.nama}
-              </option>
-            ))}
-          </select>
-      )
-    }
-
+  // 1. Kondisi STRUKTURAL
+  if (item.jenisJabatan === "struktural") {
     return (
       <select
-            value={item.eselonId || ""}
-            onChange={(e) => {
-              const val = e.target.value === "" ? null : parseInt(e.target.value);
-              onUpdate(item.id, "eselonId", val);
-              onUpdate(item.id, "fungsionalId", null);
-            }}
-            className="mt-2 bg-white border text-black border-black text-[10px] font-bold py-1 px-2 rounded uppercase outline-none cursor-pointer"
-          >
-            {listEselon.map((es) => (
-              <option key={es.id ?? 'staff'} value={es.id ?? ""}>
-                {es.nama}
-              </option>
-            ))}
-          </select>
-    )
+        value={item.eselonId || ""}
+        onChange={(e) => {
+          const val = e.target.value === "" ? null : parseInt(e.target.value);
+          onUpdate(item.id, "eselonId", val);
+          onUpdate(item.id, "fungsionalId", null);
+        }}
+        className="w-full mt-2 bg-white border text-black border-black text-[10px] font-bold py-1 px-2 rounded uppercase outline-none cursor-pointer"
+      >
+        {/* Gunakan ?. agar tidak error saat listEselon masih undefined */}
+        {listEselon?.map((es) => (
+          <option key={es.id} value={es.id}>
+            {es.namaEselon}
+          </option>
+        ))}
+      </select>
+    );
   }
+
+  // 2. Kondisi FUNGSIONAL
+  if (item.jenisJabatan === "fungsional") {
+    return (
+      <select
+        value={item.fungsionalId || ""}
+        onChange={(e) => {
+          const val = e.target.value === "" ? null : parseInt(e.target.value);
+          onUpdate(item.id, "fungsionalId", val);
+          onUpdate(item.id, "eselonId", null);
+        }}
+        className="w-full mt-2 bg-white border text-black border-black text-[10px] font-bold py-1 px-2 rounded uppercase outline-none cursor-pointer"
+      >
+        {listFungsional?.map((fun) => (
+          <option key={fun.id} value={fun.id}>
+            {fun.namaJenjang}
+          </option>
+        ))}
+      </select>
+    );
+  }
+
+  // 3. Kondisi PELAKSANA
+  if (item.jenisJabatan === "pelaksana") {
+    return (
+      <select
+        value={item.eselonId || ""} 
+        onChange={(e) => {
+          onUpdate(item.id, "fungsionalId", null);
+          onUpdate(item.id, "eselonId", null);
+        }}
+        className="w-full mt-2 bg-white border text-black border-black text-[10px] font-bold py-1 px-2 rounded uppercase outline-none cursor-pointer"
+      >
+        {listPelaksana?.map((pel) => (
+          <option key={pel.id} value={pel.id}>
+            {pel.namaJenjang}
+          </option>
+        ))}
+      </select>
+    );
+  }
+
+  // 4. Default Fallback
+  return <div className="text-[10px] opacity-50 mt-2">Pilih Jenis...</div>;
+};
 
   return (
     <div className="inline-block p-4 relative group">
@@ -206,22 +174,22 @@ const CustomNodeEditor = ({
           {/* TOP */}
           <div className="flex justify-center items-center p-4 border-b-2 border-black">
             {isEditMode ? (
-              <div className="flex flex-col">
+              <div className="flex flex-col w-full gap-1">
               <input
                 type="text"
                 value={item.jabatan}
                 onChange={(e) => onUpdate(item.id, "jabatan", e.target.value)}
-                className="min-w-0 bg-transparent font-bold text-center text-black uppercase leading-tight outline-none overflow-hidden text-ellipsis"
+                className="w-full min-w-0 bg-transparent font-bold text-center text-black uppercase leading-tight outline-none overflow-wrap break-word text-ellipsis"
                 placeholder="NAMA JABATAN"
               />
-              <div className="flex flex-row gap-2 justify-center w-full">
+              <div className="grid grid-cols-2 gap-2 justify-center w-full mt-1">
                 <select
                 value={item.jenisJabatan}
                 onChange={(e) => {
                   const newVal = e.target.value;
                   onUpdate(item.id, "jenisJabatan", newVal);
                 }}
-                className="mt-2 bg-white border text-black border-black text-[10px] font-bold py-1 px-2 rounded uppercase outline-none cursor-pointer"
+                className="w-full mt-2 bg-white border text-black border-black text-[10px] font-bold py-1 px-2 rounded uppercase outline-none cursor-pointer"
               >
                 {types.map((t) => (
                   <option key={t} value={t}>
