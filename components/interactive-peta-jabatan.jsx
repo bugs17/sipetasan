@@ -11,10 +11,11 @@ import CustomNodeEditor from "./custom-node-editor";
 import { getUser } from "@/app/actions/getUser";
 import { useUser } from "@clerk/nextjs";
 import { getListPegawaiByIdInstansi } from "@/app/actions/get-list-pegawai-by-id-instansi";
-import { getPetaJabatan } from "@/app/actions/get-data-peta-jabatan";
+import { getPetaJabatanStruktural } from "@/app/actions/get-data-peta-jabatan";
 import { savePetaJabatan } from "@/app/actions/add-data-peta-jabatan";
 import LoadingPetaJabatan from "./loading-peta-jabatan";
 import toast from "react-hot-toast";
+import useTabsStore from "@/app/store/tabsStore";
 
 const colors = {
   1: {
@@ -82,6 +83,9 @@ const PetaJabatanEditor = () => {
   });
   const [cancelModal, setCancelModal] = useState(false);
   const [listPegawai, setListPegawai] = useState([]);
+  const [listEselon, setListEselon] = useState([]);
+  const {activeTab, setActiveTab, setDisabledAll} = useTabsStore();
+
 
   const { user, isLoaded } = useUser();
   const [isLoading, setIsLoading] = useState(true);
@@ -97,7 +101,7 @@ const PetaJabatanEditor = () => {
 
       const [listPegawaiRes, treeDataRes] = await Promise.all([
         getListPegawaiByIdInstansi(res.opdId),
-        getPetaJabatan(res.opdId),
+        getPetaJabatanStruktural(res.opdId),
       ]);
       setListPegawai(listPegawaiRes.list);
       setDataHirarki(treeDataRes);
@@ -108,6 +112,8 @@ const PetaJabatanEditor = () => {
       setIsLoading(false);
     }
   }, [isLoaded, user]);
+
+
 
   useEffect(() => {
     loadInitialData();
@@ -311,6 +317,7 @@ const PetaJabatanEditor = () => {
           }}
           className="inline-block p-20"
         >
+          {activeTab === 'struktural' ? 
           <Tree
             lineWidth={"2px"}
             lineColor={"#334155"}
@@ -330,6 +337,9 @@ const PetaJabatanEditor = () => {
           >
             {draftData.children.map(renderNodes)}
           </Tree>
+          :
+          <></>
+          }
         </div>
       </div>
       <div className="absolute inset-0 pointer-events-none opacity-[0.03] z-0 bg-[radial-gradient(#ffffff_1px,transparent_1px)] bg-[size:40px_40px]"></div>

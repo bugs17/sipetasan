@@ -6,19 +6,20 @@ import UserProfileDropdown from "@/components/UserProfileDropdown";
 import RenderSidebar from "@/components/RenderSidebar";
 import { useAuth } from "@clerk/nextjs";
 import useUserStore from "../store/useStore";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { getUser } from "../actions/getUser";
 import { usePathname } from "next/navigation";
 import { Toaster } from "react-hot-toast";
 import GlobalChatListener from "@/components/global-chat-listener";
 import AuthWrapper from "../context/AuthWraper";
 import { cn } from "../lib/cd";
+import SwitchPetaJabatan from "@/components/switch-tabs-peta-jabatan";
 
 export default function DashboardLayout({ children }) {
   const pathname = usePathname();
-  console.log(pathname);
   const { userId, isLoaded } = useAuth();
   const { userRole, setUserRole } = useUserStore();
+
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -58,7 +59,13 @@ export default function DashboardLayout({ children }) {
         <div className="w-[85%] border-[1px] border-slate-700 rounded-l-2xl bg-[#121c22] h-screen flex flex-col">
           {/* header layout */}
           <div className="border-b-[1px] border-slate-700 w-full h-16 flex flex-row justify-between items-center px-6">
+            {pathname === '/dashboard' && userRole === 'ADMIN_OPD' ? 
+            
+            <SwitchPetaJabatan />
+            :
             <TitleDashboard />
+
+          }
           </div>
 
           <div

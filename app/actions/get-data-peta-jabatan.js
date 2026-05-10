@@ -2,10 +2,13 @@
 
 import { prisma } from "../lib/db";
 
-export async function getPetaJabatan(opdId) {
+export async function getPetaJabatanStruktural(opdId) {
   try {
     const allJabatans = await prisma.jabatan.findMany({
-      where: { opdId: opdId },
+      where: { opdId: opdId, 
+        fungsionalId:null,
+        eselonId: {not:null}
+       },
       include: {
         pegawai: {
           select: {
