@@ -15,8 +15,8 @@ import { getPetaJabatan } from "@/app/actions/get-data-peta-jabatan";
 import { savePetaJabatan } from "@/app/actions/add-data-peta-jabatan";
 import LoadingPetaJabatan from "./loading-peta-jabatan";
 import toast from "react-hot-toast";
-import useTabsStore from "@/app/store/tabsStore";
 import { getListRef } from "@/app/actions/get-list-ref";
+import TabelAkumulasi from "./tabel-akumulasi";
 
 const colors = {
   1: {
@@ -385,8 +385,12 @@ const PetaJabatanEditor = () => {
         setScale={setScale}
         scale={scale}
       />
+
+      <TabelAkumulasi list={dataHirarki} />
     </div>
   );
 };
 
 export default PetaJabatanEditor;
+
+

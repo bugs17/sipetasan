@@ -1,8 +1,6 @@
 "use client";
 
 import { cn } from "@/app/lib/cd";
-import { ArrowLeftRight } from "lucide-react";
-import { useState } from "react";
 import {
   HiOutlinePlus,
   HiOutlineTrash,
@@ -304,11 +302,11 @@ const CustomNodeEditor = ({
           <div className="grid grid-cols-4">
             {["KJ", "B", "ABK", "-/+"].map((item, i) => (
               <div
-                key={i}
-                className={`flex justify-center items-center p-4 font-bold border-b-2 border-black text-black ${
-                  i !== 3 ? "border-r-2 border-black " : ""
-                }`}
-              >
+                  key={i}
+                  className={`flex justify-center items-center p-2 font-bold border-b-2 border-black text-black whitespace-nowrap ${ // 1. Ubah p-4 jadi p-2, 2. Tambah whitespace-nowrap
+                    i !== 3 ? "border-r-2 border-black " : ""
+                  }`}
+                >
                 {item}
               </div>
 

@@ -1,5 +1,7 @@
 "use client";
+import useAkumulasiTabelStore from "@/app/store/akumulasiTabelStore";
 import { motion, AnimatePresence } from "framer-motion";
+import { Eye, EyeClosed, PanelRightClose, PanelRightOpen } from "lucide-react";
 import { BiLoaderAlt } from "react-icons/bi";
 import {
   HiOutlineBan,
@@ -22,6 +24,8 @@ const ControllPanel = ({
   handleDownloadImage,
   isDownloading
 }) => {
+
+  const {shown, toggleShown} = useAkumulasiTabelStore()
     
   
   return (
@@ -111,6 +115,8 @@ const ControllPanel = ({
         </div>
       </motion.div>
 
+      
+
       {/* VIEWPORT DOCK */}
       <div className="flex items-center gap-2 p-2 rounded-[1.5rem] bg-[#1a1a1e]/80 backdrop-blur-2xl border border-white/10 shadow-2xl transition-all opacity-100 group/dock">
         <div className="tooltip-trigger">
@@ -163,6 +169,26 @@ const ControllPanel = ({
           <div className="tooltip-content">Ekspor PNG</div>
         </div>
       </div>
+
+      {/* SHOW AKUMULASI TABEL */}
+      <div className="flex items-center p-2 rounded-[1.5rem] bg-[#1a1a1e]/80 backdrop-blur-2xl border border-white/10 shadow-2xl transition-all opacity-100 group/dock">
+        <div className="tooltip-trigger">
+          <button
+            onClick={toggleShown}
+            className="p-2.5 bg-white/5 text-white/70 rounded-xl border border-white/5 hover:bg-indigo-600 hover:text-white transition-all"
+          >
+            {shown ? 
+              <PanelRightClose size={16} />
+              :
+              <PanelRightOpen size={16} />
+            }
+          </button>
+          <div className="tooltip-content">{
+          shown ? 
+          "Tutup tabel akumulasi" : "Buka tabel akumulasi"}</div>
+        </div>
+      </div>
+
     </div>
   );
 };
