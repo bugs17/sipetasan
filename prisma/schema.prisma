@@ -55,6 +55,10 @@ model Jabatan {
 
   jenisJabatan String @default("struktural") // struktural, fungsional atau pelaksana
 
+  // --- TAMBAHAN BARU UNTUK MEMBEDAKAN STRUKTUR VISUAL ---
+  // Isinya nanti: "TEKNIS" (untuk Bidang/Seksi) atau "PENDUKUNG" (untuk Sekretariat/Subbagian)
+  kategoriJabatan String @default("TEKNIS")
+
   // --- TAMBAHAN HIRARKI ---
   parentId Int?
   parent   Jabatan?  @relation("JabatanHierarki", fields: [parentId], references: [id], onDelete: Cascade)
