@@ -118,6 +118,8 @@ model Pegawai {
 
   mutasi         Mutasi[]
   proyeksiKeluar ProyeksiKeluar[]
+
+  statusPegawai String @default("PNS") // "PNS" "PPPK"
 }
 
 model Tugas {
