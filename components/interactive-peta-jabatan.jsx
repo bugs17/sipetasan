@@ -253,8 +253,50 @@ const PetaJabatanEditor = () => {
     }
   };
 
+  // const renderNodes = useCallback(
+  //   (node) => (
+  //     <TreeNode
+  //       key={node.id}
+  //       style={{ "--line-color": colors[node.level]?.hex || "#334155" }}
+  //       label={
+  //         <CustomNodeEditor
+  //           item={node}
+  //           onUpdate={handleUpdate}
+  //           onAdd={handleAddChild}
+  //           onDeleteConfirm={(id, t) =>
+  //             setDeleteModal({ show: true, id, title: t })
+  //           }
+  //           isEditMode={isEditMode}
+  //           listPegawai={listPegawai} // <--- SEKARANG INI AKAN UPDATE
+  //           listEselon={listEselon}
+  //           listFungsional={listFungsional}
+  //           listPelaksana={listPelaksana}
+  //         />
+  //       }
+  //     >
+  //       {/* {node.children && node.children.map((child) => renderNodes(child))} */}
+  //       {node.children && 
+  //       [...node.children]
+  //         .sort((a, b) => {
+  //           if (a.kategoriJabatan === "PENDUKUNG" && b.kategoriJabatan !== "PENDUKUNG") return 1;
+  //           if (a.kategoriJabatan !== "PENDUKUNG" && b.kategoriJabatan === "PENDUKUNG") return -1;
+  //           return 0;
+  //         })
+  //         .map((child) => renderNodes(child))}
+  //     </TreeNode>
+  //   ),
+  //   [listEselon, listFungsional, listPelaksana, listPegawai, isEditMode, handleUpdate, handleAddChild],
+  // );
+
   const renderNodes = useCallback(
-    (node) => (
+  (node) => {
+    // Kita filter anak-anaknya: Jika node ini bukan Sekretaris, maka anak yang bertipe 
+    // PENDUKUNG (Sekretaris) di bawahnya tidak boleh ikut di-render secara horizontal di sini.
+    const childrenToRender = node.kategoriJabatan === "PENDUKUNG"
+      ? (node.children || [])
+      : (node.children || []).filter((c) => c.kategoriJabatan !== "PENDUKUNG");
+
+    return (
       <TreeNode
         key={node.id}
         style={{ "--line-color": colors[node.level]?.hex || "#334155" }}
@@ -267,18 +309,19 @@ const PetaJabatanEditor = () => {
               setDeleteModal({ show: true, id, title: t })
             }
             isEditMode={isEditMode}
-            listPegawai={listPegawai} // <--- SEKARANG INI AKAN UPDATE
+            listPegawai={listPegawai}
             listEselon={listEselon}
             listFungsional={listFungsional}
             listPelaksana={listPelaksana}
           />
         }
       >
-        {node.children && node.children.map((child) => renderNodes(child))}
+        {childrenToRender.map((child) => renderNodes(child))}
       </TreeNode>
-    ),
-    [listEselon, listFungsional, listPelaksana, listPegawai, isEditMode, handleUpdate, handleAddChild],
-  );
+    );
+  },
+  [listEselon, listFungsional, listPelaksana, listPegawai, isEditMode, handleUpdate, handleAddChild],
+);
 
   if (isLoading) {
     return <LoadingPetaJabatan />;
@@ -295,6 +338,7 @@ const PetaJabatanEditor = () => {
       />
 
       {/* CANVAS AREA */}
+      
       <div
         onWheel={(e) =>
           setScale((s) =>
@@ -329,28 +373,105 @@ const PetaJabatanEditor = () => {
           }}
           className="inline-block p-20"
         >
-          <Tree
-            lineWidth={"2px"}
-            lineColor={"#334155"}
-            lineStyle={"dashed"}
-            label={
-              <CustomNodeEditor
-                item={draftData} // Ini untuk Root (Kepala Dinas)
-                onUpdate={handleUpdate}
-                onAdd={handleAddChild}
-                onDeleteConfirm={(id, t) =>
-                  setDeleteModal({ show: true, id, title: t })
-                }
-                isEditMode={isEditMode}
-                listPegawai={listPegawai} // <--- Pastikan ini ada!
-                listEselon={listEselon}
-                listFungsional={listFungsional}
-                listPelaksana={listPelaksana}
-              />
-            }
-          >
-            {draftData.children.map(renderNodes)}
-          </Tree>
+          <div className="relative inline-block main-canvas-structure-wrapper">
+            
+            {/* KUNCI 1: GARIS VERTIKAL TENGAH DIPERPANJANG
+              Kita naikkan tinggi (h) menjadi 260px (sebelumnya 155px) untuk memberi ruang vertikal ekstra.
+            */}
+            <div className="absolute left-1/2 top-[125px] w-[2px] h-[260px] bg-black z-10 -translate-x-1/2"></div>
+
+            {/* Render Node Sekretaris */}
+            {(() => {
+              const sekretarisNode = draftData.children?.find(
+                (c) => c.kategoriJabatan === "PENDUKUNG"
+              );
+              if (!sekretarisNode) return null;
+
+              return (
+                /* KUNCI 2: ELEVASI SEKRETARIS TETAP DI ATAS
+                  Kita kunci posisi top Sekretaris di 190px agar dia menggantung tinggi di atas,
+                  sementara barisan Kabid/Kabag meluncur jauh ke bawah.
+                */
+                <div className="absolute left-1/2 top-[190px] flex items-center z-20 origin-left">
+                  {/* Garis Horizontal Cabang */}
+                  <div className="w-[400px] h-[2px] bg-black absolute left-0"></div>
+                  
+                  {/* Kotak Kontainer Sekretariat */}
+                  <div className="ml-[400px] p-1 border-2 border-dashed border-amber-500 rounded-xl bg-amber-50/40 shadow-md">
+                    <CustomNodeEditor
+                      item={sekretarisNode}
+                      onUpdate={handleUpdate}
+                      onAdd={handleAddChild}
+                      onDeleteConfirm={(id, t) =>
+                        setDeleteModal({ show: true, id, title: t })
+                      }
+                      isEditMode={isEditMode}
+                      listPegawai={listPegawai}
+                      listEselon={listEselon}
+                      listFungsional={listFungsional}
+                      listPelaksana={listPelaksana}
+                    />
+
+                    {/* Anak Buah / Subbag Sekretaris */}
+                    {sekretarisNode.children && sekretarisNode.children.length > 0 && (
+                      <div className="mt-4 pt-4 border-t border-dashed border-amber-300 flex flex-col gap-2 items-center">
+                        {sekretarisNode.children.map((subbag) => (
+                          <div key={subbag.id} className="scale-90 origin-top">
+                            <CustomNodeEditor
+                              item={subbag}
+                              onUpdate={handleUpdate}
+                              onAdd={handleAddChild}
+                              onDeleteConfirm={(id, t) =>
+                                setDeleteModal({ show: true, id, title: t })
+                              }
+                              isEditMode={isEditMode}
+                              listPegawai={listPegawai}
+                              listEselon={listEselon}
+                              listFungsional={listFungsional}
+                              listPelaksana={listPelaksana}
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })()}
+
+            {/* Komponen Tree Library Utama */}
+            <Tree
+              lineWidth="2px"
+              lineColor="#000000"
+              lineStyle="solid"
+              label={
+                /* KUNCI 3: PADDING PENDORONG JALUR BAWAH
+                  Kita naikkan pb-[140px] menjadi pb-[240px]. Ini memaksa seluruh barisan 
+                  Kepala Bagian Teknis turun jauh ke bawah, menciptakan jarak vertikal yang sangat aman dari Sekretaris.
+                */
+                <div className="inline-block pb-[240px]">
+                  <CustomNodeEditor
+                    item={draftData}
+                    onUpdate={handleUpdate}
+                    onAdd={handleAddChild}
+                    onDeleteConfirm={(id, t) =>
+                      setDeleteModal({ show: true, id, title: t })
+                    }
+                    isEditMode={isEditMode}
+                    listPegawai={listPegawai}
+                    listEselon={listEselon}
+                    listFungsional={listFungsional}
+                    listPelaksana={listPelaksana}
+                  />
+                </div>
+              }
+            >
+              {/* Filter Anak buah bertipe TEKNIS */}
+              {[...(draftData.children || [])]
+                .filter((c) => c.kategoriJabatan !== "PENDUKUNG")
+                .map(renderNodes)}
+            </Tree>
+          </div>
         </div>
       </div>
       <div className="absolute inset-0 pointer-events-none opacity-[0.03] z-0 bg-[radial-gradient(#ffffff_1px,transparent_1px)] bg-[size:40px_40px]"></div>
@@ -392,5 +513,3 @@ const PetaJabatanEditor = () => {
 };
 
 export default PetaJabatanEditor;
-
-

@@ -71,6 +71,7 @@ export async function savePetaJabatan(opdId, treeData) {
             eselonId: null,
             fungsionalId: null,
             pelaksanaId: null,
+            kategoriJabatan: node.kategoriJabatan
           };
 
           // 2. Isi field sesuai logika jenisJabatan

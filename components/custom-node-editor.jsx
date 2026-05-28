@@ -60,6 +60,8 @@ const CustomNodeEditor = ({
 }) => {
 
   const listKJ = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17]
+
+  const kategoriOptions = ["TEKNIS", "PENDUKUNG"];
   
 
   const style = colors[item.level] || colors[1];
@@ -205,6 +207,18 @@ const CustomNodeEditor = ({
 
                 {renderSelectionJenjangJabatan()}
 
+              </div>
+              {/* === TAMBAHAN DROPDOWN KATEGORI JABATAN === */}
+              <div className="w-full mt-1">
+                <label className="text-[9px] text-gray-500 font-bold block">KATEGORI STRUKTUR:</label>
+                <select
+                  value={item.kategoriJabatan || "TEKNIS"}
+                  onChange={(e) => onUpdate(item.id, "kategoriJabatan", e.target.value)}
+                  className="w-full bg-white border text-black border-black text-[10px] font-bold py-1 px-2 rounded uppercase outline-none cursor-pointer"
+                >
+                  <option value="TEKNIS">TEKNIS (Bidang / Seksi)</option>
+                  <option value="PENDUKUNG">PENDUKUNG (Sekretariat)</option>
+                </select>
               </div>
               </div>
             ) : (
