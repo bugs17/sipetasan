@@ -68,6 +68,8 @@ const PetaJabatanEditor = () => {
     level: 1,
     b: 1,
     abk: 1,
+    kategoriJabatan:"TEKNIS",
+    statusJabatan: "definitif",
     children: [],
   });
   const [draftData, setDraftData] = useState(dataHirarki);
@@ -144,6 +146,8 @@ const PetaJabatanEditor = () => {
           kJ: 0,
           b: 0,
           abk: 1,
+          kategoriJabatan:"TEKNIS",
+          statusJabatan: "definitif",
           children: [],
         };
         return { ...node, children: [...(node.children || []), newNode] };

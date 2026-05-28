@@ -232,12 +232,10 @@ const CustomNodeEditor = ({
               </div>
               </div>
             ) : (
-              <div className="flex flex-row items-center">
-                {item.statusJabatan === "plt" && (
-                  <span className="font-bold text-black">Plt. </span>
-                )}
-                <span className="font-bold text-black uppercase">{item.jabatan}</span>
-              </div>
+              <span className="font-bold text-black">
+                {item.statusJabatan === "plt" && <span className="capitalize">Plt. </span>}
+                <span className="uppercase">{item.jabatan}</span>
+              </span>
             )}
           </div>
             {isEditMode && (
