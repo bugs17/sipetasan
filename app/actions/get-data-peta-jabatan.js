@@ -64,7 +64,8 @@ export async function getPetaJabatan(opdId) {
             b: j.pegawai.length,
             abk: totalABK,
             children: buildTree(j.id),
-            kategoriJabatan:j.kategoriJabatan
+            kategoriJabatan:j.kategoriJabatan,
+            statusJabatan: j.statusJabatan
           };
         });
     };

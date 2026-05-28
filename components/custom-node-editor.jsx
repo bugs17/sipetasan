@@ -181,6 +181,8 @@ const CustomNodeEditor = ({
           <div className="flex justify-center items-center p-4 border-b-2 border-black">
             {isEditMode ? (
               <div className="flex flex-col w-full gap-1">
+              
+
               <input
                 type="text"
                 value={item.jabatan}
@@ -188,6 +190,14 @@ const CustomNodeEditor = ({
                 className="w-full min-w-0 bg-transparent font-bold text-center text-black uppercase leading-tight outline-none overflow-wrap break-word text-ellipsis"
                 placeholder="NAMA JABATAN"
               />
+              <select
+                value={item.statusJabatan || "definitif"}
+                onChange={(e) => onUpdate(item.id, "statusJabatan", e.target.value)}
+                className="w-full bg-white border text-black border-black text-[10px] font-bold py-1 px-2 rounded uppercase outline-none cursor-pointer"
+              >
+                <option value="definitif">DEFINITIF</option>
+                <option value="plt">PLT</option>
+              </select>
               <div className="grid grid-cols-2 gap-2 justify-center w-full mt-1">
                 <select
                 value={item.jenisJabatan}
@@ -222,7 +232,12 @@ const CustomNodeEditor = ({
               </div>
               </div>
             ) : (
-              <span className="font-bold text-black">{item.jabatan}</span>
+              <div className="flex flex-row items-center">
+                {item.statusJabatan === "plt" && (
+                  <span className="font-bold text-black">Plt. </span>
+                )}
+                <span className="font-bold text-black uppercase">{item.jabatan}</span>
+              </div>
             )}
           </div>
             {isEditMode && (

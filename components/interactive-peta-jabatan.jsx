@@ -397,7 +397,7 @@ const PetaJabatanEditor = () => {
                   <div className="w-[400px] h-[2px] bg-black absolute left-0"></div>
                   
                   {/* Kotak Kontainer Sekretariat */}
-                  <div className="ml-[400px] p-1 border-2 border-dashed border-amber-500 rounded-xl bg-amber-50/40 shadow-md">
+                  <div className="ml-[400px] p-1">
                     <CustomNodeEditor
                       item={sekretarisNode}
                       onUpdate={handleUpdate}

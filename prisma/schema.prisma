@@ -59,6 +59,8 @@ model Jabatan {
   // Isinya nanti: "TEKNIS" (untuk Bidang/Seksi) atau "PENDUKUNG" (untuk Sekretariat/Subbagian)
   kategoriJabatan String @default("TEKNIS")
 
+  statusJabatan String @default("definitif") // "definitif" atau "plt"
+
   // --- TAMBAHAN HIRARKI ---
   parentId Int?
   parent   Jabatan?  @relation("JabatanHierarki", fields: [parentId], references: [id], onDelete: Cascade)
