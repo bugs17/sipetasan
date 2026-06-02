@@ -28,6 +28,7 @@ export const addOrUpdatePegawaiByAdminInduk = async (data) => {
           opdId: toIntOrNull(data.opdId),
           tanggalLahir: new Date(data.tanggalLahir),
           tempatLahir: data.tempatLahir,
+          statusPegawai:data.statusPegawai
         },
         include: {
           pendidikan: true,

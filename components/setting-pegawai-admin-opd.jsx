@@ -45,6 +45,7 @@ const SettingPegawaiAdminOpd = () => {
     tanggalLahir: "",
     pendidikanId: "",
     opdId: "",
+    statusPegawai:"PNS"
   });
   const [formDataKeluar, setFormDataKeluar] = useState({
     id: "",
@@ -54,6 +55,7 @@ const SettingPegawaiAdminOpd = () => {
     nip: "",
     opdId: "",
     jabatanId: "",
+    statusPegawai:"PNS"
   });
   const { userId, isLoaded } = useAuth();
 
@@ -106,6 +108,7 @@ const SettingPegawaiAdminOpd = () => {
       tanggalLahir: "",
       pendidikanId: "",
       opdId: "",
+      statusPegawai:"PNS"
     });
   };
 
@@ -256,10 +259,24 @@ const SettingPegawaiAdminOpd = () => {
                             {p.opd?.namaOpd || "Belum memiliki dinas"}
                           </span>
                         </div>
-                        <span className="text-[9px] w-fit px-2 py-0.5 rounded-md bg-white/5 text-gray-400 border border-white/5 uppercase font-black tracking-widest">
-                          {p.pendidikan?.namaPendidikan ||
-                            "Belum ada data pendidikan terakhir"}
-                        </span>
+
+                        <div className="flex flex-row gap-2 items-center">
+                          <span className="text-[9px] w-fit px-2 py-0.5 rounded-md bg-white/5 text-gray-400 border border-white/5 uppercase font-black tracking-widest">
+                            {p.pendidikan?.namaPendidikan ||
+                              "Belum ada data pendidikan terakhir"}
+                          </span>
+                          <span 
+                            className={`text-[9px] w-fit px-2 py-0.5 rounded-md border border-white/5 uppercase font-black tracking-widest ${
+                              p.statusPegawai?.toUpperCase() === "PPPK" 
+                                ? "bg-red-500/10 text-red-400" 
+                                : p.statusPegawai?.toUpperCase() === "PNS" 
+                                ? "bg-emerald-500/10 text-emerald-400" 
+                                : "bg-white/5 text-gray-400"
+                            }`}
+                          >
+                            {p.statusPegawai || "-"}
+                          </span>
+                        </div>
                       </div>
                     </td>
                     <td className="p-4 px-6 text-right">
@@ -279,6 +296,7 @@ const SettingPegawaiAdminOpd = () => {
                                 status: "",
                                 tanggalKeluar: "",
                                 jabatanId: p.jabatanId,
+                                statusPegawai:p.statusPegawai
                               });
                               setIsModalStatusOpen(true);
                             }}
@@ -297,6 +315,7 @@ const SettingPegawaiAdminOpd = () => {
                                 tempatLahir: p.tempatLahir,
                                 tanggalLahir: p.tanggalLahir,
                                 opdId: p.opdId,
+                                statusPegawai:p.statusPegawai
                               });
                               setIsModalOpen(true);
                             }}
@@ -377,6 +396,7 @@ const SettingPegawaiAdminOpd = () => {
             nama: "",
             nip: "",
             jabatanId: "",
+            statusPegawai:"PNS"
           });
           setIsModalStatusOpen(false);
         }}

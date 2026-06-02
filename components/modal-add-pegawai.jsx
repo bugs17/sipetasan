@@ -19,6 +19,17 @@ const ModalAddPegawai = ({
   isAdminOpd,
 }) => {
   if (!isModalOpen) return null;
+
+  const listStatusPegawai = [
+    {
+      id:1,
+      status:"PNS"
+    },
+    {
+      id:2,
+      status:"PPPK"
+    },
+  ]
   return (
     <div className="fixed inset-0 z-[999] backdrop-blur-md flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/40" onClick={closeModal} />
@@ -120,6 +131,27 @@ const ModalAddPegawai = ({
                 {pendidikan.map((j) => (
                   <option key={j.id} value={j.id}>
                     {j.namaPendidikan}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* status pegawai */}
+            <div className="space-y-1.5 ">
+              <label className="text-[9px] font-black text-gray-500 uppercase ml-1 tracking-widest flex items-center gap-2">
+                <GraduationCap size={10} /> Status Pegawai
+              </label>
+              <select
+                value={formData.statusPegawai || "PNS"}
+                onChange={(e) =>
+                  setFormData({ ...formData, statusPegawai: e.target.value })
+                }
+                className="w-full bg-white/[0.03] border border-white/10 rounded-2xl py-3 px-4 text-sm text-white focus:outline-none focus:border-[#6d28d9]/50 appearance-none"
+              >
+                <option value="">--Pilih status pegawai--</option>
+                {listStatusPegawai.map((s) => (
+                  <option key={s.id} value={s.status}>
+                    {s.status}
                   </option>
                 ))}
               </select>
